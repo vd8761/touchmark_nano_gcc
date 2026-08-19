@@ -22,7 +22,7 @@ export default function HeroHome() {
     const el = root.current;
     if (!el) return;
 
-    const targets = el.querySelectorAll(".hl > span, .hero-index, .hero-fade");
+    const targets = el.querySelectorAll(".hl > span, .hero-fade");
     // Explicit final values, not clearProps: "all" - that would also strip the
     // inline colour off the emphasised line.
     const reveal = () => gsap.set(targets, { opacity: 1, y: 0, yPercent: 0, scaleX: 1 });
@@ -39,8 +39,7 @@ export default function HeroHome() {
     const ctx = gsap.context(() => {
       const tl = gsap
         .timeline({ defaults: { ease: "expo.out" }, delay: 0.15 })
-        .from(".hero-index", { opacity: 0, duration: 0.8 })
-        .from(".hl > span", { yPercent: 106, duration: 1.3, stagger: 0.08 }, "-=0.45")
+        .from(".hl > span", { yPercent: 106, duration: 1.3, stagger: 0.08 })
         .from(".hero-fade", { opacity: 0, y: 20, duration: 0.9, stagger: 0.09 }, "-=0.9");
 
       // Belt and braces: if the ticker never advanced, show everything anyway.
@@ -59,42 +58,42 @@ export default function HeroHome() {
           vh as well as vw, so the hero never runs off the bottom of the screen. */}
       <Stage art={ART.network} priority height="100svh" vignette className="stage-hero">
         <div className="page hero-inner">
-          <div className="index hero-index">
-            <b>Touchmark Nano GCC Hub</b>
-            <span>Tamil Nadu, India</span>
-          </div>
-
-          <h1 className="display d-hero">
-            {LINES.map((l) => (
-              <span className="hl" key={l.text}>
-                <span
-                  style={{
-                    fontStyle: l.em ? "italic" : undefined,
-                    color: l.em ? "var(--proven)" : undefined,
-                  }}
-                >
-                  {l.text}
+          {/* Headline and supporting column sit side by side and share one
+              baseline at the foot of the stage; on a phone they stack in
+              reading order. The specs strip closes the frame underneath. */}
+          <div className="hero-main">
+            <h1 className="display d-hero hero-head">
+              {LINES.map((l) => (
+                <span className="hl" key={l.text}>
+                  <span
+                    style={{
+                      fontStyle: l.em ? "italic" : undefined,
+                      color: l.em ? "var(--proven)" : undefined,
+                    }}
+                  >
+                    {l.text}
+                  </span>
                 </span>
-              </span>
-            ))}
-          </h1>
+              ))}
+            </h1>
 
-          <div className="hero-foot hero-fade">
-            <p className="body hero-copy">
-              Touchmark Nano GCC Hub helps global technology companies build agile capability in
-              India - without the cost, complexity or commitment of a traditional Global Capability
-              Center.
-            </p>
+            <div className="hero-side hero-fade">
+              <p className="body hero-copy">
+                Touchmark Nano GCC Hub helps global technology companies build agile capability in
+                India - without the cost, complexity or commitment of a traditional Global
+                Capability Center.
+              </p>
 
-            <CapabilityRotator />
+              <CapabilityRotator />
 
-            <div className="acts hero-acts">
-              <Link href="/nano-gcc-model" className="act primary">
-                Explore the model
-              </Link>
-              <Link href="/contact" className="act">
-                Partner with us
-              </Link>
+              <div className="acts hero-acts">
+                <Link href="/nano-gcc-model" className="act primary">
+                  Explore the model
+                </Link>
+                <Link href="/contact" className="act">
+                  Partner with us
+                </Link>
+              </div>
             </div>
           </div>
 

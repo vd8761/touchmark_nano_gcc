@@ -50,18 +50,7 @@ export default function SiteFooter() {
           </div>
         </div>
 
-        {/*
-          unDraw's licence asks for nothing, but naming the source is honest and
-          costs a line. The disclaimer is gone with the photography it was for -
-          the site no longer pictures any real organization.
-        */}
-        <div className="credits">
-          Illustrations from <a href="https://undraw.co">unDraw</a>, recoloured to the Touchmark
-          palette. Free for commercial use under the{" "}
-          <a href="https://undraw.co/license">unDraw licence</a>.
-        </div>
-
-<div className="foot-bot">
+        <div className="foot-bot">
           <span>&copy; {new Date().getFullYear()} Touchmark Nano GCC Hub</span>
           <span className="foot-legal">
             {FOOTER_LINKS.legal.map((l) => (

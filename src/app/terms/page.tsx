@@ -252,7 +252,7 @@ const CLAUSES: Clause[] = [
         </p>
         <p>
           Third-party names, logos and marks shown on the site remain the property of their owners.
-          Illustrations are used under the licences credited in the site footer.
+          Illustrations are used under the licences credited alongside them.
         </p>
         <p>
           Intellectual property created inside a Nano GCC engagement is dealt with in the signed

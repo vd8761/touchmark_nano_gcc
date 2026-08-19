@@ -45,13 +45,17 @@ export default function SiteHeader() {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header className={`head${solid ? " solid" : ""}${overImage ? " over-image" : ""}`}>
+    <header
+      className={`head${solid ? " solid" : ""}${overImage ? " over-image" : ""}${
+        open ? " nav-open" : ""
+      }`}
+    >
       <div className="head-in">
         <Link href="/" className="brand" aria-label="Touchmark Nano GCC Hub - home">
           {/* The bar is white type only while it sits on a navy stage; once it
-              goes solid over the light page the colour lockup is the legible
-              one. */}
-          <Logo variant={overImage && !solid ? "white" : "color"} />
+              goes solid over the light page - or the index panel puts a light
+              surface behind it - the colour lockup is the legible one. */}
+          <Logo variant={overImage && !solid && !open ? "white" : "color"} />
           <span className="brand-txt">Nano GCC Hub</span>
         </Link>
 
@@ -86,6 +90,13 @@ export default function SiteHeader() {
               </Link>
             )
           )}
+
+          {/* The header CTA is hidden on small screens, so Contact would
+              otherwise be unreachable from the bar. It rides at the foot of
+              the open index instead. */}
+          <Link href="/contact" className="act primary nav-cta">
+            Start a conversation
+          </Link>
         </nav>
 
         <Link href="/contact" className="act primary head-cta" style={{ padding: "10px 16px" }}>

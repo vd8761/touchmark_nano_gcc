@@ -207,6 +207,16 @@ a { color: inherit; text-decoration: none; }
 }
 @media (max-width: 860px) {
   .stage-img img { object-position: 50% 78%; }
+  /* On a phone the hero type is centred in the stage, so the artwork rides up
+     into the head of the frame instead of hiding under it - otherwise the top
+     third is flat navy. The scrim is re-aimed at the middle to keep the
+     headline off it. */
+  .stage-hero .stage-img { inset: -4% 0 auto; height: 62%; }
+  .stage-hero .stage-img img { object-position: 50% 46%; padding: clamp(14px, 5vw, 44px); }
+  .stage-hero::before {
+    background:
+      radial-gradient(140% 62% at 50% 62%, rgba(var(--scrim), 0.94) 0%, rgba(var(--scrim), 0.66) 46%, rgba(var(--scrim), 0.18) 78%, rgba(var(--scrim), 0) 100%);
+  }
 }
 .stage::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
@@ -236,15 +246,23 @@ a { color: inherit; text-decoration: none; }
 .hero-inner {
   min-height: 100svh; display: flex; flex-direction: column;
   padding-top: clamp(84px, 11vh, 118px); padding-bottom: clamp(20px, 3vh, 40px);
-  gap: clamp(10px, 1.6vh, 22px);
+  gap: clamp(14px, 2.4vh, 34px);
 }
-.hero-index { margin-bottom: auto; }
-.hero-foot {
-  display: grid; grid-template-columns: minmax(0, 1.1fr) auto minmax(0, auto);
-  gap: clamp(18px, 3vw, 54px); align-items: end;
+/* The eyebrow that used to hold the top of the frame is gone, so the headline
+   block carries the composition: it is pushed to the foot of the stage and set
+   against the supporting column rather than stacked above it. */
+.hero-main {
+  margin-top: auto;
+  display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr);
+  gap: clamp(20px, 3.4vw, 60px); align-items: end;
 }
-.hero-copy { max-width: 44ch; font-size: clamp(0.88rem, 1vw, 1rem); }
-.hero-acts { margin-top: 0; }
+.hero-head { margin: 0; }
+.hero-side {
+  display: flex; flex-direction: column; gap: clamp(14px, 2.2vh, 26px);
+  padding-bottom: 0.24em;
+}
+.hero-copy { max-width: 46ch; font-size: clamp(0.88rem, 1vw, 1rem); }
+.hero-acts { margin-top: clamp(2px, 0.6vh, 10px); }
 .hero-specs { margin-top: clamp(14px, 2.2vh, 30px); }
 
 .hl { display: block; overflow: hidden; padding-bottom: 0.18em; margin-bottom: -0.14em; }
@@ -418,6 +436,15 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
   background: var(--seed); color: var(--on-accent); border: 1px solid var(--seed); padding: 14px 22px;
 }
 .act.primary:hover { background: var(--proven); border-color: var(--proven); color: var(--on-accent); }
+/* On navy the pale seed tint read as a white slab punched out of the band.
+   The primary action takes the amber accent there instead, so it stays a
+   Touchmark colour and matches the emphasised line it sits under. */
+.on-ink .act.primary, .over .act.primary, .foot .act.primary {
+  background: #FCA442; border-color: #FCA442; color: #0D364F;
+}
+.on-ink .act.primary:hover, .over .act.primary:hover, .foot .act.primary:hover {
+  background: #FFBE76; border-color: #FFBE76; color: #0D364F;
+}
 .acts { display: flex; flex-wrap: wrap; gap: 12px 30px; margin-top: 34px; align-items: center; }
 
 /* ---------- header ---------- */
@@ -477,20 +504,48 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
   font-family: var(--mono); font-weight: 700; font-size: 0.62rem; letter-spacing: 0.14em;
   text-transform: uppercase; padding: 8px 13px; cursor: pointer;
 }
+/* Only ever shown inside the small-screen index panel. */
+.nav-cta { display: none; }
+
 @media (max-width: 1080px) {
   .nav {
     position: fixed; inset: 68px 0 auto; background: var(--paper-2);
     border-bottom: 1px solid var(--rule); flex-direction: column; align-items: stretch;
-    gap: 0; padding: 10px var(--gutter) 24px; clip-path: inset(0 0 100% 0);
-    transition: clip-path 0.5s var(--ease); max-height: calc(100dvh - 68px); overflow-y: auto;
+    gap: 0; padding: 6px var(--gutter) calc(28px + env(safe-area-inset-bottom, 0px));
+    clip-path: inset(0 0 100% 0); visibility: hidden;
+    transition: clip-path 0.5s var(--ease), visibility 0.5s var(--ease);
+    max-height: calc(100dvh - 68px); overflow-y: auto; overscroll-behavior: contain;
+    /* The panel is a light surface whatever the page behind it opens on. The
+       bar's white-on-navy colour would otherwise be inherited straight into
+       it and the links would read as white type on cream. */
+    color: var(--ink);
   }
-  .nav.open { clip-path: inset(0 0 0 0); }
-  .nav a { padding: 13px 0; font-size: 0.76rem; opacity: 1; border-bottom: 1px solid var(--rule); }
+  .nav.open { clip-path: inset(0 0 0 0); visibility: visible; }
+  .nav a {
+    padding: 14px 0; font-size: 0.76rem; opacity: 1; color: var(--ink);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav a.on { color: var(--seed); }
   .nav a::after { display: none; }
   .has-sub { display: block; }
-  .sub { position: static; opacity: 1; visibility: visible; transform: none; border: 0; padding: 0 0 0 18px; background: none; }
+  .sub {
+    position: static; opacity: 1; visibility: visible; transform: none;
+    border: 0; padding: 0 0 0 18px; background: none; min-width: 0;
+  }
+  .sub a { font-size: 0.72rem; color: var(--ink-2); }
+  .nav a.nav-cta {
+    display: inline-flex; justify-content: center; align-self: stretch;
+    margin-top: 22px; padding: 15px 22px; color: var(--on-accent);
+    border: 1px solid var(--seed);
+  }
   .burger { display: block; }
   .head-cta { display: none; }
+  /* An open panel makes the whole bar part of that light surface, so the logo
+     and the Close control take the ink colour with it. */
+  .head.nav-open {
+    background: var(--paper-2); border-bottom-color: transparent;
+  }
+  .head.over-image.nav-open:not(.solid) { color: var(--ink); }
 }
 
 .progress {
@@ -720,15 +775,8 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
 }
 .foot a { display: block; padding: 5px 0; font-size: 0.88rem; color: var(--ink-2); transition: color 0.3s var(--ease); }
 .foot a:hover { color: var(--proven); }
-.credits {
-  border-top: 1px solid var(--rule); margin-top: 42px; padding-top: 18px;
-  font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.01em;
-  color: var(--ink-faint); line-height: 1.9;
-}
-.credits a { display: inline; padding: 0; font-size: inherit; color: inherit; border-bottom: 1px solid var(--rule-strong); }
-.credits a:hover { color: var(--proven); }
 .foot-bot {
-  border-top: 1px solid var(--rule); margin-top: 18px; padding-top: 18px;
+  border-top: 1px solid var(--rule); margin-top: 42px; padding-top: 18px;
   display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
   font-family: var(--mono); font-weight: 600; font-size: 0.62rem; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--ink-faint);
@@ -739,14 +787,25 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
    ========================================================================== */
 
 @media (max-width: 1080px) {
-  .hero-foot { grid-template-columns: minmax(0, 1fr) auto; }
-  .hero-acts { grid-column: 1 / -1; }
+  .hero-main { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(18px, 3vw, 34px); }
+}
+
+@media (max-width: 860px) {
+  /* One column below the tablet break: headline, then the copy and rotator,
+     then the actions - reading order, not a squeezed two-up.
+
+     The eyebrow used to hold the top of the frame; with it gone the artwork
+     takes that job (see the stage rules below) and the type still rides at the
+     foot of the stage. */
+  .hero-main { grid-template-columns: 1fr; align-items: start; gap: 18px; }
+  .hero-side { padding-bottom: 0; }
 }
 
 @media (max-width: 760px) {
-  .hero-inner { padding-top: 78px; padding-bottom: 14px; gap: 8px; }
-  .hero-foot { grid-template-columns: 1fr; align-items: start; gap: 14px; }
-  .hero-acts { grid-column: auto; margin-top: 2px; }
+  .hero-inner { padding-top: 78px; padding-bottom: 14px; gap: 12px; }
+  .hero-main { gap: 14px; }
+  .hero-side { gap: 12px; }
+  .hero-acts { margin-top: 2px; }
   .hero-copy { font-size: 0.86rem; max-width: none; }
   .d-hero { font-size: clamp(1.7rem, 7.2vw, 2.4rem); }
   .rotator { min-width: 0; gap: 7px; }
