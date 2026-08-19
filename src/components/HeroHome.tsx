@@ -58,9 +58,11 @@ export default function HeroHome() {
           vh as well as vw, so the hero never runs off the bottom of the screen. */}
       <Stage art={ART.network} priority height="100svh" vignette className="stage-hero">
         <div className="page hero-inner">
-          {/* Headline and supporting column sit side by side and share one
-              baseline at the foot of the stage; on a phone they stack in
-              reading order. The specs strip closes the frame underneath. */}
+          {/* Laid out as a drawing sheet: the headline is the drawing, ruled
+              off from the copy and actions beneath it, and the unit facts run
+              down a narrow title-block margin to its right. Grid areas carry
+              the arrangement, so the phone can re-order the same six pieces
+              into a single column without any of them being duplicated. */}
           <div className="hero-main">
             <h1 className="display d-hero hero-head">
               {LINES.map((l) => (
@@ -77,44 +79,46 @@ export default function HeroHome() {
               ))}
             </h1>
 
-            <div className="hero-side hero-fade">
-              <p className="body hero-copy">
-                Touchmark Nano GCC Hub helps global technology companies build agile capability in
-                India - without the cost, complexity or commitment of a traditional Global
-                Capability Center.
-              </p>
+            <span className="hero-rule hero-fade" aria-hidden />
 
-              <CapabilityRotator />
+            <p className="body hero-copy hero-fade">
+              Touchmark Nano GCC Hub helps global technology companies build agile capability in
+              India - without the cost, complexity or commitment of a traditional Global Capability
+              Center.
+            </p>
 
-              <div className="acts hero-acts">
-                <Link href="/nano-gcc-model" className="act primary">
-                  Explore the model
-                </Link>
-                <Link href="/contact" className="act">
-                  Partner with us
-                </Link>
+            <div className="acts hero-acts hero-fade">
+              <Link href="/nano-gcc-model" className="act primary">
+                Explore the model
+              </Link>
+              <Link href="/contact" className="act">
+                Partner with us
+              </Link>
+            </div>
+
+            <div className="specs hero-meta hero-fade">
+              <div className="spec">
+                Unit size
+                <b>
+                  <Counter to={5} />–<Counter to={100} duration={2} />
+                </b>
+              </div>
+              <div className="spec">
+                Focus
+                <b>One goal per unit</b>
+              </div>
+              <div className="spec">
+                Principle
+                <b>Agility over scale</b>
+              </div>
+              <div className="spec">
+                Origin
+                <b>Tamil Nadu</b>
               </div>
             </div>
-          </div>
 
-          <div className="specs hero-fade hero-specs">
-            <div className="spec">
-              Unit size
-              <b>
-                <Counter to={5} />–<Counter to={100} duration={2} />
-              </b>
-            </div>
-            <div className="spec">
-              Focus
-              <b>One goal per unit</b>
-            </div>
-            <div className="spec">
-              Principle
-              <b>Agility over scale</b>
-            </div>
-            <div className="spec">
-              Origin
-              <b>Tamil Nadu</b>
+            <div className="hero-rot hero-fade">
+              <CapabilityRotator />
             </div>
           </div>
         </div>

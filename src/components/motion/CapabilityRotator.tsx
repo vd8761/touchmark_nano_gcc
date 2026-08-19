@@ -65,7 +65,9 @@ export default function CapabilityRotator() {
 
   return (
     <div className="rotator" ref={root} aria-hidden>
-      <span className="rotator-label">Nano GCC units are built for</span>
+      {/* Non-breaking space: in the hero's narrow title-block margin the label
+          wraps, and "built / for" is an ugly break to leave it on. */}
+      <span className="rotator-label">Nano GCC units are built&nbsp;for</span>
       <span className="rotator-window">
         {ITEMS.map((t) => (
           <span className="rotator-item" key={t}>

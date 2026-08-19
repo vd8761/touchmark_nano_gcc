@@ -205,7 +205,7 @@ a { color: inherit; text-decoration: none; }
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background: radial-gradient(90% 80% at 20% 40%, rgba(var(--scrim), 0.97) 0%, rgba(var(--scrim), 0.62) 45%, rgba(var(--scrim), 0.18) 75%);
 }
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .stage-img img { object-position: 50% 78%; }
   /* On a phone the hero type is centred in the stage, so the artwork rides up
      into the head of the frame instead of hiding under it - otherwise the top
@@ -245,25 +245,47 @@ a { color: inherit; text-decoration: none; }
 
 .hero-inner {
   min-height: 100svh; display: flex; flex-direction: column;
-  padding-top: clamp(84px, 11vh, 118px); padding-bottom: clamp(20px, 3vh, 40px);
-  gap: clamp(14px, 2.4vh, 34px);
+  padding-top: clamp(84px, 11vh, 118px); padding-bottom: clamp(24px, 4vh, 52px);
 }
-/* The eyebrow that used to hold the top of the frame is gone, so the headline
-   block carries the composition: it is pushed to the foot of the stage and set
-   against the supporting column rather than stacked above it. */
+
+/* A wide type column with a narrow spec margin beside it - the way a drawing
+   sheet carries its title block. The headline runs at the width it wants, a
+   rule closes it, and the copy and actions sit under that rule; the unit facts
+   stack down the margin and both columns finish on the same baseline. The
+   empty quarter above the margin is deliberate: that is where the artwork
+   reads through. */
 .hero-main {
   margin-top: auto;
-  display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr);
-  gap: clamp(20px, 3.4vw, 60px); align-items: end;
+  display: grid;
+  /* The margin is deliberately narrow: any wider and the headline starts
+     wrapping at laptop widths. */
+  grid-template-columns: minmax(0, 1fr) clamp(186px, 20vw, 272px);
+  column-gap: clamp(24px, 4vw, 76px);
+  grid-template-areas:
+    "head meta"
+    "rule meta"
+    "copy meta"
+    "acts rot";
+  align-items: start;
 }
-.hero-head { margin: 0; }
-.hero-side {
-  display: flex; flex-direction: column; gap: clamp(14px, 2.2vh, 26px);
-  padding-bottom: 0.24em;
+.hero-head { grid-area: head; margin: 0; }
+.hero-rule {
+  grid-area: rule; display: block; height: 1px; background: var(--rule-strong);
+  margin: clamp(20px, 3.2vh, 42px) 0 clamp(16px, 2.4vh, 30px);
 }
-.hero-copy { max-width: 46ch; font-size: clamp(0.88rem, 1vw, 1rem); }
-.hero-acts { margin-top: clamp(2px, 0.6vh, 10px); }
-.hero-specs { margin-top: clamp(14px, 2.2vh, 30px); }
+.hero-copy { grid-area: copy; max-width: 54ch; font-size: clamp(0.88rem, 1vw, 1rem); }
+.hero-main .hero-acts { grid-area: acts; align-self: end; margin-top: clamp(20px, 3.2vh, 40px); }
+/* The facts read as a title block, not as four cards: one per line, tight. */
+.hero-main .hero-meta {
+  grid-area: meta; align-self: end;
+  grid-template-columns: 1fr; gap: clamp(12px, 1.8vh, 22px);
+}
+.hero-meta .spec b { font-size: 1.05rem; margin-top: 5px; }
+.hero-rot { grid-area: rot; align-self: end; margin-top: clamp(20px, 3.2vh, 40px); }
+/* The rotator now lives in the narrow margin, so it takes the column's width
+   rather than reserving its own. */
+.hero-rot .rotator { min-width: 0; }
+.hero-rot .rotator-window { font-size: clamp(0.9rem, 1.05vw, 1.05rem); }
 
 .hl { display: block; overflow: hidden; padding-bottom: 0.18em; margin-bottom: -0.14em; }
 .hl > span { display: block; }
@@ -527,12 +549,18 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
   }
   .nav a.on { color: var(--seed); }
   .nav a::after { display: none; }
+  /* Every row in the panel is one full-width band with a rule under it. The
+     parent of a sub-menu is an inline link inside its own wrapper, so without
+     this its rule stopped at the end of the word while the children's ran the
+     full width - the three Ecosystem rows never lined up. The children indent
+     their text, not their rule. */
   .has-sub { display: block; }
+  .has-sub > a { display: block; }
   .sub {
     position: static; opacity: 1; visibility: visible; transform: none;
-    border: 0; padding: 0 0 0 18px; background: none; min-width: 0;
+    border: 0; padding: 0; background: none; min-width: 0;
   }
-  .sub a { font-size: 0.72rem; color: var(--ink-2); }
+  .sub a { font-size: 0.72rem; color: var(--ink-2); padding-left: 20px; }
   .nav a.nav-cta {
     display: inline-flex; justify-content: center; align-self: stretch;
     margin-top: 22px; padding: 15px 22px; color: var(--on-accent);
@@ -786,33 +814,44 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
    Small screens
    ========================================================================== */
 
-@media (max-width: 1080px) {
-  .hero-main { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(18px, 3vw, 34px); }
-}
-
-@media (max-width: 860px) {
-  /* One column below the tablet break: headline, then the copy and rotator,
-     then the actions - reading order, not a squeezed two-up.
+/* 900px is where the headline stops fitting beside the margin, and it is the
+   break the rest of the site's grids already use. */
+@media (max-width: 900px) {
+  /* The spec margin has nowhere to go on a phone, so the sheet unfolds into
+     one column: headline, rule, copy, then what a unit is for, the actions,
+     and the facts closing the block.
 
      The eyebrow used to hold the top of the frame; with it gone the artwork
      takes that job (see the stage rules below) and the type still rides at the
      foot of the stage. */
-  .hero-main { grid-template-columns: 1fr; align-items: start; gap: 18px; }
-  .hero-side { padding-bottom: 0; }
+  .hero-main {
+    grid-template-columns: 1fr;
+    grid-template-areas: "head" "rule" "copy" "rot" "acts" "meta";
+    column-gap: 0;
+  }
+  .hero-main .hero-acts, .hero-main .hero-meta, .hero-rot { align-self: auto; }
+  .hero-rot { margin-top: clamp(16px, 2.6vh, 26px); }
+  .hero-main .hero-acts { margin-top: clamp(16px, 2.6vh, 26px); }
+  .hero-main .hero-meta {
+    margin-top: clamp(18px, 3vh, 32px);
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+    gap: 14px clamp(14px, 2.4vw, 36px);
+  }
+  .hero-rule { margin: clamp(16px, 2.6vh, 30px) 0 clamp(14px, 2vh, 22px); }
+  .hero-rot .rotator-window { font-size: clamp(0.95rem, 3.6vw, 1.1rem); }
 }
 
 @media (max-width: 760px) {
-  .hero-inner { padding-top: 78px; padding-bottom: 14px; gap: 12px; }
-  .hero-main { gap: 14px; }
-  .hero-side { gap: 12px; }
-  .hero-acts { margin-top: 2px; }
+  .hero-inner { padding-top: 78px; padding-bottom: 18px; }
   .hero-copy { font-size: 0.86rem; max-width: none; }
   .d-hero { font-size: clamp(1.7rem, 7.2vw, 2.4rem); }
   .rotator { min-width: 0; gap: 7px; }
   .rotator-window { font-size: clamp(0.95rem, 3.6vw, 1.1rem); height: calc(2 * 1.3em + 0.36em); }
-  .hero-specs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
-  .hero-specs .spec:nth-child(n + 3) { display: none; }
-  .hero-specs .spec b { font-size: 1.05rem; margin-top: 4px; }
+  /* Two facts on a phone; Principle and Origin are the ones the page repeats
+     further down, so they are the ones that go. */
+  .hero-main .hero-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .hero-meta .spec:nth-child(n + 3) { display: none; }
+  .hero-meta .spec b { font-size: 1.05rem; margin-top: 4px; }
 }
 
 @media (max-width: 700px) {
@@ -836,15 +875,17 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
 
 @media (max-width: 420px) {
   .specs { grid-template-columns: 1fr; }
-  .hero-specs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero-main .hero-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .head-in { gap: 12px; }
   .brand-txt { display: none; }
   .brand-logo { height: 22px; }
 }
 
+/* A landscape phone or a short laptop: the sheet has to give up its air. */
 @media (max-height: 700px) and (max-width: 1080px) {
-  .hero-inner { padding-top: 72px; gap: 6px; }
-  .hero-specs { margin-top: 6px; }
+  .hero-inner { padding-top: 72px; }
+  .hero-rule { margin: 14px 0 12px; }
+  .hero-main .hero-acts, .hero-rot, .hero-main .hero-meta { margin-top: 12px; }
 }
 
 /* ---------- reduced motion ---------- */
