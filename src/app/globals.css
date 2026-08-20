@@ -704,6 +704,175 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
   text-transform: uppercase; color: var(--ink-faint); margin-bottom: 18px;
 }
 
+/* ---------- membership: tabs, package, receipt ---------- */
+
+/* The tab strip reuses .sim-preset's chip language so the form doesn't
+   introduce a second button vocabulary. */
+.mtabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+
+.field-error {
+  display: block; margin-top: 7px;
+  font-family: var(--mono); font-weight: 600; font-size: 0.62rem; letter-spacing: 0.08em;
+  color: var(--proven);
+}
+.field input[aria-invalid="true"],
+.field select[aria-invalid="true"],
+.field textarea[aria-invalid="true"] { border-color: var(--proven); }
+
+/* Honeypot. Off-screen rather than display:none - some bots skip hidden
+   fields, and screen readers are told to ignore it via aria-hidden. */
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.form-note {
+  border: 1px solid var(--proven); background: rgba(158, 72, 10, 0.06);
+  padding: 15px 17px; margin-bottom: 22px;
+  font-size: 0.92rem; line-height: 1.65; color: var(--ink-2);
+}
+.form-note strong { color: var(--proven); }
+
+.pkg {
+  background: var(--paper-2); border: 1px solid var(--rule);
+  padding: clamp(20px, 2.6vw, 28px); margin-bottom: 26px;
+}
+.pkg-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px; }
+.pkg-name {
+  font-family: var(--mono); font-weight: 700; font-size: 0.62rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint);
+}
+.pkg-price { font-family: var(--display); font-weight: 600; font-size: clamp(1.7rem, 3vw, 2.3rem); color: var(--ink); line-height: 1; }
+.pkg-price small { font-family: var(--mono); font-weight: 600; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin-left: 8px; }
+.pkg-list { list-style: none; margin: 20px 0 0; padding: 0; }
+.pkg-list li {
+  position: relative; padding: 8px 0 8px 22px; font-size: 0.95rem; line-height: 1.6;
+  color: var(--ink-2); border-top: 1px solid var(--rule);
+}
+.pkg-list li::before { content: ""; position: absolute; left: 2px; top: 17px; width: 7px; height: 7px; background: var(--seed); }
+
+/* Receipt / status card. `.rc.wait` and `.rc.stop` only recolour the accent -
+   a pending payment must not look like an error. */
+.rc { border: 1px solid var(--seed); background: rgba(15, 94, 134, 0.05); padding: clamp(22px, 3vw, 32px); }
+.rc.wait { border-color: var(--rule-strong); background: var(--paper-2); }
+.rc.stop { border-color: var(--proven); background: rgba(158, 72, 10, 0.05); }
+.rc-badge {
+  display: inline-block; font-family: var(--mono); font-weight: 700; font-size: 0.6rem;
+  letter-spacing: 0.14em; text-transform: uppercase; padding: 6px 11px;
+  background: var(--seed); color: var(--on-accent);
+}
+.rc.wait .rc-badge { background: var(--ink-soft); }
+.rc.stop .rc-badge { background: var(--proven); }
+.rc-title { font-family: var(--display); font-weight: 600; font-size: clamp(1.25rem, 2.4vw, 1.7rem); color: var(--ink); margin: 16px 0 10px; line-height: 1.25; }
+.rc-lede { font-size: 1rem; line-height: 1.7; color: var(--ink-2); margin: 0; }
+
+.rc-rows { margin: 24px 0 0; }
+.rc-row {
+  display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 14px; padding: 11px 0; border-top: 1px solid var(--rule);
+}
+.rc-row dt {
+  font-family: var(--mono); font-weight: 700; font-size: 0.6rem;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint);
+}
+.rc-row dd { margin: 0; font-size: 0.95rem; color: var(--ink); word-break: break-word; }
+.rc-row dd.mono { font-family: var(--mono); letter-spacing: 0.02em; }
+@media (max-width: 560px) { .rc-row { grid-template-columns: 1fr; gap: 4px; } }
+
+/* Spinner on a submitting button. */
+.act[data-busy="true"] { opacity: 0.72; pointer-events: none; }
+.spin {
+  display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid currentColor; border-top-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation-duration: 2.4s; } }
+
+/* ---------- admin panel ---------- */
+
+/* Intentionally plainer than the marketing pages: this is a working tool, and
+   the editorial motion and scale would only get in the way of scanning rows. */
+.adm { min-height: 100vh; background: var(--paper-2); }
+.adm-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 26px;
+  background: var(--panel); padding: 14px clamp(18px, 3vw, 34px);
+}
+.adm-brand { font-family: var(--mono); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: #FFFFFF; margin-right: 12px; }
+.adm-bar nav { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.adm-bar nav a {
+  font-family: var(--mono); font-weight: 600; font-size: 0.64rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(255, 255, 255, 0.68); padding: 4px 0;
+  border-bottom: 1px solid transparent;
+}
+.adm-bar nav a:hover { color: #FFFFFF; }
+.adm-bar nav a.on { color: #FFFFFF; border-bottom-color: #54B9F2; }
+.adm-who { margin-left: auto; display: flex; align-items: center; gap: 14px; font-size: 0.78rem; color: rgba(255, 255, 255, 0.68); }
+.adm-who button {
+  font-family: var(--mono); font-weight: 700; font-size: 0.6rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #FFFFFF; background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35); padding: 7px 12px; cursor: pointer;
+}
+.adm-who button:hover { border-color: #54B9F2; color: #54B9F2; }
+
+.adm-main { padding: clamp(24px, 4vw, 44px) clamp(18px, 3vw, 34px); }
+.adm-h1 { font-family: var(--display); font-weight: 600; font-size: clamp(1.4rem, 3vw, 2rem); color: var(--ink); margin: 0 0 6px; }
+.adm-sub { font-size: 0.92rem; color: var(--ink-soft); margin: 0 0 28px; }
+
+.adm-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 34px; }
+.adm-stat { background: var(--paper); border: 1px solid var(--rule); padding: 20px 22px; }
+.adm-stat .k { font-family: var(--mono); font-weight: 700; font-size: 0.58rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-faint); }
+.adm-stat .v { font-family: var(--display); font-weight: 600; font-size: clamp(1.5rem, 3vw, 2rem); color: var(--ink); margin-top: 8px; line-height: 1.1; }
+.adm-stat .m { font-size: 0.78rem; color: var(--ink-soft); margin-top: 5px; }
+.adm-stat.alert { border-color: var(--proven); }
+.adm-stat.alert .v { color: var(--proven); }
+
+/* Wide tables scroll inside their own box - the page body never does. */
+.adm-scroll { overflow-x: auto; background: var(--paper); border: 1px solid var(--rule); }
+.adm-table { width: 100%; border-collapse: collapse; min-width: 780px; }
+.adm-table th {
+  text-align: left; padding: 12px 16px; background: var(--paper-3);
+  font-family: var(--mono); font-weight: 700; font-size: 0.58rem;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft);
+  border-bottom: 1px solid var(--rule); white-space: nowrap;
+}
+.adm-table td { padding: 13px 16px; border-bottom: 1px solid var(--rule); font-size: 0.88rem; color: var(--ink-2); vertical-align: top; }
+.adm-table tr:last-child td { border-bottom: 0; }
+.adm-table tr:hover td { background: var(--paper-2); }
+.adm-table td.mono { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.02em; white-space: nowrap; }
+.adm-table td.wrap { min-width: 240px; }
+
+.pill {
+  display: inline-block; font-family: var(--mono); font-weight: 700; font-size: 0.56rem;
+  letter-spacing: 0.11em; text-transform: uppercase; padding: 4px 9px;
+  border: 1px solid var(--rule-strong); color: var(--ink-soft); white-space: nowrap;
+}
+.pill.ok { background: rgba(15, 94, 134, 0.1); border-color: var(--seed); color: var(--seed); }
+.pill.warn { background: rgba(158, 72, 10, 0.09); border-color: var(--proven); color: var(--proven); }
+.pill.mute { color: var(--ink-faint); }
+
+.adm-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 20px; }
+.adm-tools .field { min-width: 190px; }
+.adm-tools .field label { margin-bottom: 6px; }
+.adm-tools input, .adm-tools select { background: var(--paper); padding: 10px 13px; font-size: 0.88rem; }
+.adm-btn {
+  font-family: var(--mono); font-weight: 700; font-size: 0.6rem; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 11px 16px; cursor: pointer;
+  background: var(--seed); color: var(--on-accent); border: 1px solid var(--seed);
+}
+.adm-btn:hover { background: var(--proven); border-color: var(--proven); }
+.adm-btn.ghost { background: transparent; color: var(--ink-soft); border-color: var(--rule-strong); }
+.adm-btn.ghost:hover { background: transparent; color: var(--seed); border-color: var(--seed); }
+.adm-btn:disabled { opacity: 0.5; cursor: default; }
+
+.adm-empty { padding: 44px 20px; text-align: center; color: var(--ink-faint); font-size: 0.92rem; }
+
+.adm-login { min-height: 100vh; display: grid; place-items: center; background: var(--panel); padding: 24px; }
+.adm-login form { width: 100%; max-width: 380px; background: var(--paper); border: 1px solid var(--rule); padding: clamp(26px, 4vw, 38px); }
+.adm-login h1 { font-family: var(--display); font-weight: 600; font-size: 1.4rem; color: var(--ink); margin: 0 0 6px; }
+.adm-login p { font-size: 0.88rem; color: var(--ink-soft); margin: 0 0 24px; }
+.adm-err {
+  border: 1px solid var(--proven); background: rgba(158, 72, 10, 0.07);
+  padding: 12px 14px; margin-bottom: 18px; font-size: 0.85rem; color: var(--proven);
+}
+
 /* ---------- footer ---------- */
 
 .foot { background: var(--panel); color: var(--ink-soft); padding: clamp(50px, 7vw, 78px) 0 22px; border-top: 1px solid var(--rule); }

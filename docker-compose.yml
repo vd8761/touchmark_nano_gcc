@@ -1,0 +1,137 @@
+# Local stand-ins for every external service the payment flow touches.
+#
+#   docker compose up -d        (then `npm run dev` on the host)
+#
+# Nothing here is used in production. The point is that the whole flow -
+# checkout handoff, payment, both completion paths, the receipt email and its
+# delivery webhook - can be exercised end to end with no Neon project, no
+# Resend key and no Razorpay account, and without spending real money.
+#
+# The app itself runs on the HOST (npm run dev), not in a container, so the
+# usual Next dev experience is unchanged. Containers reach it via
+# host.docker.internal; the browser reaches containers via localhost.
+
+name: dosclub-local
+
+services:
+  # --- Postgres ------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: dosclub
+      POSTGRES_PASSWORD: dosclub
+      POSTGRES_DB: dosclub
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Applied automatically the first time the volume is created.
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dosclub -d dosclub"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # --- Neon HTTP proxy -----------------------------------------------------
+  # @neondatabase/serverless speaks SQL over HTTP, which plain Postgres does
+  # not understand. This terminates that protocol and forwards to postgres, so
+  # the identical application code runs locally and on Neon.
+  neon-proxy:
+    image: ghcr.io/timowilhelm/local-neon-http-proxy:main
+    environment:
+      PG_CONNECTION_STRING: postgres://dosclub:dosclub@postgres:5432/dosclub
+    ports:
+      - "4444:4444"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # --- Mailpit -------------------------------------------------------------
+  # Catches every outbound message and renders it, HTML and all. This is where
+  # you actually look at the membership receipt.
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"   # SMTP, spoken to by resend-mock
+      - "8025:8025"   # web inbox  → http://localhost:8025
+    environment:
+      MP_MAX_MESSAGES: 500
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+  # --- Resend API mock -----------------------------------------------------
+  # Implements POST /emails, relays into Mailpit, and fires Svix-signed
+  # delivery webhooks back at the app so the admin Emails page fills in.
+  resend-mock:
+    image: node:22-alpine
+    working_dir: /app
+    command: node server.mjs
+    volumes:
+      - ./local/resend-mock:/app:ro
+    ports:
+      - "4001:4001"
+    environment:
+      PORT: 4001
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      # Must match RESEND_WEBHOOK_SECRET in .env.local.
+      WEBHOOK_SECRET: whsec_bG9jYWxkZXZzZWNyZXRsb2NhbGRldnNlY3JldA==
+      APP_URL: http://host.docker.internal:3100
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - mailpit
+
+  # --- Razorpay mock -------------------------------------------------------
+  # Orders + payments REST endpoints, a stand-in checkout.js that exposes a
+  # window.Razorpay with the same shape as the real one, correct
+  # razorpay_signature generation, and signed webhook delivery.
+  razorpay-mock:
+    image: node:22-alpine
+    working_dir: /app
+    command: node server.mjs
+    volumes:
+      - ./local/razorpay-mock:/app:ro
+    ports:
+      - "4002:4002"
+    environment:
+      PORT: 4002
+      # Must match RAZORPAY_* in .env.local.
+      KEY_ID: rzp_test_local000000
+      KEY_SECRET: localrazorpaykeysecret
+      WEBHOOK_SECRET: localrazorpaywebhooksecret
+      APP_URL: http://host.docker.internal:3100
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # --- originbi.com mock ---------------------------------------------------
+  # A faithful implementation of the cross-domain contract: verifies our JWT,
+  # creates the Razorpay order with the required receipt/notes, opens checkout,
+  # POSTs the signed completion, and redirects home. Doubles as the reference
+  # implementation for the real originbi side - see ORIGINBI-INTEGRATION.md.
+  originbi-mock:
+    image: node:22-alpine
+    working_dir: /app
+    command: node server.mjs
+    volumes:
+      - ./local/originbi-mock:/app:ro
+    ports:
+      - "4003:4003"
+    environment:
+      PORT: 4003
+      # Must match CROSS_DOMAIN_SECRET in .env.local, exactly.
+      CROSS_DOMAIN_SECRET: local-cross-domain-secret-change-me
+      RAZORPAY_KEY_ID: rzp_test_local000000
+      RAZORPAY_KEY_SECRET: localrazorpaykeysecret
+      # Server-to-server calls, from inside the container network.
+      RAZORPAY_API_INTERNAL: http://razorpay-mock:4002/v1
+      # What the browser loads checkout.js from, so it must be host-visible.
+      RAZORPAY_API_PUBLIC: http://localhost:4002
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - razorpay-mock
+
+volumes:
+  pgdata:

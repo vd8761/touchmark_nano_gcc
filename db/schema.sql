@@ -1,0 +1,213 @@
+-- DOS Club - memberships, payments and admin schema.
+--
+-- Apply once against the Neon database (SQL editor or `psql $DATABASE_URL -f
+-- db/schema.sql`). Every statement is idempotent, so re-running it is safe.
+
+create extension if not exists pgcrypto;
+
+-- ---------------------------------------------------------------------------
+-- Enquiries: every form submission, both audiences.
+-- ---------------------------------------------------------------------------
+create table if not exists enquiries (
+  id            uuid primary key default gen_random_uuid(),
+  kind          text not null check (kind in ('institution', 'organisation')),
+  name          text not null,
+  email         text not null,
+  organization  text not null,
+  phone         text,
+  role          text,
+  city          text,
+  team_size     text,
+  interest      text,
+  message       text,
+  -- Attribution, captured server-side from the request.
+  referrer      text,
+  utm           jsonb,
+  ip_hash       text,
+  user_agent    text,
+  -- Admin-side triage.
+  status        text not null default 'new'
+                check (status in ('new', 'contacted', 'qualified', 'won', 'closed')),
+  admin_notes   text,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+
+create index if not exists enquiries_created_idx on enquiries (created_at desc);
+create index if not exists enquiries_email_idx   on enquiries (lower(email));
+create index if not exists enquiries_kind_idx    on enquiries (kind, status);
+
+-- ---------------------------------------------------------------------------
+-- Orders: one row per payment attempt.
+--
+-- `order_ref` is the public handle. It travels to originbi.com, comes back in
+-- the return URL, is quoted in emails and is what a buyer types into the
+-- membership lookup - so it is high-entropy rather than sequential.
+-- ---------------------------------------------------------------------------
+create table if not exists orders (
+  id                  uuid primary key default gen_random_uuid(),
+  order_ref           text not null unique,
+  enquiry_id          uuid references enquiries (id) on delete set null,
+  email               text not null,
+  name                text,
+  phone               text,
+  organization        text,
+  plan                text not null default 'institution-annual',
+  amount_paise        integer not null check (amount_paise > 0),
+  currency            text not null default 'INR',
+  status              text not null default 'created'
+                      check (status in ('created', 'pending', 'paid', 'failed', 'abandoned')),
+  -- Razorpay identifiers, populated as the payment progresses.
+  razorpay_order_id   text,
+  razorpay_payment_id text unique,
+  payment_method      text,
+  failure_reason      text,
+  paid_at             timestamptz,
+  -- Set when the order is superseded by a retry, so the old ref stops polling.
+  retried_by          uuid references orders (id) on delete set null,
+  created_at          timestamptz not null default now(),
+  updated_at          timestamptz not null default now()
+);
+
+-- For databases created before `phone` was added to the handoff payload.
+alter table orders add column if not exists phone text;
+
+create index if not exists orders_email_idx   on orders (lower(email));
+create index if not exists orders_status_idx  on orders (status, created_at desc);
+create index if not exists orders_rzp_ord_idx on orders (razorpay_order_id);
+create index if not exists orders_created_idx on orders (created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- Memberships: created only against a confirmed payment.
+--
+-- The unique constraint on order_id is what makes webhook replays harmless.
+-- ---------------------------------------------------------------------------
+create table if not exists memberships (
+  id                      uuid primary key default gen_random_uuid(),
+  order_id                uuid not null unique references orders (id) on delete restrict,
+  member_no               text not null unique,
+  email                   text not null,
+  name                    text,
+  institution             text,
+  plan                    text not null default 'institution-annual',
+  status                  text not null default 'active'
+                          check (status in ('active', 'expired', 'cancelled')),
+  activated_at            timestamptz not null default now(),
+  valid_until             timestamptz,
+  welcome_email_sent_at   timestamptz,
+  created_at              timestamptz not null default now(),
+  updated_at              timestamptz not null default now()
+);
+
+create index if not exists memberships_email_idx on memberships (lower(email));
+create index if not exists memberships_no_idx    on memberships (member_no);
+
+-- Allocates the next DOS-<year>-NNNN member number. Runs inside the same
+-- transaction as the membership insert, so two concurrent webhooks cannot be
+-- handed the same number.
+create sequence if not exists member_no_seq start 1;
+
+-- ---------------------------------------------------------------------------
+-- Admin auth.
+-- ---------------------------------------------------------------------------
+create table if not exists admin_users (
+  id            uuid primary key default gen_random_uuid(),
+  email         text not null unique,
+  password_hash text not null,
+  name          text,
+  is_active     boolean not null default true,
+  created_at    timestamptz not null default now(),
+  last_login_at timestamptz
+);
+
+create table if not exists admin_sessions (
+  id            uuid primary key default gen_random_uuid(),
+  admin_user_id uuid not null references admin_users (id) on delete cascade,
+  expires_at    timestamptz not null,
+  created_at    timestamptz not null default now(),
+  revoked_at    timestamptz,
+  ip_hash       text,
+  user_agent    text
+);
+
+create index if not exists admin_sessions_user_idx on admin_sessions (admin_user_id);
+
+create table if not exists admin_login_attempts (
+  id         bigserial primary key,
+  email      text not null,
+  ip_hash    text not null,
+  successful boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists admin_login_attempts_idx
+  on admin_login_attempts (lower(email), ip_hash, created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- Webhook log. The unique event_id is the idempotency key: a replayed delivery
+-- fails the insert, and the handler returns 200 without doing the work twice.
+-- ---------------------------------------------------------------------------
+create table if not exists webhook_events (
+  id           uuid primary key default gen_random_uuid(),
+  source       text not null check (source in ('razorpay', 'resend', 'originbi')),
+  event_id     text not null,
+  event_type   text,
+  payload      jsonb not null,
+  received_at  timestamptz not null default now(),
+  processed_at timestamptz,
+  error        text,
+  unique (source, event_id)
+);
+
+-- Widen the source check on databases created before the originbi completion
+-- endpoint existed.
+do $$
+begin
+  alter table webhook_events drop constraint if exists webhook_events_source_check;
+  alter table webhook_events add constraint webhook_events_source_check
+    check (source in ('razorpay', 'resend', 'originbi'));
+end $$;
+
+create index if not exists webhook_events_recv_idx on webhook_events (received_at desc);
+
+-- ---------------------------------------------------------------------------
+-- Outbound email, tracked through the Resend webhook.
+-- ---------------------------------------------------------------------------
+create table if not exists email_events (
+  id              uuid primary key default gen_random_uuid(),
+  resend_email_id text unique,
+  to_email        text not null,
+  subject         text,
+  template        text not null,
+  order_id        uuid references orders (id) on delete set null,
+  status          text not null default 'queued'
+                  check (status in ('queued', 'sent', 'delivered', 'delivery_delayed',
+                                    'bounced', 'complained', 'opened', 'clicked', 'failed')),
+  error           text,
+  last_event_at   timestamptz,
+  created_at      timestamptz not null default now()
+);
+
+create index if not exists email_events_created_idx on email_events (created_at desc);
+create index if not exists email_events_to_idx      on email_events (lower(to_email));
+
+-- ---------------------------------------------------------------------------
+-- Generic `updated_at` maintenance.
+-- ---------------------------------------------------------------------------
+create or replace function touch_updated_at() returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+do $$
+declare t text;
+begin
+  foreach t in array array['enquiries', 'orders', 'memberships'] loop
+    execute format('drop trigger if exists %I_touch on %I', t, t);
+    execute format(
+      'create trigger %I_touch before update on %I
+         for each row execute function touch_updated_at()', t, t);
+  end loop;
+end $$;

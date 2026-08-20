@@ -83,10 +83,10 @@ export default function ForCompaniesPage() {
             A short conversation is enough to establish what&rsquo;s realistic for your goal.
           </p>
           <div className="acts">
-            <Link href="/contact" className="act primary">
+            <Link href="/contact/?tab=organisation" className="act primary">
               Start the conversation
             </Link>
-            <Link href="/contact" className="act">
+            <Link href="/contact/" className="act">
               Download the corporate brochure
             </Link>
           </div>

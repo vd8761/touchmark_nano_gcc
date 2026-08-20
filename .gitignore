@@ -7,3 +7,14 @@ next-env.d.ts
 # Source documents are internal working material and this repo is public.
 # Remove this line only if you intend to publish them.
 docs/
+
+# Secrets. Never commit these - they hold live payment and DB credentials.
+.env
+.env.local
+.env*.local
+
+# Vercel
+.vercel/
+
+# Scratch space for local test runs.
+.tmp/

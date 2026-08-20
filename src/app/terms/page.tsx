@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { formatInrShort, PLANS } from "@/lib/pricing";
 import PageOpen from "@/components/PageOpen";
 import Section from "@/components/Section";
 import LegalDoc, { type Clause } from "@/components/LegalDoc";
 import { COMPANY } from "@/lib/company";
+
+/** Quoted from the price list, so the legal copy can never drift from checkout. */
+const MEMBERSHIP_PRICE = formatInrShort(PLANS["institution-annual"].amountPaise);
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
@@ -95,21 +99,26 @@ const CLAUSES: Clause[] = [
     body: (
       <>
         <p>
-          Online payment is not yet available on this site. When it is introduced, the terms in this
-          clause and the next will apply to every payment made to Touchmark, whether through the
-          site or by bank transfer against an invoice.
+          These terms apply to every payment made to Touchmark, whether through this site or by bank
+          transfer against an invoice.
         </p>
         <ul>
           <li>
-            Fees - membership fees, programme fees, engagement fees and any other charges - are set
-            out in the applicable proposal, membership schedule, invoice or checkout page at the
-            time of purchase.
+            <strong>DOS Club institution membership</strong> is {MEMBERSHIP_PRICE} for a twelve-month
+            term, inclusive of Goods and Services Tax at the prevailing rate. The tax component is
+            shown separately on your receipt. Company engagements are not sold at a published price;
+            their fees are set out in the proposal or agreement for that engagement.
           </li>
           <li>
-            Unless the paperwork says otherwise, fees are quoted exclusive of Goods and Services Tax
-            and any other applicable taxes, duties, levies or withholding, which you pay in
-            addition. Bank charges, card fees, payment-gateway charges and currency-conversion costs
-            are yours.
+            All other fees - programme fees, engagement fees and any other charges - are set out in
+            the applicable proposal, membership schedule, invoice or checkout page at the time of
+            purchase.
+          </li>
+          <li>
+            Except where a price is expressly stated to be inclusive of tax, fees are quoted
+            exclusive of Goods and Services Tax and any other applicable taxes, duties, levies or
+            withholding, which you pay in addition. Bank charges, card fees, payment-gateway charges
+            and currency-conversion costs are yours.
           </li>
           <li>
             Fees are payable in advance. Access, membership or programme participation begins only
@@ -126,9 +135,19 @@ const CLAUSES: Clause[] = [
           </li>
         </ul>
         <p>
-          Payments are processed by third-party payment providers. We do not receive or store your
-          full card details - see the{" "}
-          <Link href="/privacy">privacy policy</Link> for what we do receive.
+          Online payments are taken on our payment page at <strong>originbi.com</strong>, operated by
+          Touchmark, and processed there by Razorpay as payment gateway. You are redirected to that
+          page to pay and returned here afterwards. We do not receive or store your full card
+          details - see the <Link href="/privacy">privacy policy</Link> for what we do receive.
+        </p>
+        <p>
+          A payment is treated as made only when the payment gateway confirms it to us. Membership
+          is activated, and a receipt sent to the email address you registered, on that confirmation
+          - not on the redirect back to this site. If a payment is confirmed but you do not receive
+          a receipt, quote your reference ID (shown after payment, in the form <strong>DOS-</strong>
+          followed by twelve characters) and we will trace it. An attempt that the gateway declines
+          or that is never confirmed results in no charge; where a bank has placed a temporary hold,
+          it is released by that bank.
         </p>
       </>
     ),
@@ -362,8 +381,7 @@ const CLAUSES: Clause[] = [
     title: "Changes to these terms",
     body: (
       <p>
-        We may update these terms as the ecosystem and its services develop - not least when online
-        payment is introduced. The version published on this page is the one in force, and the date
+        We may update these terms as the ecosystem and its services develop. The version published on this page is the one in force, and the date
         it last changed is shown at the top. Material changes take effect when published; continuing
         to use the site afterwards means you accept the updated terms. Terms already agreed in a
         signed engagement are not changed by a website update.

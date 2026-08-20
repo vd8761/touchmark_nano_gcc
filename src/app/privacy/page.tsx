@@ -56,11 +56,23 @@ const CLAUSES: Clause[] = [
           understand at a coarse level which pages are read.
         </p>
         <p>
-          <strong>Payments.</strong> Online payment is not yet available on this site. When it is
-          introduced, payments will be processed by a third-party payment provider. We will receive
-          confirmation details - amount, currency, date, transaction reference, payment status, and
-          the billing name and organisation - but not your full card number, CVV or banking
-          credentials, which go directly to the provider.
+          <strong>Payments.</strong> Online payments are taken on our payment page at originbi.com
+          and processed there by Razorpay as payment gateway. We receive confirmation details -
+          amount, currency, date, our own reference ID, the gateway transaction reference, the
+          payment method and status, and the billing name and organisation - but not your full card
+          number, CVV, UPI PIN or banking credentials, which go directly to the gateway and never
+          reach this site.
+        </p>
+        <p>
+          <strong>Membership records.</strong> Where a payment succeeds we create a membership
+          record holding your name, institution, email address, membership number and the payment
+          details above. You can retrieve your own record at any time from the contact page, using
+          your email address or your reference ID.
+        </p>
+        <p>
+          <strong>Email delivery.</strong> We send transactional email through Resend, and record
+          whether each message was delivered, bounced or was marked as spam. This is used to tell
+          whether a receipt reached you, not to build a profile.
         </p>
         <p>
           Please do not send us confidential technical material, personal data about third parties,
@@ -120,7 +132,8 @@ const CLAUSES: Clause[] = [
           </li>
           <li>
             <strong>Service providers</strong> who work for us under contract: hosting, email,
-            analytics, CRM and, once payment goes live, payment processing. They may use the
+            analytics, CRM and payment processing - currently including Neon (database hosting),
+            Resend (email delivery) and Razorpay (payment gateway). They may use the
             information only to provide their service to us.
           </li>
           <li>
@@ -253,9 +266,9 @@ const CLAUSES: Clause[] = [
     title: "Changes to this policy",
     body: (
       <p>
-        We will update this policy as the site and the ecosystem develop - notably when online
-        payment is introduced. The version published here is the one in force, with the date it last
-        changed shown at the top of this section. Material changes take effect when published.
+        We will update this policy as the site and the ecosystem develop. The version published
+        here is the one in force, with the date it last changed shown at the top of this section.
+        Material changes take effect when published.
       </p>
     ),
   },

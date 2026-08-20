@@ -91,10 +91,10 @@ export default function ForInstitutionsPage() {
             Tell us about your institution&rsquo;s strengths and we&rsquo;ll take it from there.
           </p>
           <div className="acts">
-            <Link href="/contact" className="act primary">
+            <Link href="/contact/?tab=institution" className="act primary">
               Become a member institution
             </Link>
-            <Link href="/contact" className="act">
+            <Link href="/contact/" className="act">
               Download the institution brochure
             </Link>
           </div>

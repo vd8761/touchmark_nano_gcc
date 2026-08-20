@@ -3,18 +3,26 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3100",
     "build": "next build",
-    "start": "npx serve out",
+    "start": "next start -p 3100",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "local:up": "docker compose up -d",
+    "local:down": "docker compose down",
+    "local:reset": "docker compose down -v && docker compose up -d",
+    "local:logs": "docker compose logs -f razorpay-mock resend-mock originbi-mock",
+    "local:psql": "docker compose exec postgres psql -U dosclub -d dosclub",
+    "create-admin": "node scripts/create-admin.mjs"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "gsap": "^3.13.0",
     "lenis": "^1.1.20",
     "next": "^15.1.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "resend": "^6.20.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
