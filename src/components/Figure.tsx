@@ -8,7 +8,7 @@ type Props = {
   art: Artwork;
   /** Frame proportion. */
   shape?: "wide" | "tall" | "square";
-  /** Override the caption text; the credit line is always kept. */
+  /** Override the caption text. */
   caption?: string;
   priority?: boolean;
   className?: string;
@@ -78,9 +78,6 @@ export default function Figure({
       </div>
       <figcaption>
         <span className="cap">{caption ?? art.caption}</span>
-        <span className="cred">
-          {art.credit} · {art.licence}
-        </span>
       </figcaption>
     </figure>
   );
