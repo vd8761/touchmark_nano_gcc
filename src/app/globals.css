@@ -975,6 +975,30 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
 .form-note.ok { color: var(--seed); }
 .form-note.ok strong { color: var(--seed); }
 
+/* ---------- checkout ---------- */
+
+.checkout-page { min-height: 100vh; display: grid; place-items: center; background: var(--panel); padding: 24px; }
+.checkout-card {
+  width: 100%; max-width: 420px; background: var(--paper); border-radius: 10px;
+  padding: clamp(30px, 5vw, 44px); text-align: center;
+  box-shadow: 0 20px 60px rgba(13, 54, 79, 0.35);
+}
+.checkout-badge {
+  width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center;
+  margin: 0 auto 20px; font-size: 26px;
+}
+.checkout-badge.wait { background: var(--dim); color: var(--seed); }
+.checkout-badge.ok { background: rgba(15, 94, 134, 0.1); color: var(--seed); }
+.checkout-badge.err { background: rgba(158, 72, 10, 0.09); color: var(--proven); }
+.checkout-card h1 { font-family: var(--display); font-weight: 600; font-size: 1.3rem; color: var(--ink); margin: 0 0 10px; }
+.checkout-card p { font-size: 0.92rem; line-height: 1.55; color: var(--ink-soft); margin: 0; }
+.checkout-spin {
+  width: 26px; height: 26px; border-radius: 50%; margin: 0 auto 20px;
+  border: 3px solid var(--dim); border-top-color: var(--seed);
+  animation: spin 0.8s linear infinite;
+}
+.checkout-acts { margin-top: 26px; display: flex; flex-direction: column; gap: 10px; }
+
 /* ---------- footer ---------- */
 
 .foot { background: var(--panel); color: var(--ink-soft); padding: clamp(50px, 7vw, 78px) 0 22px; border-top: 1px solid var(--rule); }

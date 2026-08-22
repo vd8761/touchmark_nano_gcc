@@ -1,13 +1,21 @@
-# originbi.com integration contract
+# Cross-domain order-creation contract
 
-Razorpay's live gateway is approved for **originbi.com** only, so buyers fill in
-the form here, jump to originbi purely to pay, and come straight back. This
-document is the contract between the two sides, written to match the
-architecture already implemented for `dosmembership`.
+Razorpay's live gateway is not approved for this domain, so Summit-2026
+(`vd8761/Summit-2026`) creates the Razorpay order on our behalf. What changed
+since this doc was first written: **the buyer no longer leaves this site.**
+`/checkout` (`src/app/checkout/`) is a real page on this domain the whole way
+through - the only cross-domain step left is one CORS-enabled `fetch()` call
+to Summit-2026's order-creation API, invisible to the buyer. No redirect, no
+iframe, no other domain ever shown. Real top-level navigation throughout is
+what keeps UPI app-switching, netbanking redirects and OTP pages working
+normally.
 
-If you have read that document, the shape here is identical — JWT handoff,
-Razorpay modal on originbi, signed completion POST back. The differences are
-listed in [What differs from dosmembership](#what-differs-from-dosmembership).
+This document was originally written to match the architecture implemented
+for `dosmembership`/originbi.com (see git history) - the JWT handoff shape,
+signature verification and the dual-completion-path guarantee below are all
+unchanged from that design, just now consumed by our own page instead of a
+page on the other domain. The differences from `dosmembership` are listed in
+[What differs from dosmembership](#what-differs-from-dosmembership).
 
 ---
 
@@ -15,12 +23,14 @@ listed in [What differs from dosmembership](#what-differs-from-dosmembership).
 
 ```
 /contact (Institution tab)
-  └─ POST /api/enquiry           → enquiry + order rows, amount from pricing.ts
-     └─ redirect to  originbi.com/nanogcc/checkout?token=<JWT>
-        └─ originbi verifies the JWT, creates the Razorpay order, opens the modal
-           ├─ POST /api/webhooks/originbi   ← fast path, from the browser
-           ├─ POST /api/webhooks/razorpay   ← guarantee, server-to-server
-           └─ redirect → /membership/return/?ref=…&payment=success
+  └─ POST /api/enquiry              → enquiry + order rows, amount from pricing.ts
+     └─ browser navigates to  /checkout?token=<JWT>            (this domain)
+        └─ /checkout POSTs the token to Summit-2026's create-order API (CORS, cross-origin)
+           └─ Summit-2026 verifies the JWT, creates the Razorpay order, returns it
+              └─ /checkout opens the Razorpay modal itself
+                 ├─ POST /api/webhooks/originbi   ← fast path, same-origin now
+                 ├─ POST /api/webhooks/razorpay   ← guarantee, server-to-server
+                 └─ redirect → /membership/return/?ref=…&payment=success
 ```
 
 Two independent paths report the payment. That redundancy is deliberate — see

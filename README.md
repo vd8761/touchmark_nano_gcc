@@ -213,21 +213,28 @@ changed; `next build` shows the split (`○` static, `ƒ` dynamic).
 - **Company** — enquiry only, commercials agreed on a call.
 - **Already a member?** — status lookup by email or reference ID.
 
-The payment flow crosses domains, because Razorpay's live gateway is approved
-for **originbi.com** only:
+Razorpay's live gateway isn't approved for this domain, so Summit-2026
+(`vd8761/Summit-2026`) creates the order on our behalf — but the buyer never
+leaves this site. `/checkout` is a real page here throughout; the only
+cross-domain step is one CORS-enabled API call, invisible to the buyer:
 
 ```
 POST /api/enquiry  →  enquiry + order rows, amount from pricing.ts
-   └─ redirect to originbi.com/nanogcc/checkout?token=<JWT>
-      └─ originbi verifies the token, creates the Razorpay order, opens the modal
-         ├─ POST /api/webhooks/originbi   ← fast path (from the browser)
-         ├─ POST /api/webhooks/razorpay   ← guarantee (server to server)
-         └─ redirect → /membership/return/?ref=…&payment=success
+   └─ browser navigates to /checkout?token=<JWT>          (this domain, the whole way)
+      └─ /checkout POSTs the token to Summit-2026's order-creation API (cross-origin, CORS)
+         └─ Summit-2026 verifies it, creates the Razorpay order, returns it
+            └─ /checkout opens the Razorpay modal itself
+               ├─ POST /api/webhooks/originbi   ← fast path (same-origin now)
+               ├─ POST /api/webhooks/razorpay   ← guarantee (server to server)
+               └─ redirect → /membership/return/?ref=…&payment=success
 ```
 
 The handoff is an HS256 JWT signed with `CROSS_DOMAIN_SECRET`, shared with
-originbi. The amount lives inside it, so it is set by this server and cannot be
-edited in an address bar.
+Summit-2026. The amount lives inside it, so it is set by this server and
+cannot be edited in an address bar. Real top-level navigation the whole way
+through - no redirect to another domain, no iframe - is what keeps UPI
+app-switching, netbanking redirects and OTP pages working normally; see
+`ORIGINBI-INTEGRATION.md` for why an iframe was ruled out.
 
 **Two paths report completion, on purpose.** `/api/webhooks/originbi` is fast
 but originates in the buyer's browser, so it is lost if the tab closes in the
