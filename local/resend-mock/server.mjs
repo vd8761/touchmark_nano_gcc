@@ -30,19 +30,22 @@ const log = (...args) => console.log("[resend-mock]", ...args);
 // just the classic EHLO / MAIL FROM / RCPT TO / DATA exchange.
 // ---------------------------------------------------------------------------
 
-function smtpSend({ from, to, raw }) {
+function smtpSend({ from, recipients, raw }) {
   return new Promise((resolve, reject) => {
     const socket = connect(SMTP_PORT, SMTP_HOST);
 
     // Each command goes out only after the previous reply lands. The body is
     // dot-stuffed per RFC 5321 so a line consisting of "." inside the HTML
-    // cannot terminate DATA early.
+    // cannot terminate DATA early. One RCPT TO per recipient (to + cc + bcc
+    // all go here) delivers the identical raw message to everyone - which is
+    // also why bcc must never appear in a header: the envelope is the only
+    // place it's allowed to show up.
     const dotStuffed = raw.split(CRLF).map((line) => (line === "." ? ".." : line)).join(CRLF);
 
     const commands = [
       "EHLO resend-mock",
       `MAIL FROM:<${addressOnly(from)}>`,
-      `RCPT TO:<${addressOnly(to)}>`,
+      ...recipients.map((r) => `RCPT TO:<${addressOnly(r)}>`),
       "DATA",
       `${dotStuffed}${CRLF}.`,
       "QUIT",
@@ -99,13 +102,21 @@ function addressOnly(value) {
   return match ? match[1] : String(value).trim();
 }
 
-/** A multipart/alternative message carrying both the text and HTML parts. */
-function buildRaw({ from, to, subject, html, text, id }) {
+/**
+ * A multipart/alternative message carrying both the text and HTML parts.
+ *
+ * `bcc` is deliberately not a parameter here - those recipients are RCPT TO'd
+ * in the envelope (see smtpSend) and never appear in a header, exactly as a
+ * real BCC must not.
+ */
+function buildRaw({ from, to, cc, replyTo, subject, html, text, id }) {
   const boundary = `----=_${randomUUID()}`;
 
   return [
     `From: ${from}`,
-    `To: ${to}`,
+    `To: ${(Array.isArray(to) ? to : [to]).join(", ")}`,
+    ...(cc?.length ? [`Cc: ${cc.join(", ")}`] : []),
+    ...(replyTo ? [`Reply-To: ${(Array.isArray(replyTo) ? replyTo : [replyTo]).join(", ")}`] : []),
     `Subject: ${subject}`,
     `Message-ID: <${id}@resend-mock.local>`,
     `Date: ${new Date().toUTCString()}`,
@@ -190,12 +201,19 @@ const server = createServer(async (req, res) => {
   }
 
   const id = randomUUID();
-  const to = Array.isArray(payload.to) ? payload.to[0] : payload.to;
+  const to = Array.isArray(payload.to) ? payload.to : [payload.to];
+  const cc = payload.cc ? (Array.isArray(payload.cc) ? payload.cc : [payload.cc]) : [];
+  const bcc = payload.bcc ? (Array.isArray(payload.bcc) ? payload.bcc : [payload.bcc]) : [];
+  const replyTo = payload.reply_to; // the SDK puts this on the wire snake_case
 
-  log(`send "${payload.subject}" -> ${to}`);
+  log(`send "${payload.subject}" -> ${[...to, ...cc, ...bcc].join(", ")}`);
 
   try {
-    await smtpSend({ from: payload.from, to, raw: buildRaw({ ...payload, to, id }) });
+    await smtpSend({
+      from: payload.from,
+      recipients: [...to, ...cc, ...bcc],
+      raw: buildRaw({ ...payload, to, cc, replyTo, id }),
+    });
   } catch (err) {
     log("SMTP relay failed:", err.message);
     return send(500, { name: "application_error", message: err.message });
@@ -204,8 +222,8 @@ const server = createServer(async (req, res) => {
   // Answer first, then let delivery events trickle in the way they really do.
   send(200, { id });
 
-  setTimeout(() => fireWebhook("email.sent", id, to), 300);
-  setTimeout(() => fireWebhook("email.delivered", id, to), 1500);
+  setTimeout(() => fireWebhook("email.sent", id, to[0]), 300);
+  setTimeout(() => fireWebhook("email.delivered", id, to[0]), 1500);
 });
 
 server.listen(PORT, () => log(`listening on ${PORT}, relaying to ${SMTP_HOST}:${SMTP_PORT}`));

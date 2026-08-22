@@ -31,6 +31,7 @@ import { badRequest, clientIpHash, json, rateLimit, sameOrigin, userAgent } from
 import { notifyTeam, send } from "@/lib/email";
 import { enquiryReceived, internalNotification } from "@/lib/email-templates";
 import { formatInrShort, PLANS } from "@/lib/pricing";
+import { getSettings } from "@/lib/settings";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -89,12 +90,16 @@ export async function POST(req: NextRequest) {
 
   // --- Organisation: acknowledge and stop here. ---------------------------
   if (kind === "organisation") {
+    const settings = await getSettings();
+
     await Promise.allSettled([
-      send({
-        to: email,
-        template: "enquiry-received",
-        message: enquiryReceived({ name, kind, organization }),
-      }),
+      settings.sendUserCopy
+        ? send({
+            to: email,
+            template: "enquiry-received",
+            message: enquiryReceived({ name, kind, organization }),
+          })
+        : Promise.resolve(),
       notifyTeam(
         internalNotification({
           heading: "New company enquiry",
@@ -108,6 +113,7 @@ export async function POST(req: NextRequest) {
           ],
           adminUrl: `${env.siteUrl}/admin/enquiries/`,
         }),
+        "enquiry",
       ),
     ]);
 
@@ -139,6 +145,7 @@ export async function POST(req: NextRequest) {
         ],
         adminUrl: `${env.siteUrl}/admin/payments/`,
       }),
+      "enquiry",
     );
 
     return json({

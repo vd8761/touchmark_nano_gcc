@@ -16,6 +16,7 @@ const LINKS = [
   { href: "/admin/payments/", label: "Payments" },
   { href: "/admin/memberships/", label: "Memberships" },
   { href: "/admin/emails/", label: "Emails" },
+  { href: "/admin/settings/", label: "Settings" },
 ];
 
 type User = { id: string; email: string; name: string | null } | null;

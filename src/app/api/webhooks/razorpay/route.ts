@@ -198,6 +198,7 @@ async function handleCaptured(
         ],
         adminUrl: `${env.siteUrl}/admin/payments/`,
       }),
+      "payment",
     );
   }
 }

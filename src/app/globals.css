@@ -950,6 +950,31 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
   padding: 12px 14px; margin-bottom: 18px; font-size: 0.85rem; color: var(--proven);
 }
 
+/* ---------- admin: settings form ---------- */
+
+.adm-settings-section {
+  border: 1px solid var(--rule); border-radius: 4px; padding: 20px 22px;
+  margin: 0 0 20px; min-width: 0;
+}
+.adm-settings-section legend {
+  font-family: var(--mono); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--ink); padding: 0 6px;
+}
+.adm-settings-section .field { margin-bottom: 14px; }
+.adm-settings-section .field:last-child { margin-bottom: 0; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 560px) { .field-row { grid-template-columns: 1fr; } }
+
+.adm-toggle {
+  display: flex; align-items: center; gap: 10px; cursor: pointer;
+  font-size: 0.88rem; color: var(--ink-2); margin-bottom: 10px;
+}
+.adm-toggle:last-child { margin-bottom: 0; }
+.adm-toggle input { width: 16px; height: 16px; accent-color: var(--seed); cursor: pointer; flex-shrink: 0; }
+
+.form-note.ok { color: var(--seed); }
+.form-note.ok strong { color: var(--seed); }
+
 /* ---------- footer ---------- */
 
 .foot { background: var(--panel); color: var(--ink-soft); padding: clamp(50px, 7vw, 78px) 0 22px; border-top: 1px solid var(--rule); }

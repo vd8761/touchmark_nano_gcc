@@ -12,6 +12,7 @@ import { env } from "./env";
 import { send } from "./email";
 import { membershipActivated, membershipDetails } from "./email-templates";
 import { getPlan, PLANS } from "./pricing";
+import { getSettings } from "./settings";
 
 /**
  * Sends the activation receipt exactly once per membership.
@@ -20,11 +21,19 @@ import { getPlan, PLANS } from "./pricing";
  * `welcome_email_sent_at` from null wins and sends. A concurrent caller sees
  * zero rows updated and does nothing. If the send then fails we clear the
  * stamp again, so the cron sweeper picks it up on the next pass.
+ *
+ * Gated on settings.sendUserCopy (the admin's "send buyers their own copy"
+ * toggle). When it's off this is a pure no-op - `welcome_email_sent_at` is
+ * left untouched, so turning the toggle back on lets the cron sweeper's
+ * "unsent receipts" pass send it retroactively rather than losing it.
  */
 export async function deliverWelcomeEmail(
   order: Order,
   membership: Membership,
 ): Promise<{ sent: boolean; reason?: string }> {
+  const settings = await getSettings();
+  if (!settings.sendUserCopy) return { sent: false, reason: "user-copy-disabled" };
+
   const q = sql();
 
   const claimed = (await q`

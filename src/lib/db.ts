@@ -135,3 +135,17 @@ export type EmailEvent = {
   last_event_at: string | null;
   created_at: string;
 };
+
+export type SettingsRow = {
+  id: true;
+  admin_notify_emails: string[] | null;
+  from_name: string | null;
+  from_email: string | null;
+  reply_to: string | null;
+  cc: string[] | null;
+  bcc: string[] | null;
+  notify_admin_enquiry: boolean;
+  notify_admin_payment: boolean;
+  send_user_copy: boolean;
+  updated_at: string;
+};

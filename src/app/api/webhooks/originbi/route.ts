@@ -109,6 +109,7 @@ export async function POST(req: NextRequest) {
         ],
         adminUrl: `${env.siteUrl}/admin/payments/`,
       }),
+      "payment",
     );
   }
 

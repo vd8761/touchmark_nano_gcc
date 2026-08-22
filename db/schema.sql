@@ -171,6 +171,30 @@ end $$;
 create index if not exists webhook_events_recv_idx on webhook_events (received_at desc);
 
 -- ---------------------------------------------------------------------------
+-- Mail-routing settings: a singleton row, editable from /admin/settings.
+--
+-- Every column here is an *override* - null (or the default `true`/`{}` for
+-- the toggles) falls back to the equivalent env var, so a database that
+-- predates this table, or an admin who has never opened the settings page,
+-- behaves exactly as before.
+-- ---------------------------------------------------------------------------
+create table if not exists settings (
+  id                    boolean primary key default true check (id),
+  admin_notify_emails   text[],
+  from_name             text,
+  from_email            text,
+  reply_to              text,
+  cc                    text[],
+  bcc                   text[],
+  notify_admin_enquiry  boolean not null default true,
+  notify_admin_payment  boolean not null default true,
+  send_user_copy        boolean not null default true,
+  updated_at            timestamptz not null default now()
+);
+
+insert into settings (id) values (true) on conflict (id) do nothing;
+
+-- ---------------------------------------------------------------------------
 -- Outbound email, tracked through the Resend webhook.
 -- ---------------------------------------------------------------------------
 create table if not exists email_events (
@@ -204,7 +228,7 @@ $$ language plpgsql;
 do $$
 declare t text;
 begin
-  foreach t in array array['enquiries', 'orders', 'memberships'] loop
+  foreach t in array array['enquiries', 'orders', 'memberships', 'settings'] loop
     execute format('drop trigger if exists %I_touch on %I', t, t);
     execute format(
       'create trigger %I_touch before update on %I

@@ -14,8 +14,12 @@ import { currentAdmin } from "@/lib/auth";
 import { sql, type Order } from "@/lib/db";
 import { findMembershipByOrderId, findOrderByRef, reconcileOrder } from "@/lib/payments";
 import { resendWelcomeEmail } from "@/lib/membership";
+import { send } from "@/lib/email";
+import { internalNotification } from "@/lib/email-templates";
+import { env } from "@/lib/env";
 import { badRequest, json, sameOrigin } from "@/lib/request";
-import { clean, LIMITS } from "@/lib/validate";
+import { clean, isEmail, LIMITS } from "@/lib/validate";
+import { getSettings, notifyRecipients, parseEmailList, updateSettings } from "@/lib/settings";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -42,6 +46,10 @@ export async function POST(req: NextRequest) {
       return recheckOrder(body);
     case "resend-receipt":
       return resendReceipt(body);
+    case "update-settings":
+      return updateSettingsAction(body);
+    case "send-test-notification":
+      return sendTestNotification(admin.email);
     default:
       return badRequest("Unknown action.");
   }
@@ -87,4 +95,72 @@ async function resendReceipt(body: Record<string, unknown>) {
   return result.ok
     ? json({ ok: true })
     : json({ ok: false, error: result.error }, 502);
+}
+
+/** Free-text lists (one address per line, or comma-separated) -> validated arrays. */
+function parseListField(body: Record<string, unknown>, key: string): string[] | { error: string } {
+  const raw = typeof body[key] === "string" ? body[key] : "";
+  const addresses = parseEmailList(raw);
+  const bad = addresses.find((a) => !isEmail(a));
+  if (bad) return { error: `"${bad}" doesn't look like a valid email address.` };
+  return addresses;
+}
+
+async function updateSettingsAction(body: Record<string, unknown>) {
+  const adminNotifyEmails = parseListField(body, "adminNotifyEmails");
+  if ("error" in adminNotifyEmails) return badRequest(adminNotifyEmails.error);
+
+  const cc = parseListField(body, "cc");
+  if ("error" in cc) return badRequest(cc.error);
+
+  const bcc = parseListField(body, "bcc");
+  if ("error" in bcc) return badRequest(bcc.error);
+
+  const fromEmail = clean(body.fromEmail, LIMITS.email) ?? "";
+  if (fromEmail && !isEmail(fromEmail)) return badRequest("From address doesn't look like a valid email.");
+
+  const replyTo = clean(body.replyTo, LIMITS.email) ?? "";
+  if (replyTo && !isEmail(replyTo)) return badRequest("Reply-to doesn't look like a valid email.");
+
+  const settings = await updateSettings({
+    adminNotifyEmails,
+    fromName: clean(body.fromName, LIMITS.name),
+    fromEmail: fromEmail || null,
+    replyTo: replyTo || null,
+    cc,
+    bcc,
+    notifyAdminEnquiry: body.notifyAdminEnquiry === true,
+    notifyAdminPayment: body.notifyAdminPayment === true,
+    sendUserCopy: body.sendUserCopy === true,
+  });
+
+  return json({ ok: true, settings });
+}
+
+/**
+ * Sends one internal-notification email right now, using whatever is
+ * currently saved - deliberately via `send()` directly rather than
+ * `notifyTeam()`, so it ignores the enable/disable toggles: the point of a
+ * test send is "does this configuration actually deliver", independent of
+ * whether the admin has that category of notification switched on.
+ */
+async function sendTestNotification(adminEmail: string) {
+  const settings = await getSettings();
+
+  const result = await send({
+    to: notifyRecipients(settings),
+    template: "internal-notification-test",
+    cc: settings.cc,
+    bcc: settings.bcc,
+    message: internalNotification({
+      heading: "Test notification",
+      pairs: [
+        ["Sent by", adminEmail],
+        ["Sent at", new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })],
+      ],
+      adminUrl: `${env.siteUrl}/admin/settings/`,
+    }),
+  });
+
+  return result.ok ? json({ ok: true }) : json({ ok: false, error: result.error }, 502);
 }

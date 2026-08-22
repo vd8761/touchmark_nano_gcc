@@ -15,6 +15,7 @@ import { Resend } from "resend";
 import { sql } from "./db";
 import { env } from "./env";
 import type { Rendered } from "./email-templates";
+import { getSettings, notifyRecipients, resolveFromAddress } from "./settings";
 
 let client: Resend | null = null;
 
@@ -26,11 +27,14 @@ function resend(): Resend {
 export type SendResult = { ok: true; id: string | null } | { ok: false; error: string };
 
 type SendInput = {
-  to: string;
+  to: string | string[];
   template: string;
   message: Rendered;
   orderId?: string | null;
+  /** Overrides settings.replyTo, which itself falls back to unset (Resend defaults to `from`). */
   replyTo?: string;
+  cc?: string[];
+  bcc?: string[];
 };
 
 export async function send({
@@ -39,27 +43,34 @@ export async function send({
   message,
   orderId = null,
   replyTo,
+  cc,
+  bcc,
 }: SendInput): Promise<SendResult> {
   const q = sql();
+  const settings = await getSettings();
+  const toDisplay = Array.isArray(to) ? to.join(", ") : to;
 
   // Record the attempt first, so a send that succeeds at Resend but fails on
   // the way back to us still leaves a trace to reconcile against.
   const rows = (await q`
     insert into email_events (to_email, subject, template, order_id, status)
-    values (${to}, ${message.subject}, ${template}, ${orderId}, 'queued')
+    values (${toDisplay}, ${message.subject}, ${template}, ${orderId}, 'queued')
     returning id
   `) as { id: string }[];
 
   const eventId = rows[0]!.id;
+  const resolvedReplyTo = replyTo ?? settings.replyTo ?? undefined;
 
   try {
     const { data, error } = await resend().emails.send({
-      from: env.resendFrom,
+      from: resolveFromAddress(settings),
       to,
       subject: message.subject,
       html: message.html,
       text: message.text,
-      ...(replyTo ? { replyTo } : {}),
+      ...(resolvedReplyTo ? { replyTo: resolvedReplyTo } : {}),
+      ...(cc?.length ? { cc } : {}),
+      ...(bcc?.length ? { bcc } : {}),
     });
 
     if (error) {
@@ -93,12 +104,30 @@ export async function send({
 /**
  * Internal notification to the team inbox.
  *
+ * `kind` gates against the admin's own toggle for that category (settings
+ * page) - "notify me about enquiries" and "notify me about payments" are
+ * independent switches, both on by default so a fresh database behaves as
+ * this always did.
+ *
  * Fire-and-forget on purpose: a failure to notify ourselves is never a reason
  * to fail a buyer's request.
  */
-export async function notifyTeam(message: Rendered): Promise<void> {
+export async function notifyTeam(
+  message: Rendered,
+  kind: "enquiry" | "payment" = "payment",
+): Promise<void> {
   try {
-    await send({ to: env.adminNotifyEmail, template: "internal-notification", message });
+    const settings = await getSettings();
+    const enabled = kind === "enquiry" ? settings.notifyAdminEnquiry : settings.notifyAdminPayment;
+    if (!enabled) return;
+
+    await send({
+      to: notifyRecipients(settings),
+      template: "internal-notification",
+      message,
+      cc: settings.cc,
+      bcc: settings.bcc,
+    });
   } catch {
     // Swallowed deliberately - see above.
   }
