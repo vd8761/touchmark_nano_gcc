@@ -187,8 +187,8 @@ it and retries until it gets a 2xx, entirely independent of the browser.
 
 Both call the same idempotent function, so whichever arrives first does the
 work and the second is a no-op. Nothing is charged, emailed or created twice.
-A 15-minute cron sweep catches anything both somehow miss, by asking Razorpay's
-API directly.
+A daily cron sweep catches anything both somehow miss, by asking Razorpay's
+API directly (Vercel's Hobby plan caps cron jobs to once a day).
 
 **Recommended for `dosmembership` too.** The same hole exists there, and the
 fix is one extra webhook URL in the dashboard.

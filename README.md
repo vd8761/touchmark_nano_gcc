@@ -240,8 +240,8 @@ whichever lands first does the work and the other is a no-op.
 explains most of the design. A payment is confirmed by a signed, retried
 webhook, so closing the tab, losing signal or hitting Back cannot lose it. If
 the webhook is late, `/api/order-status` re-asks Razorpay directly after 20
-seconds; if it never arrives at all, the cron sweeper picks it up within 15
-minutes. Nothing in the buyer's path can produce a double charge: order
+seconds; if it never arrives at all and the buyer never checks back, the cron
+sweeper picks it up on its next daily run. Nothing in the buyer's path can produce a double charge: order
 creation reuses an unpaid order for 30 minutes, membership creation is guarded
 by a unique constraint, and the receipt is claimed with a conditional update
 before it is sent.
@@ -280,8 +280,9 @@ site looks orders up by `ref`, and the client-side signature is
 5. **Resend.** Verify the sending domain, then add a webhook at
    `<site>/api/webhooks/resend` for the `email.*` events so delivery status
    shows up in the admin panel.
-6. **Cron.** `vercel.json` registers the 15-minute reconciliation sweep. It
-   only runs on a deployed Vercel project, not locally.
+6. **Cron.** `vercel.json` registers the daily reconciliation sweep - Vercel's
+   Hobby plan caps cron jobs to once a day; tighten it on Pro if a shorter
+   worst-case matters. It only runs on a deployed Vercel project, not locally.
 
 Local webhook testing needs a public URL — `ngrok http 3000` or
 `vercel dev --listen`, with the tunnel address registered in the Razorpay and

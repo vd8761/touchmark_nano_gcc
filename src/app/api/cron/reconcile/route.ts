@@ -1,5 +1,11 @@
 /**
- * GET /api/cron/reconcile  (Vercel Cron, every 15 minutes)
+ * GET /api/cron/reconcile  (Vercel Cron, daily - see vercel.json)
+ *
+ * Daily because Vercel's Hobby plan caps cron jobs to once a day; upgrade to
+ * Pro and tighten the schedule in vercel.json if a shorter worst-case matters
+ * more than the cost. The 20-second self-heal in /api/order-status covers the
+ * common case regardless - a buyer who checks their own status shortly after
+ * paying never depends on this cron at all.
  *
  * The backstop. Everything else in the payment path is best-effort; this is
  * what makes "we never lose a payment" true rather than aspirational.

@@ -33,7 +33,7 @@ export default async function AdminEmailsPage({
       <h1 className="adm-h1">Emails</h1>
       <p className="adm-sub">
         Delivery tracking from the Resend webhook. Receipts that failed to send are retried
-        automatically every 15 minutes.
+        automatically once a day, by the reconciliation cron.
       </p>
 
       <form className="adm-tools" method="get">

@@ -172,7 +172,7 @@ export default function SettingsForm({ initial }: { initial: Settings }) {
             <strong>Off:</strong> enquirers won&rsquo;t get an acknowledgement, and paid members
             won&rsquo;t get a receipt automatically. You can still send a receipt by hand from the{" "}
             Payments page. Turning this back on does not retroactively email anyone who missed one
-            while it was off &mdash; the 15-minute sweep only catches receipts, not enquiry
+            while it was off &mdash; the daily cron sweep only catches receipts, not enquiry
             acknowledgements.
           </p>
         )}
