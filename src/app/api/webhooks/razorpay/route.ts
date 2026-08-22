@@ -27,10 +27,7 @@ import {
   findOrderByRef,
   SITE_TAG,
 } from "@/lib/payments";
-import { deliverWelcomeEmail } from "@/lib/membership";
-import { notifyTeam } from "@/lib/email";
-import { internalNotification } from "@/lib/email-templates";
-import { formatInr } from "@/lib/pricing";
+import { deliverWelcomeEmail, notifyNewMembership } from "@/lib/membership";
 import { json } from "@/lib/request";
 
 export const runtime = "nodejs";
@@ -184,22 +181,7 @@ async function handleCaptured(
   //    handler return non-2xx, which would have Razorpay replay the capture.
   if (result.created) {
     await deliverWelcomeEmail(result.order, result.membership);
-
-    void notifyTeam(
-      internalNotification({
-        heading: "Membership payment received",
-        pairs: [
-          ["Member number", result.membership.member_no],
-          ["Institution", result.membership.institution ?? "-"],
-          ["Email", result.membership.email],
-          ["Reference", result.order.order_ref],
-          ["Transaction", paymentId],
-          ["Amount", formatInr(result.order.amount_paise)],
-        ],
-        adminUrl: `${env.siteUrl}/admin/payments/`,
-      }),
-      "payment",
-    );
+    void notifyNewMembership(result.order, result.membership);
   }
 }
 

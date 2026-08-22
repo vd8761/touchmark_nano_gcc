@@ -22,10 +22,7 @@ import type { NextRequest } from "next/server";
 import { sql } from "@/lib/db";
 import { env } from "@/lib/env";
 import { applyPaymentSuccess, findOrderByRef, verifyRazorpaySignature } from "@/lib/payments";
-import { deliverWelcomeEmail } from "@/lib/membership";
-import { notifyTeam } from "@/lib/email";
-import { internalNotification } from "@/lib/email-templates";
-import { formatInr } from "@/lib/pricing";
+import { deliverWelcomeEmail, notifyNewMembership } from "@/lib/membership";
 import { json } from "@/lib/request";
 
 export const runtime = "nodejs";
@@ -95,22 +92,7 @@ export async function POST(req: NextRequest) {
   // or originbi's page will look like the payment failed when it did not.
   if (result.created) {
     await deliverWelcomeEmail(result.order, result.membership);
-
-    void notifyTeam(
-      internalNotification({
-        heading: "Membership payment received",
-        pairs: [
-          ["Member number", result.membership.member_no],
-          ["Institution", result.membership.institution ?? "-"],
-          ["Email", result.membership.email],
-          ["Reference", result.order.order_ref],
-          ["Transaction", razorpayPaymentId],
-          ["Amount", formatInr(result.order.amount_paise)],
-        ],
-        adminUrl: `${env.siteUrl}/admin/payments/`,
-      }),
-      "payment",
-    );
+    void notifyNewMembership(result.order, result.membership);
   }
 
   return json(

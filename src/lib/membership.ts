@@ -9,8 +9,8 @@
 
 import { sql, type Membership, type Order } from "./db";
 import { env } from "./env";
-import { send } from "./email";
-import { membershipActivated, membershipDetails } from "./email-templates";
+import { send, notifyTeam } from "./email";
+import { membershipActivated, membershipDetails, newMembershipNotification } from "./email-templates";
 import { getPlan, PLANS } from "./pricing";
 import { getSettings } from "./settings";
 
@@ -123,6 +123,53 @@ export async function emailMembershipDetails(order: Order, membership: Membershi
       siteUrl: env.siteUrl,
     }),
   });
+}
+
+/**
+ * Notifies the team about a new membership - the admin's counterpart to
+ * `deliverWelcomeEmail`. Called from both completion webhooks, which is why
+ * this lives here rather than being built inline at each call site as it
+ * used to be: the two had already started drifting (one used the buyer's
+ * name for its own audit trail purposes, the other didn't) despite meaning
+ * the same event.
+ *
+ * The designation, city and "anything else we should know" message aren't on
+ * `orders`/`memberships` - only the enquiry has them - so this looks the
+ * enquiry up by `order.enquiry_id` for that context. A gone or missing
+ * enquiry degrades gracefully to blanks rather than failing the whole send.
+ */
+export async function notifyNewMembership(order: Order, membership: Membership): Promise<void> {
+  let role: string | null = null;
+  let city: string | null = null;
+  let message: string | null = null;
+
+  if (order.enquiry_id) {
+    const rows = (await sql()`
+      select role, city, message from enquiries where id = ${order.enquiry_id}
+    `) as { role: string | null; city: string | null; message: string | null }[];
+    role = rows[0]?.role ?? null;
+    city = rows[0]?.city ?? null;
+    message = rows[0]?.message ?? null;
+  }
+
+  await notifyTeam(
+    newMembershipNotification({
+      name: membership.name,
+      institution: membership.institution,
+      email: membership.email,
+      phone: order.phone,
+      role,
+      city,
+      message,
+      memberNo: membership.member_no,
+      orderRef: order.order_ref,
+      transactionId: order.razorpay_payment_id,
+      amountPaise: order.amount_paise,
+      paidAt: order.paid_at ?? membership.activated_at,
+      adminUrl: `${env.siteUrl}/admin/payments/`,
+    }),
+    "payment",
+  );
 }
 
 /**

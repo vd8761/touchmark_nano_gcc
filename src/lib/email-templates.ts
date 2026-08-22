@@ -15,15 +15,23 @@ import { formatInr, gstBreakdown, type Plan } from "./pricing";
 
 export type Rendered = { subject: string; html: string; text: string };
 
-const SEED = "#0F5E86";
-const PANEL = "#0D364F";
-const INK = "#16232B";
-const INK_SOFT = "#5A6B75";
+// Matches the site's actual custom properties in globals.css (--seed, --panel,
+// --proven, etc.) so mail doesn't feel like a different product from the page
+// that sent someone here.
+const SEED = "#0F5E86"; // the starting unit - primary brand colour
+const PANEL = "#0D364F"; // accent band / footer - deep navy
+const PROVEN = "#9E480A"; // capability added once proven - warm accent
+const INK = "#0D364F";
+const INK_SOFT = "#4E6B7C";
+const INK_FAINT = "#7C8F9B";
 const RULE = "#DCE3E7";
 const PAPER = "#F7F9FA";
+const PAPER_2 = "#F8F4F0";
 
 const FONT =
   "Poppins, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
+const MONO_FONT =
+  "'Poppins', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 
 function escapeHtml(value: string): string {
   return value
@@ -101,6 +109,125 @@ function textRows(pairs: [string, string][]): string {
 }
 
 // ---------------------------------------------------------------------------
+// The "hero" shell - a warmer, more visual wrapper for the two moments that
+// deserve to feel like an event rather than a routine notice: a new
+// membership landing in the admin's inbox, and a buyer's own activation
+// email. Everything else (enquiry acks, admin-notification pairs, the
+// on-demand status lookup) stays on the plainer `layout()` above - reserving
+// the heavier treatment for these two keeps it meaning something.
+//
+// Gradients are set as background-color *and* background-image separately
+// (not the `background` shorthand) so Outlook's engine, which ignores
+// background-image on table cells entirely, still renders the solid
+// fallback colour rather than nothing.
+// ---------------------------------------------------------------------------
+
+function heroLayout(opts: {
+  title: string;
+  preheader: string;
+  eyebrow: string;
+  accent: string;
+  body: string;
+}): string {
+  return `<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${escapeHtml(opts.title)}</title>
+</head>
+<body style="margin:0;padding:0;background:${PAPER};font-family:${FONT};color:${INK};">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(opts.preheader)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${PAPER};padding:32px 16px;">
+<tr><td align="center">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#FFFFFF;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(13,54,79,0.08);">
+    <tr><td
+      style="background-color:${PANEL};background-image:linear-gradient(135deg, ${PANEL} 0%, ${opts.accent} 160%);padding:42px 40px 34px;"
+    >
+      <table role="presentation" cellpadding="0" cellspacing="0"><tr><td
+        style="background:rgba(255,255,255,0.14);border-radius:20px;padding:5px 14px;font-family:${MONO_FONT};font-weight:700;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:#FFFFFF;"
+      >${escapeHtml(opts.eyebrow)}</td></tr></table>
+      <div style="font-family:${FONT};font-weight:600;font-size:26px;line-height:1.28;color:#FFFFFF;margin-top:16px;">${opts.title}</div>
+    </td></tr>
+    <tr><td style="padding:36px 40px 8px;">${opts.body}</td></tr>
+    <tr><td style="padding:8px 40px 30px;">
+      <div style="border-top:1px solid ${RULE};padding-top:22px;font-size:12px;line-height:1.6;color:${INK_FAINT};">
+        ${escapeHtml(COMPANY.legalName)} &middot; ${escapeHtml(COMPANY.brand)}<br>
+        ${COMPANY.addresses[0].lines.map(escapeHtml).join("<br>")}
+      </div>
+    </td></tr>
+  </table>
+  <div style="max-width:600px;margin:16px auto 0;font-size:11px;color:${INK_FAINT};text-align:center;">
+    You&rsquo;re receiving this because of activity on ${escapeHtml(COMPANY.brand)}.
+  </div>
+</td></tr></table>
+</body></html>`;
+}
+
+/** A row of one or two side-by-side call-to-action buttons. */
+function buttonRow(actions: { href: string; label: string; primary?: boolean }[]): string {
+  const cells = actions
+    .map(
+      (a) => `<td style="padding-right:12px;">
+        <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+          <td style="background-color:${a.primary === false ? "#FFFFFF" : SEED};${
+            a.primary === false ? `border:1.5px solid ${SEED};` : ""
+          }border-radius:8px;">
+            <a href="${a.href}" style="display:inline-block;padding:13px 24px;font-size:14px;font-weight:600;color:${
+              a.primary === false ? SEED : "#FFFFFF"
+            };text-decoration:none;">${escapeHtml(a.label)}</a>
+          </td>
+        </tr></table>
+      </td>`,
+    )
+    .join("");
+
+  return `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px 0;"><tr>${cells}</tr></table>`;
+}
+
+/** The bulleted "what you get" list, with a coloured checkmark instead of a plain bullet. */
+function checklist(items: string[], accent: string): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0;">
+${items
+  .map(
+    (item) => `<tr>
+      <td style="padding:7px 10px 7px 0;width:26px;vertical-align:top;">
+        <div style="width:20px;height:20px;border-radius:50%;background:${accent}1a;color:${accent};font-size:12px;font-weight:700;text-align:center;line-height:20px;">&#10003;</div>
+      </td>
+      <td style="padding:7px 0;font-size:14.5px;line-height:1.55;color:${INK};">${escapeHtml(item)}</td>
+    </tr>`,
+  )
+  .join("\n")}
+</table>`;
+}
+
+/** A quoted callout box, for someone's own words (an enquiry message). */
+function quoteBox(text: string): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0;background:${PAPER_2};border-left:3px solid ${PROVEN};border-radius:0 8px 8px 0;">
+    <tr><td style="padding:16px 18px;font-size:14px;line-height:1.6;color:${INK};font-style:italic;">&ldquo;${escapeHtml(text)}&rdquo;</td></tr>
+  </table>`;
+}
+
+/** A compact, de-emphasised record of the transaction - present for the buyer's own books, not the headline. */
+function recordBox(pairs: [string, string][]): string {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:26px 0 4px;background:${PAPER_2};border-radius:8px;">
+    <tr><td style="padding:16px 20px;">
+      <div style="font-family:${MONO_FONT};font-weight:700;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:${INK_FAINT};margin-bottom:8px;">For your records</div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${pairs
+          .map(
+            ([k, v]) =>
+              `<tr>
+                <td style="padding:5px 0;font-size:12.5px;color:${INK_SOFT};border-top:1px solid ${RULE};">${escapeHtml(k)}</td>
+                <td align="right" style="padding:5px 0;font-size:12.5px;color:${INK};font-weight:500;border-top:1px solid ${RULE};">${escapeHtml(v)}</td>
+              </tr>`,
+          )
+          .join("")}
+      </table>
+    </td></tr>
+  </table>`;
+}
+
+// ---------------------------------------------------------------------------
 // Membership activated - the receipt
 // ---------------------------------------------------------------------------
 
@@ -118,67 +245,83 @@ export type MembershipEmailInput = {
   siteUrl: string;
 };
 
+/**
+ * Deliberately not shaped like a receipt: the emotional job of this email is
+ * "welcome, this is real and it starts now", not "here is a document to
+ * file". The transaction detail buyers actually need for their books is
+ * still all here, just in `recordBox` near the bottom rather than leading -
+ * see the celebratory framing throughout the visible body instead.
+ */
 export function membershipActivated(input: MembershipEmailInput): Rendered {
   const gst = gstBreakdown(input.amountPaise, input.plan.gstRate);
-  const greeting = input.name ? `Hello ${input.name},` : "Hello,";
+  const firstName = input.name?.trim().split(/\s+/)[0] ?? null;
+  const institution = input.institution ?? "your institution";
+  const phoneDigits = COMPANY.phones[0].replace(/[^\d+]/g, "");
 
   const pairs: [string, string][] = [
-    ["Membership number", input.memberNo],
-    ["Institution", input.institution ?? "-"],
-    ["Registered email", input.email],
+    ["Membership no.", input.memberNo],
     ["Reference ID", input.orderRef],
     ["Transaction ID", input.transactionId ?? "-"],
     ["Amount paid", `${formatInr(gst.totalPaise)} (incl. GST)`],
-    ["Taxable value", formatInr(gst.basePaise)],
-    [`GST @ ${Math.round(gst.gstRate * 100)}%`, formatInr(gst.gstPaise)],
     ["Paid on", formatDate(input.paidAt)],
     ["Valid until", input.validUntil ? formatDate(input.validUntil) : "-"],
   ];
 
-  const includes = input.plan.includes
-    .map(
-      (item) =>
-        `<li style="margin-bottom:7px;font-size:14px;line-height:1.6;color:${INK};">${escapeHtml(item)}</li>`,
-    )
-    .join("");
-
-  const html = layout({
-    title: "Your membership is active",
-    preheader: `${input.memberNo} - payment of ${formatInr(input.amountPaise)} received.`,
+  const html = heroLayout({
+    eyebrow: "Membership activated",
+    title: `Congratulations${firstName ? `, ${escapeHtml(firstName)}` : ""} &mdash; you&rsquo;re in.`,
+    preheader: `${institution}'s DOS Club membership is active. Here's what happens next.`,
+    accent: PROVEN,
     body: `
-      ${paragraph(escapeHtml(greeting))}
       ${paragraph(
-        `Your <strong>DOS Club</strong> membership has been activated. Payment was received in full and this email is your receipt &mdash; please keep it for your records.`,
+        `<strong>${escapeHtml(institution)}</strong>&rsquo;s DOS Club membership is now active. ` +
+          `We&rsquo;re genuinely glad to have you &mdash; this is the start of a working relationship, not just a transaction.`,
       )}
-      ${rows(pairs)}
-      <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:${INK_SOFT};margin-top:24px;">What your membership includes</div>
-      <ul style="margin:12px 0 0;padding-left:18px;">${includes}</ul>
+
+      <div style="font-family:${MONO_FONT};font-weight:700;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:${INK_FAINT};margin:26px 0 4px;">Your membership includes</div>
+      ${checklist(input.plan.includes, PROVEN)}
+
+      ${paragraph(
+        `Our team will be in touch shortly to help you get the most out of it. In the meantime, reach us any time:`,
+      )}
+      ${buttonRow([
+        { href: `tel:${phoneDigits}`, label: "Call us", primary: true },
+        { href: `mailto:${COMPANY.email}`, label: "Email us", primary: false },
+      ])}
+      ${paragraph(
+        `Thank you for being part of the Nano GCC ecosystem &mdash; we&rsquo;re looking forward to what ${escapeHtml(
+          institution,
+        )} builds with it.`,
+      )}
       ${button(`${input.siteUrl}/contact/?tab=status&ref=${encodeURIComponent(input.orderRef)}`, "View membership status")}
-      ${paragraph(
-        `Quote your reference ID <strong>${escapeHtml(
-          input.orderRef,
-        )}</strong> in any correspondence. If anything here looks wrong, reply to this email and we&rsquo;ll sort it out.`,
-      )}
+      ${recordBox(pairs)}
     `,
   });
 
   const text = [
-    greeting,
+    `Congratulations${firstName ? `, ${firstName}` : ""} - you're in.`,
     "",
-    "Your DOS Club membership has been activated. Payment was received in full and this email is your receipt.",
+    `${institution}'s DOS Club membership is now active. We're genuinely glad to have you - this is the start of a working relationship, not just a transaction.`,
     "",
-    textRows(pairs),
-    "",
-    "What your membership includes:",
+    "Your membership includes:",
     ...input.plan.includes.map((i) => `  - ${i}`),
     "",
+    "Our team will be in touch shortly. In the meantime, reach us any time:",
+    `  Call: ${COMPANY.phones[0]}`,
+    `  Email: ${COMPANY.email}`,
+    "",
+    `Thank you for being part of the Nano GCC ecosystem.`,
+    "",
     `Check your status: ${input.siteUrl}/contact/?tab=status&ref=${encodeURIComponent(input.orderRef)}`,
+    "",
+    "For your records:",
+    textRows(pairs),
     "",
     `${COMPANY.legalName} - ${COMPANY.email}`,
   ].join("\n");
 
   return {
-    subject: `DOS Club membership activated - ${input.memberNo}`,
+    subject: `You're in - ${institution}'s DOS Club membership is active`,
     html,
     text,
   };
@@ -289,5 +432,102 @@ export function internalNotification(input: {
     subject: `[DOS Club] ${input.heading}`,
     html,
     text: `${input.heading}\n\n${textRows(input.pairs)}\n\n${input.adminUrl}`,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// New membership - the admin's own celebratory copy of the moment above,
+// built to make acting on it (reply, call) as close to zero-friction as the
+// inbox allows.
+// ---------------------------------------------------------------------------
+
+export function newMembershipNotification(input: {
+  name: string | null;
+  institution: string | null;
+  email: string;
+  phone: string | null;
+  /** Their designation, from the enquiry - not stored on the order itself. */
+  role: string | null;
+  city: string | null;
+  /** The enquiry's "anything else we should know" field, if they wrote one. */
+  message: string | null;
+  memberNo: string;
+  orderRef: string;
+  transactionId: string | null;
+  amountPaise: number;
+  paidAt: string;
+  adminUrl: string;
+}): Rendered {
+  const firstName = input.name?.trim().split(/\s+/)[0] ?? "them";
+  const institution = input.institution ?? "An institution";
+  const phoneDigits = input.phone ? input.phone.replace(/[^\d+]/g, "") : null;
+
+  const who: [string, string][] = [
+    ["Name", input.name ?? "-"],
+    ["Designation", input.role ?? "-"],
+    ["Institution", institution],
+    ["Email", input.email],
+    ["Phone", input.phone ?? "-"],
+    ["City", input.city ?? "-"],
+  ];
+
+  const payment: [string, string][] = [
+    ["Member no.", input.memberNo],
+    ["Reference", input.orderRef],
+    ["Transaction", input.transactionId ?? "-"],
+    ["Amount", formatInr(input.amountPaise)],
+    ["Paid on", formatDate(input.paidAt)],
+  ];
+
+  const actions = [
+    { href: `mailto:${input.email}?subject=${encodeURIComponent(`Welcome to DOS Club, ${institution}`)}`, label: `Email ${firstName}`, primary: true },
+    ...(phoneDigits ? [{ href: `tel:${phoneDigits}`, label: `Call ${firstName}`, primary: false }] : []),
+  ];
+
+  const html = heroLayout({
+    eyebrow: "New membership",
+    title: `${escapeHtml(institution)} just joined.`,
+    preheader: `${input.name ?? "Someone"} from ${institution} activated a DOS Club membership - ${formatInr(input.amountPaise)}.`,
+    accent: SEED,
+    body: `
+      ${paragraph(`A new institution membership just went through. Here&rsquo;s everything you need to reach out.`)}
+
+      <div style="font-family:${MONO_FONT};font-weight:700;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:${INK_FAINT};margin:22px 0 4px;">Who joined</div>
+      ${rows(who)}
+
+      ${
+        input.message
+          ? `<div style="font-family:${MONO_FONT};font-weight:700;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:${INK_FAINT};margin:22px 0 4px;">What they told us</div>${quoteBox(input.message)}`
+          : ""
+      }
+
+      ${buttonRow(actions)}
+      ${button(input.adminUrl, "Open in admin panel")}
+      ${recordBox(payment)}
+    `,
+  });
+
+  const text = [
+    `${institution} just joined.`,
+    "",
+    "A new institution membership just went through.",
+    "",
+    "Who joined:",
+    textRows(who),
+    ...(input.message ? ["", `What they told us: "${input.message}"`] : []),
+    "",
+    `Email ${firstName}: ${input.email}`,
+    ...(input.phone ? [`Call ${firstName}: ${input.phone}`] : []),
+    "",
+    "Payment:",
+    textRows(payment),
+    "",
+    input.adminUrl,
+  ].join("\n");
+
+  return {
+    subject: `New membership: ${institution}`,
+    html,
+    text,
   };
 }
