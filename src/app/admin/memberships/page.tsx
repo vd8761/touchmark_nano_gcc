@@ -46,7 +46,7 @@ export default async function AdminMembershipsPage({
       <h1 className="adm-h1">Memberships</h1>
       <p className="adm-sub">
         Active and past DOS Club memberships. Every row here corresponds to a payment Razorpay
-        confirmed &mdash; there is no other way one is created.
+        confirmed - there is no other way one is created.
       </p>
 
       <form className="adm-tools" method="get">

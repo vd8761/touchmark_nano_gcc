@@ -43,7 +43,7 @@ export default async function AdminEnquiriesPage({
       <h1 className="adm-h1">Enquiries</h1>
       <p className="adm-sub">
         Every submission from the contact form, both audiences. Status and notes are for your team
-        only &mdash; they&rsquo;re never shown to the enquirer.
+        only - they&rsquo;re never shown to the enquirer.
       </p>
 
       <EnquiryFilters kind={kind} status={status} search={search} />

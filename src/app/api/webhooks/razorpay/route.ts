@@ -24,6 +24,7 @@ import { hmacHex, safeEqual } from "@/lib/crypto";
 import {
   applyPaymentFailure,
   applyPaymentSuccess,
+  fetchBankReference,
   findOrderByRef,
   SITE_TAG,
 } from "@/lib/payments";
@@ -166,12 +167,15 @@ async function handleCaptured(
   const paymentId = payment?.id;
   if (!paymentId) return;
 
+  const bankReference = await fetchBankReference(paymentId).catch(() => null);
+
   const result = await applyPaymentSuccess({
     orderRef,
     razorpayPaymentId: paymentId,
     razorpayOrderId: payment?.order_id ?? order?.id ?? null,
     method: payment?.method ?? null,
     amountPaise: payment?.amount ?? null,
+    bankReference,
   });
 
   if (!result) return;

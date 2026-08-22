@@ -114,7 +114,7 @@ function InstitutionForm({ amountPaise }: { amountPaise: number }) {
     <form onSubmit={onSubmit} noValidate>
       <div className="pkg">
         <div className="pkg-top">
-          <span className="pkg-name">DOS Club &mdash; Institution membership</span>
+          <span className="pkg-name">DOS Club - Institution membership</span>
           <span className="pkg-price">
             {formatInrShort(amountPaise)}
             <small>incl. GST &middot; 12 months</small>
@@ -205,7 +205,7 @@ function OrganisationForm() {
     return (
       <div className="rc">
         <span className="rc-badge">Received</span>
-        <h3 className="rc-title">Thank you &mdash; we have your enquiry.</h3>
+        <h3 className="rc-title">Thank you - we have your enquiry.</h3>
         <p className="rc-lede">
           Corporate engagements are scoped individually, so commercials are discussed on a call
           rather than published. One of our team will be in touch within two working days to
@@ -220,7 +220,7 @@ function OrganisationForm() {
   return (
     <form onSubmit={onSubmit} noValidate>
       <p className="form-hint">
-        For companies &middot; no payment now &mdash; commercials are agreed on a call
+        For companies &middot; no payment now - commercials are agreed on a call
       </p>
 
       {error && (

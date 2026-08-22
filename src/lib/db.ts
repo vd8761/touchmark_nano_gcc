@@ -79,6 +79,8 @@ export type Order = {
   razorpay_order_id: string | null;
   razorpay_payment_id: string | null;
   payment_method: string | null;
+  /** The UPI RRN / netbanking / card reference from Razorpay's acquirer_data - not the same as razorpay_payment_id. */
+  bank_reference: string | null;
   failure_reason: string | null;
   paid_at: string | null;
   retried_by: string | null;

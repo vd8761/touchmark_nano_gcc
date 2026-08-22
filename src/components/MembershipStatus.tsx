@@ -179,8 +179,8 @@ function Outcome({ result }: { result: Result }) {
         <span className="rc-badge">{membership.status === "active" ? "Active member" : membership.status}</span>
         <h3 className="rc-title">{membership.institution ?? membership.memberNo}</h3>
         <p className="rc-lede">
-          We&rsquo;ve emailed the full details &mdash; including your reference and transaction IDs
-          &mdash; to the address on the membership. Here&rsquo;s the summary in the meantime.
+          We&rsquo;ve emailed the full details - including your reference and transaction IDs
+          - to the address on the membership. Here&rsquo;s the summary in the meantime.
         </p>
 
         <dl className="rc-rows">
@@ -213,7 +213,7 @@ function Outcome({ result }: { result: Result }) {
           {settling ? (
             <>
               We can see reference <strong>{result.orderRef}</strong>, and it hasn&rsquo;t settled
-              yet. There&rsquo;s nothing you need to do &mdash; we&rsquo;ll email you the moment it
+              yet. There&rsquo;s nothing you need to do - we&rsquo;ll email you the moment it
               clears.
             </>
           ) : (
@@ -234,7 +234,7 @@ function Outcome({ result }: { result: Result }) {
       <span className="rc-badge">No match</span>
       <h3 className="rc-title">We couldn&rsquo;t find a membership for that.</h3>
       <p className="rc-lede">
-        Check for a typo, and try the other identifier &mdash; if the email doesn&rsquo;t match, the
+        Check for a typo, and try the other identifier - if the email doesn&rsquo;t match, the
         reference ID from your receipt will. If you&rsquo;ve paid and still can&rsquo;t find it,
         reply to your payment receipt and we&rsquo;ll trace it for you.
       </p>

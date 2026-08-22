@@ -238,6 +238,8 @@ export type MembershipEmailInput = {
   email: string;
   orderRef: string;
   transactionId: string | null;
+  /** UPI RRN / bank reference from Razorpay's acquirer_data - what shows up in the buyer's own statement. */
+  bankReference?: string | null;
   amountPaise: number;
   paidAt: string;
   validUntil: string | null;
@@ -261,6 +263,7 @@ export function membershipActivated(input: MembershipEmailInput): Rendered {
   const pairs: [string, string][] = [
     ["Membership no.", input.memberNo],
     ["Reference ID", input.orderRef],
+    ["UPI / bank reference", input.bankReference ?? "-"],
     ["Transaction ID", input.transactionId ?? "-"],
     ["Amount paid", `${formatInr(gst.totalPaise)} (incl. GST)`],
     ["Paid on", formatDate(input.paidAt)],
@@ -269,13 +272,13 @@ export function membershipActivated(input: MembershipEmailInput): Rendered {
 
   const html = heroLayout({
     eyebrow: "Membership activated",
-    title: `Congratulations${firstName ? `, ${escapeHtml(firstName)}` : ""} &mdash; you&rsquo;re in.`,
+    title: `Congratulations${firstName ? `, ${escapeHtml(firstName)}` : ""} - you&rsquo;re in.`,
     preheader: `${institution}'s DOS Club membership is active. Here's what happens next.`,
     accent: PROVEN,
     body: `
       ${paragraph(
         `<strong>${escapeHtml(institution)}</strong>&rsquo;s DOS Club membership is now active. ` +
-          `We&rsquo;re genuinely glad to have you &mdash; this is the start of a working relationship, not just a transaction.`,
+          `We&rsquo;re genuinely glad to have you - this is the start of a working relationship, not just a transaction.`,
       )}
 
       <div style="font-family:${MONO_FONT};font-weight:700;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:${INK_FAINT};margin:26px 0 4px;">Your membership includes</div>
@@ -289,7 +292,7 @@ export function membershipActivated(input: MembershipEmailInput): Rendered {
         { href: `mailto:${COMPANY.email}`, label: "Email us", primary: false },
       ])}
       ${paragraph(
-        `Thank you for being part of the Nano GCC ecosystem &mdash; we&rsquo;re looking forward to what ${escapeHtml(
+        `Thank you for being part of the Nano GCC ecosystem - we&rsquo;re looking forward to what ${escapeHtml(
           institution,
         )} builds with it.`,
       )}
@@ -384,6 +387,7 @@ export function membershipDetails(input: MembershipEmailInput & { status: string
     ["Status", input.status],
     ["Institution", input.institution ?? "-"],
     ["Reference ID", input.orderRef],
+    ["UPI / bank reference", input.bankReference ?? "-"],
     ["Transaction ID", input.transactionId ?? "-"],
     ["Amount paid", `${formatInr(gst.totalPaise)} (incl. GST)`],
     ["Paid on", formatDate(input.paidAt)],
@@ -397,7 +401,7 @@ export function membershipDetails(input: MembershipEmailInput & { status: string
       ${paragraph("You (or someone) asked for these membership details on our website.")}
       ${rows(pairs)}
       ${paragraph(
-        "If this wasn&rsquo;t you, no action is needed &mdash; these details were only sent to the address already on the membership.",
+        "If this wasn&rsquo;t you, no action is needed - these details were only sent to the address already on the membership.",
       )}
     `,
   });
@@ -454,6 +458,7 @@ export function newMembershipNotification(input: {
   memberNo: string;
   orderRef: string;
   transactionId: string | null;
+  bankReference?: string | null;
   amountPaise: number;
   paidAt: string;
   adminUrl: string;
@@ -474,6 +479,7 @@ export function newMembershipNotification(input: {
   const payment: [string, string][] = [
     ["Member no.", input.memberNo],
     ["Reference", input.orderRef],
+    ["Bank / UPI ref", input.bankReference ?? "-"],
     ["Transaction", input.transactionId ?? "-"],
     ["Amount", formatInr(input.amountPaise)],
     ["Paid on", formatDate(input.paidAt)],

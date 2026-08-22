@@ -31,6 +31,7 @@ type StatusPayload = {
   institution?: string | null;
   email?: string;
   transactionId?: string | null;
+  bankReference?: string | null;
   paymentMethod?: string | null;
   paidAt?: string | null;
   validUntil?: string | null;
@@ -170,11 +171,11 @@ export default function PaymentReturn() {
     // payment page said "success", lead with that - the missing reference is
     // our problem to solve, not something to worry the buyer with.
     return claimedSuccess ? (
-      <Card badge="Payment successful" title={<>Thank you &mdash; your payment went through.</>}>
+      <Card badge="Payment successful" title={<>Thank you - your payment went through.</>}>
         <p className="rc-lede">
           We couldn&rsquo;t read the reference from the link you came back on, so we can&rsquo;t
           show the full receipt here. Your payment is recorded and your membership email is on its
-          way &mdash; it carries the reference and the full details.
+          way - it carries the reference and the full details.
         </p>
         <p className="rc-lede" style={{ marginTop: 14 }}>
           You can also{" "}
@@ -188,7 +189,7 @@ export default function PaymentReturn() {
       <Card tone="wait" badge="No reference" title={<>We can&rsquo;t identify this payment.</>}>
         <p className="rc-lede">
           This page needs the reference from your payment. If you&rsquo;ve just paid and landed
-          here without one, don&rsquo;t worry &mdash; your payment is still recorded, and the
+          here without one, don&rsquo;t worry - your payment is still recorded, and the
           receipt will reach your inbox. You can also{" "}
           <Link href="/contact/?tab=status" style={{ borderBottom: "1px solid currentColor" }}>
             check your membership status
@@ -211,7 +212,7 @@ export default function PaymentReturn() {
       >
         <p className="rc-lede">
           Your membership is active and your receipt is on its way to{" "}
-          <strong>{data?.email}</strong>. Keep the reference below &mdash; it&rsquo;s how you can
+          <strong>{data?.email}</strong>. Keep the reference below - it&rsquo;s how you can
           look this up at any time.
         </p>
 
@@ -220,6 +221,7 @@ export default function PaymentReturn() {
           <Row k="Plan" v={data?.planName} />
           <Row k="Institution" v={data?.institution} />
           <Row k="Reference ID" v={data?.orderRef} mono />
+          <Row k="UPI / bank reference" v={data?.bankReference} mono />
           <Row k="Transaction ID" v={data?.transactionId} mono />
           <Row k="Payment method" v={data?.paymentMethod} />
           <Row k="Paid on" v={data?.paidAt ? formatDate(data.paidAt) : null} />
@@ -255,7 +257,7 @@ export default function PaymentReturn() {
           {status === "abandoned"
             ? "This attempt was left open too long, so we've closed it off."
             : "Your bank or card issuer declined the attempt."}{" "}
-          Nothing is lost &mdash; your details are saved, and starting again takes a moment.
+          Nothing is lost - your details are saved, and starting again takes a moment.
         </p>
 
         {data?.failureReason && (
@@ -289,7 +291,7 @@ export default function PaymentReturn() {
       <Card tone="wait" badge="Confirming" title={<>This is taking longer than usual.</>}>
         <p className="rc-lede">
           Your payment is safe. Banks occasionally take a few minutes to confirm, and we&rsquo;ll
-          email your receipt the moment it clears &mdash; there&rsquo;s nothing more for you to do,
+          email your receipt the moment it clears - there&rsquo;s nothing more for you to do,
           and no need to pay again.
         </p>
 
@@ -312,7 +314,7 @@ export default function PaymentReturn() {
   }
 
   return (
-    <Card tone="wait" badge="Confirming" title={<>Payment received &mdash; confirming it now.</>}>
+    <Card tone="wait" badge="Confirming" title={<>Payment received - confirming it now.</>}>
       <p className="rc-lede">
         This usually takes a few seconds. Please keep this page open; it will update by itself. Your
         reference is <strong>{ref}</strong>.

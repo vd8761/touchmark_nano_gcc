@@ -61,7 +61,7 @@ export default async function ContactPage() {
 
             <Reveal>
               <p className="body" style={{ marginTop: 24 }}>
-                We keep operational detail &mdash; sourcing, mapping and delivery mechanics &mdash;
+                We keep operational detail - sourcing, mapping and delivery mechanics -
                 out of public copy. It&rsquo;s shared in qualified conversations instead.
               </p>
             </Reveal>
@@ -73,19 +73,19 @@ export default async function ContactPage() {
             <Reveal as="ol" className="elist" stagger style={{ marginTop: 30 }}>
               <li>
                 <span>
-                  <strong>Institutions</strong> &mdash; DOS Club membership is{" "}
+                  <strong>Institutions</strong> - DOS Club membership is{" "}
                   {formatInrShort(amountPaise)} a year, inclusive of GST, paid online.
                 </span>
               </li>
               <li>
                 <span>
-                  <strong>Companies</strong> &mdash; tell us the capability goal you want to test.
+                  <strong>Companies</strong> - tell us the capability goal you want to test.
                   We&rsquo;ll arrange a call; commercials are agreed there.
                 </span>
               </li>
               <li>
                 <span>
-                  <strong>Talent</strong> &mdash;{" "}
+                  <strong>Talent</strong> -{" "}
                   <Link href="/careers/" style={{ borderBottom: "1px solid currentColor" }}>
                     register your interest here
                   </Link>

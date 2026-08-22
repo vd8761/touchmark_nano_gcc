@@ -50,7 +50,7 @@ export default async function AdminDashboard() {
     <>
       <h1 className="adm-h1">Dashboard</h1>
       <p className="adm-sub">
-        Signed in as {admin.email}. Figures are live &mdash; revenue counts confirmed payments only.
+        Signed in as {admin.email}. Figures are live - revenue counts confirmed payments only.
       </p>
 
       <div className="adm-stats">
@@ -77,7 +77,7 @@ export default async function AdminDashboard() {
       {needsAttention > 0 && (
         <div className="form-note" style={{ maxWidth: 720 }}>
           <strong>Some items need a look.</strong> Unsettled orders are re-checked against Razorpay
-          automatically once a day, and unsent receipts are retried on the same schedule &mdash;
+          automatically once a day, and unsent receipts are retried on the same schedule -
           most buyers are also covered sooner than that by the status page's own self-heal. If
           one persists, open{" "}
           <Link href="/admin/payments/" style={{ borderBottom: "1px solid currentColor" }}>

@@ -173,6 +173,8 @@ type SuccessInput = {
   razorpayOrderId?: string | null;
   method?: string | null;
   amountPaise?: number | null;
+  /** UPI RRN / netbanking / card reference - see fetchBankReference below. */
+  bankReference?: string | null;
 };
 
 export type SuccessResult = {
@@ -208,6 +210,7 @@ export async function applyPaymentSuccess(input: SuccessInput): Promise<SuccessR
            razorpay_payment_id = coalesce(razorpay_payment_id, ${input.razorpayPaymentId}),
            razorpay_order_id   = coalesce(${input.razorpayOrderId ?? null}, razorpay_order_id),
            payment_method      = coalesce(${input.method ?? null}, payment_method),
+           bank_reference      = coalesce(${input.bankReference ?? null}, bank_reference),
            paid_at             = coalesce(paid_at, now()),
            failure_reason      = null
      where order_ref = ${input.orderRef}
@@ -296,6 +299,27 @@ async function razorpayFetch<T>(path: string): Promise<T | null> {
   return (await res.json()) as T;
 }
 
+type RazorpayAcquirerData = {
+  rrn?: string;
+  upi_transaction_id?: string;
+  bank_transaction_id?: string;
+  auth_code?: string;
+};
+
+/**
+ * The reference that actually shows up in the buyer's own bank/UPI statement -
+ * Razorpay's own payment id never matches that. Not present on either
+ * completion webhook's payload, so this is always a follow-up API call.
+ */
+export async function fetchBankReference(paymentId: string): Promise<string | null> {
+  const payment = await razorpayFetch<{ acquirer_data?: RazorpayAcquirerData }>(
+    `/payments/${paymentId}`,
+  );
+  const data = payment?.acquirer_data;
+  if (!data) return null;
+  return data.rrn ?? data.upi_transaction_id ?? data.bank_transaction_id ?? data.auth_code ?? null;
+}
+
 /**
  * Asks Razorpay directly what happened to an order, and applies the answer.
  *
@@ -329,11 +353,13 @@ export async function reconcileOrder(order: Order): Promise<Order> {
     const captured = payments.items.find((p) => p.status === "captured" || p.status === "authorized");
 
     if (captured) {
+      const bankReference = await fetchBankReference(captured.id);
       const result = await applyPaymentSuccess({
         orderRef: order.order_ref,
         razorpayPaymentId: captured.id,
         razorpayOrderId,
         method: captured.method ?? null,
+        bankReference,
       });
       return result?.order ?? order;
     }

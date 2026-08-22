@@ -61,6 +61,13 @@ create table if not exists orders (
   razorpay_order_id   text,
   razorpay_payment_id text unique,
   payment_method      text,
+  -- The bank/UPI-side reference (UPI RRN, netbanking bank_transaction_id, or
+  -- card auth_code) - what actually shows up in the buyer's own bank or UPI
+  -- app statement. Razorpay's own payment id (above) never matches that, so
+  -- showing only the payment id reads as "this doesn't match what I paid."
+  -- Fetched from Razorpay's payment.acquirer_data - not present in either
+  -- completion webhook's own payload, so this is always a follow-up API call.
+  bank_reference      text,
   failure_reason      text,
   paid_at             timestamptz,
   -- Set when the order is superseded by a retry, so the old ref stops polling.
@@ -71,6 +78,8 @@ create table if not exists orders (
 
 -- For databases created before `phone` was added to the handoff payload.
 alter table orders add column if not exists phone text;
+-- For databases created before the bank/UPI reference was tracked.
+alter table orders add column if not exists bank_reference text;
 
 create index if not exists orders_email_idx   on orders (lower(email));
 create index if not exists orders_status_idx  on orders (status, created_at desc);

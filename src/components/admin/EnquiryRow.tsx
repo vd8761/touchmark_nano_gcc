@@ -88,7 +88,7 @@ export default function EnquiryRow({ enquiry }: { enquiry: EnquiryView }) {
           <StatusPill status={status} />
         </td>
         <td className="wrap" style={{ color: "var(--ink-faint)" }}>
-          {notes ? `${notes.slice(0, 40)}${notes.length > 40 ? "…" : ""}` : "—"}
+          {notes ? `${notes.slice(0, 40)}${notes.length > 40 ? "…" : ""}` : "-"}
         </td>
       </tr>
 

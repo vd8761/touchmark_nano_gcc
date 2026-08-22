@@ -14,7 +14,7 @@ export default async function AdminSettingsPage() {
       <h1 className="adm-h1">Settings</h1>
       <p className="adm-sub">
         Mail routing and the membership price. Every field here overrides an environment variable
-        or a code default &mdash; leave it blank to keep using that default. Changes apply within
+        or a code default - leave it blank to keep using that default. Changes apply within
         a minute or so on the public site, and immediately for anything paid or emailed after that
         (no redeploy needed either way).
       </p>

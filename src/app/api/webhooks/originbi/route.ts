@@ -21,7 +21,12 @@
 import type { NextRequest } from "next/server";
 import { sql } from "@/lib/db";
 import { env } from "@/lib/env";
-import { applyPaymentSuccess, findOrderByRef, verifyRazorpaySignature } from "@/lib/payments";
+import {
+  applyPaymentSuccess,
+  fetchBankReference,
+  findOrderByRef,
+  verifyRazorpaySignature,
+} from "@/lib/payments";
 import { deliverWelcomeEmail, notifyNewMembership } from "@/lib/membership";
 import { json } from "@/lib/request";
 
@@ -79,11 +84,17 @@ export async function POST(req: NextRequest) {
     on conflict (source, event_id) do nothing
   `;
 
+  // Best-effort: the buyer's browser payload never carries acquirer_data, so
+  // this is the only chance the fast path has to show the bank/UPI reference
+  // before the (slower) server-side webhook would fill it in.
+  const bankReference = await fetchBankReference(razorpayPaymentId).catch(() => null);
+
   const result = await applyPaymentSuccess({
     orderRef: ref,
     razorpayPaymentId,
     razorpayOrderId,
     method: typeof body.method === "string" ? body.method.slice(0, 40) : null,
+    bankReference,
   });
 
   if (!result) return json({ ok: false, error: "Could not record payment." }, 500, true);

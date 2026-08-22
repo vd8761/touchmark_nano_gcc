@@ -18,6 +18,7 @@ type Row = {
   razorpay_payment_id: string | null;
   razorpay_order_id: string | null;
   payment_method: string | null;
+  bank_reference: string | null;
   failure_reason: string | null;
   paid_at: string | null;
   created_at: string;
@@ -39,8 +40,8 @@ export default async function AdminPaymentsPage({
 
   const rows = (await sql()`
     select o.order_ref, o.email, o.name, o.organization, o.status, o.amount_paise,
-           o.razorpay_payment_id, o.razorpay_order_id, o.payment_method, o.failure_reason,
-           o.paid_at, o.created_at,
+           o.razorpay_payment_id, o.razorpay_order_id, o.payment_method, o.bank_reference,
+           o.failure_reason, o.paid_at, o.created_at,
            m.member_no, m.welcome_email_sent_at
       from orders o
       left join memberships m on m.order_id = o.id
@@ -49,7 +50,8 @@ export default async function AdminPaymentsPage({
             or lower(o.email) like '%' || lower(${search}) || '%'
             or lower(coalesce(o.organization, '')) like '%' || lower(${search}) || '%'
             or upper(o.order_ref) like '%' || upper(${search}) || '%'
-            or lower(coalesce(o.razorpay_payment_id, '')) like '%' || lower(${search}) || '%')
+            or lower(coalesce(o.razorpay_payment_id, '')) like '%' || lower(${search}) || '%'
+            or lower(coalesce(o.bank_reference, '')) like '%' || lower(${search}) || '%')
      order by o.created_at desc
      limit ${PAGE_SIZE + 1} offset ${(page - 1) * PAGE_SIZE}
   `) as Row[];
@@ -62,7 +64,7 @@ export default async function AdminPaymentsPage({
       <h1 className="adm-h1">Payments</h1>
       <p className="adm-sub">
         Every payment attempt, settled or not. <strong>Re-check</strong> asks Razorpay what actually
-        happened and applies the answer &mdash; it is the only way status changes from here, and it
+        happened and applies the answer - it is the only way status changes from here, and it
         cannot invent a payment that didn&rsquo;t occur.
       </p>
 
@@ -130,7 +132,14 @@ export default async function AdminPaymentsPage({
                   <td className="wrap">{row.organization ?? "-"}</td>
                   <td className="wrap">{row.email}</td>
                   <td className="mono">{formatInr(row.amount_paise)}</td>
-                  <td className="mono">{row.razorpay_payment_id ?? "-"}</td>
+                  <td className="mono">
+                    {row.razorpay_payment_id ?? "-"}
+                    {row.bank_reference && (
+                      <div style={{ color: "var(--ink-faint)", fontSize: "0.74rem", marginTop: 5 }}>
+                        Bank ref: {row.bank_reference}
+                      </div>
+                    )}
+                  </td>
                   <td className="mono">{row.member_no ?? "-"}</td>
                   <td>
                     {row.member_no ? (

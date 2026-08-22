@@ -209,6 +209,21 @@ const server = createServer(async (req, res) => {
     return json(res, 200, { entity: "collection", count: items.length, items });
   }
 
+  // --- single payment lookup, used to fetch the bank/UPI reference ---------
+  // Real Razorpay carries this in payment.acquirer_data; a fake but
+  // realistic-looking RRN is enough to prove the fetch-and-store path works.
+  const paymentMatch = url.pathname.match(/^\/v1\/payments\/([^/]+)$/);
+  if (req.method === "GET" && paymentMatch) {
+    const paymentId = paymentMatch[1];
+    const payment = [...paymentsByOrder.values()].flat().find((p) => p.id === paymentId);
+    if (!payment) return json(res, 404, { error: { description: "No such payment" } });
+
+    return json(res, 200, {
+      ...payment,
+      acquirer_data: { rrn: String(100000000000 + Math.floor(Math.random() * 899999999999)) },
+    });
+  }
+
   // --- the checkout UI reporting an outcome --------------------------------
   if (req.method === "POST" && url.pathname === "/v1/mock/pay") {
     const order = orders.get(parsed.order_id);

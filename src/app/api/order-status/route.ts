@@ -81,6 +81,7 @@ export async function GET(req: NextRequest) {
     name: order.name,
     email: order.email,
     transactionId: order.razorpay_payment_id,
+    bankReference: order.bank_reference,
     paymentMethod: order.payment_method,
     paidAt: order.paid_at,
     validUntil: membership?.valid_until ?? null,
