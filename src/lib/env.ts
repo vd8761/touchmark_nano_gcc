@@ -71,7 +71,7 @@ export const env = {
   },
 
   get siteUrl() {
-    return optional("SITE_URL", "https://touchmark-nano-gcc.vercel.app").replace(/\/$/, "");
+    return optional("SITE_URL", "https://nanogcc.touchmarkdes.com").replace(/\/$/, "");
   },
   /** Where internal "new enquiry / new payment" notifications land. */
   get adminNotifyEmail() {

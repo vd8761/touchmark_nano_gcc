@@ -18,3 +18,5 @@ docs/
 
 # Scratch space for local test runs.
 .tmp/
+
+.vercel
