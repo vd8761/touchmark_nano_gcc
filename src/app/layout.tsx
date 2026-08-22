@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
-import SmoothScroll from "@/components/SmoothScroll";
-import PaymentReturnCatcher from "@/components/PaymentReturnCatcher";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://touchmark-nano-gcc.example"),
@@ -27,13 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body>
-        <SmoothScroll />
-        <PaymentReturnCatcher />
-        <SiteHeader />
-        <main id="main">{children}</main>
-        <SiteFooter />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
