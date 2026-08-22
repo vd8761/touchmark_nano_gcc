@@ -33,7 +33,13 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "status", label: "Already a member?" },
 ];
 
-export default function MembershipEnquiry() {
+/**
+ * `amountPaise` is passed down from the server (ContactPage) rather than
+ * read from the static PLAN constant above - it's admin-configurable from
+ * /admin/settings, so a value baked into the client bundle at build time
+ * would go stale the moment someone changes it there.
+ */
+export default function MembershipEnquiry({ amountPaise }: { amountPaise: number }) {
   const [tab, setTab] = useState<Tab>("institution");
 
   // A layout effect, not a passive one: this runs before the browser paints
@@ -63,7 +69,7 @@ export default function MembershipEnquiry() {
         ))}
       </div>
 
-      {tab === "institution" && <InstitutionForm />}
+      {tab === "institution" && <InstitutionForm amountPaise={amountPaise} />}
       {tab === "organisation" && <OrganisationForm />}
       {tab === "status" && <MembershipStatus />}
     </div>
@@ -80,7 +86,7 @@ function normalizeTab(value: string | undefined): Tab {
 // Institution - the paid path
 // ---------------------------------------------------------------------------
 
-function InstitutionForm() {
+function InstitutionForm({ amountPaise }: { amountPaise: number }) {
   const { state, errors, error, submit } = useSubmitter();
   const mountedAt = useRef(Date.now());
 
@@ -110,7 +116,7 @@ function InstitutionForm() {
         <div className="pkg-top">
           <span className="pkg-name">DOS Club &mdash; Institution membership</span>
           <span className="pkg-price">
-            {formatInrShort(PLAN.amountPaise)}
+            {formatInrShort(amountPaise)}
             <small>incl. GST &middot; 12 months</small>
           </span>
         </div>

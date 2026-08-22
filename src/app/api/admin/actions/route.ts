@@ -122,6 +122,16 @@ async function updateSettingsAction(body: Record<string, unknown>) {
   const replyTo = clean(body.replyTo, LIMITS.email) ?? "";
   if (replyTo && !isEmail(replyTo)) return badRequest("Reply-to doesn't look like a valid email.");
 
+  const priceInput = clean(body.institutionAnnualPriceRupees, 20) ?? "";
+  let institutionAnnualAmountPaise: number | null = null;
+  if (priceInput) {
+    const rupees = Number(priceInput);
+    if (!Number.isFinite(rupees) || rupees <= 0 || rupees > 1_000_000) {
+      return badRequest("Membership price should be a number between ₹1 and ₹10,00,000.");
+    }
+    institutionAnnualAmountPaise = Math.round(rupees * 100);
+  }
+
   const settings = await updateSettings({
     adminNotifyEmails,
     fromName: clean(body.fromName, LIMITS.name),
@@ -132,6 +142,7 @@ async function updateSettingsAction(body: Record<string, unknown>) {
     notifyAdminEnquiry: body.notifyAdminEnquiry === true,
     notifyAdminPayment: body.notifyAdminPayment === true,
     sendUserCopy: body.sendUserCopy === true,
+    institutionAnnualAmountPaise,
   });
 
   return json({ ok: true, settings });

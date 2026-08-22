@@ -2,15 +2,33 @@
 
 import { useState, type FormEvent } from "react";
 import type { Settings } from "@/lib/settings";
+import { formatInrShort } from "@/lib/pricing";
+
+/** `2500000` -> `"25000"`. Rupees, not paise - what the price input shows and submits. */
+function paiseToRupeeString(paise: number | null): string {
+  if (paise === null) return "";
+  const rupees = paise / 100;
+  return Number.isInteger(rupees) ? String(rupees) : rupees.toFixed(2);
+}
 
 /**
- * Mail-routing settings.
+ * Mail-routing settings, and the institution membership price.
  *
  * One save posts the whole form as one `update-settings` action - there is no
  * per-field autosave, so a half-edited form can't leave the site sending from
  * a broken half-configured state.
  */
-export default function SettingsForm({ initial }: { initial: Settings }) {
+export default function SettingsForm({
+  initial,
+  defaultInstitutionAnnualAmountPaise,
+}: {
+  initial: Settings;
+  /** The pricing.ts constant, for the placeholder shown when there's no override. */
+  defaultInstitutionAnnualAmountPaise: number;
+}) {
+  const [institutionAnnualPriceRupees, setInstitutionAnnualPriceRupees] = useState(
+    paiseToRupeeString(initial.institutionAnnualAmountPaise),
+  );
   const [adminNotifyEmails, setAdminNotifyEmails] = useState(initial.adminNotifyEmails.join("\n"));
   const [fromName, setFromName] = useState(initial.fromName ?? "");
   const [fromEmail, setFromEmail] = useState(initial.fromEmail ?? "");
@@ -45,6 +63,7 @@ export default function SettingsForm({ initial }: { initial: Settings }) {
 
     try {
       await call("update-settings", {
+        institutionAnnualPriceRupees,
         adminNotifyEmails,
         fromName,
         fromEmail,
@@ -79,6 +98,26 @@ export default function SettingsForm({ initial }: { initial: Settings }) {
 
   return (
     <form onSubmit={onSubmit} className="adm-settings" style={{ maxWidth: 640 }}>
+      <Section
+        title="Institution membership price"
+        hint={`What a new checkout charges, and what /contact and the terms page quote. Existing orders keep the price they were created with - this only affects orders created after you save. Leave blank for the default, ${formatInrShort(defaultInstitutionAnnualAmountPaise)}.`}
+      >
+        <div className="field">
+          <label htmlFor="institutionAnnualPriceRupees">Price (INR, incl. GST, per year)</label>
+          <input
+            id="institutionAnnualPriceRupees"
+            type="number"
+            inputMode="decimal"
+            min="1"
+            max="1000000"
+            step="0.01"
+            value={institutionAnnualPriceRupees}
+            onChange={(e) => setInstitutionAnnualPriceRupees(e.target.value)}
+            placeholder={String(defaultInstitutionAnnualAmountPaise / 100)}
+          />
+        </div>
+      </Section>
+
       <Section
         title="Admin notifications"
         hint="Who hears about a new enquiry or a completed payment, and which of those two categories are on."

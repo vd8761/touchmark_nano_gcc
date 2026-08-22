@@ -8,6 +8,14 @@
  *
  * Amounts are in paise because that is Razorpay's unit; storing rupees as a
  * float would be a rounding bug waiting to happen.
+ *
+ * Deliberately no imports here beyond the language itself: this file is
+ * pulled into client components (MembershipEnquiry, MembershipStatus,
+ * PaymentReturn) for `formatInr`/`PLANS`, so anything server-only - a
+ * database call, an env var read - does not belong in this file. The live,
+ * admin-configurable price (settings.ts's `getCurrentAmountPaise`) lives
+ * next to the database code that backs it instead, precisely so this file
+ * can stay safe to import from the browser.
  */
 
 export type PlanId = "institution-annual";

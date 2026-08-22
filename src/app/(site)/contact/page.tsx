@@ -6,6 +6,7 @@ import MembershipEnquiry from "@/components/MembershipEnquiry";
 import AnimatedHeading from "@/components/motion/AnimatedHeading";
 import Reveal from "@/components/motion/Reveal";
 import { formatInrShort, PLANS } from "@/lib/pricing";
+import { getCurrentAmountPaise } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Contact & membership",
@@ -14,15 +15,25 @@ export const metadata: Metadata = {
 };
 
 /**
+ * Revalidated rather than fully dynamic: the price is admin-configurable
+ * (see /admin/settings) and this page quotes it in both marketing copy and
+ * the form below, so it can't be a build-time constant - but /contact should
+ * still mostly behave like a prerendered marketing page rather than render
+ * on every single request. A minute-old price is an acceptable trade-off;
+ * the actual charge at checkout always reads the live value regardless.
+ */
+export const revalidate = 60;
+
+/**
  * Deliberately *not* reading `?tab=` on the server.
  *
- * Doing so would opt this page into dynamic rendering, and /contact is a
- * marketing page that should stay prerendered. The tab is picked up from the
- * URL inside MembershipEnquiry instead, in a layout effect that runs before
- * the browser paints.
+ * Doing so would opt this page into fully dynamic rendering. The tab is
+ * picked up from the URL inside MembershipEnquiry instead, in a layout
+ * effect that runs before the browser paints.
  */
-export default function ContactPage() {
+export default async function ContactPage() {
   const plan = PLANS["institution-annual"];
+  const amountPaise = await getCurrentAmountPaise(plan.id);
 
   return (
     <>
@@ -63,7 +74,7 @@ export default function ContactPage() {
               <li>
                 <span>
                   <strong>Institutions</strong> &mdash; DOS Club membership is{" "}
-                  {formatInrShort(plan.amountPaise)} a year, inclusive of GST, paid online.
+                  {formatInrShort(amountPaise)} a year, inclusive of GST, paid online.
                 </span>
               </li>
               <li>
@@ -92,7 +103,7 @@ export default function ContactPage() {
 
           <div>
             <Reveal>
-              <MembershipEnquiry />
+              <MembershipEnquiry amountPaise={amountPaise} />
             </Reveal>
           </div>
         </div>

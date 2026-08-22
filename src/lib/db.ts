@@ -147,5 +147,6 @@ export type SettingsRow = {
   notify_admin_enquiry: boolean;
   notify_admin_payment: boolean;
   send_user_copy: boolean;
+  institution_annual_amount_paise: number | null;
   updated_at: string;
 };

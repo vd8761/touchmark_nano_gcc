@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { formatInrShort, PLANS } from "@/lib/pricing";
+import { getCurrentAmountPaise } from "@/lib/settings";
 import PageOpen from "@/components/PageOpen";
 import Section from "@/components/Section";
 import LegalDoc, { type Clause } from "@/components/LegalDoc";
 import { COMPANY } from "@/lib/company";
-
-/** Quoted from the price list, so the legal copy can never drift from checkout. */
-const MEMBERSHIP_PRICE = formatInrShort(PLANS["institution-annual"].amountPaise);
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
@@ -15,10 +13,19 @@ export const metadata: Metadata = {
     "Terms and conditions governing use of the Touchmark Nano GCC Hub website, institution membership, company engagement and fees - including the no-refund policy.",
 };
 
+/**
+ * The price is admin-configurable (/admin/settings), so it can't be a
+ * build-time constant here - see ContactPage for why this is revalidated
+ * rather than fully dynamic.
+ */
+export const revalidate = 60;
+
 /** Kept in sync by hand with the privacy policy. */
 const LAST_UPDATED = "19 August 2026";
 
-const CLAUSES: Clause[] = [
+/** Quoted from the live price, so the legal copy can never drift from checkout. */
+function buildClauses(membershipPrice: string): Clause[] {
+  return [
   {
     title: "Who these terms are for",
     body: (
@@ -104,7 +111,7 @@ const CLAUSES: Clause[] = [
         </p>
         <ul>
           <li>
-            <strong>DOS Club institution membership</strong> is {MEMBERSHIP_PRICE} for a twelve-month
+            <strong>DOS Club institution membership</strong> is {membershipPrice} for a twelve-month
             term, inclusive of Goods and Services Tax at the prevailing rate. The tax component is
             shown separately on your receipt. Company engagements are not sold at a published price;
             their fees are set out in the proposal or agreement for that engagement.
@@ -418,9 +425,13 @@ const CLAUSES: Clause[] = [
       </>
     ),
   },
-];
+  ];
+}
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const amountPaise = await getCurrentAmountPaise(PLANS["institution-annual"].id);
+  const clauses = buildClauses(formatInrShort(amountPaise));
+
   return (
     <>
       <PageOpen
@@ -435,7 +446,7 @@ export default function TermsPage() {
       />
 
       <Section index="12" label="Terms of use and engagement" note={`Last updated ${LAST_UPDATED}`}>
-        <LegalDoc clauses={CLAUSES} />
+        <LegalDoc clauses={clauses} />
         <p className="body" style={{ marginTop: 30, fontSize: "0.9rem" }}>
           See also the <Link href="/privacy" style={{ borderBottom: "1px solid currentColor" }}>privacy policy</Link>, which
           explains what we do with the information you send us.

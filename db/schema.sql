@@ -171,28 +171,43 @@ end $$;
 create index if not exists webhook_events_recv_idx on webhook_events (received_at desc);
 
 -- ---------------------------------------------------------------------------
--- Mail-routing settings: a singleton row, editable from /admin/settings.
+-- Site settings: a singleton row, editable from /admin/settings.
 --
 -- Every column here is an *override* - null (or the default `true`/`{}` for
--- the toggles) falls back to the equivalent env var, so a database that
--- predates this table, or an admin who has never opened the settings page,
--- behaves exactly as before.
+-- the toggles) falls back to the equivalent env var or src/lib/pricing.ts
+-- constant, so a database that predates this table, or an admin who has
+-- never opened the settings page, behaves exactly as before.
+--
+-- `institution_annual_amount_paise` is named for the one plan that exists
+-- today (see PlanId in pricing.ts) - if a second plan is ever added this
+-- needs generalising into a proper per-plan table rather than one column per
+-- plan.
 -- ---------------------------------------------------------------------------
 create table if not exists settings (
-  id                    boolean primary key default true check (id),
-  admin_notify_emails   text[],
-  from_name             text,
-  from_email            text,
-  reply_to              text,
-  cc                    text[],
-  bcc                   text[],
-  notify_admin_enquiry  boolean not null default true,
-  notify_admin_payment  boolean not null default true,
-  send_user_copy        boolean not null default true,
-  updated_at            timestamptz not null default now()
+  id                              boolean primary key default true check (id),
+  admin_notify_emails             text[],
+  from_name                       text,
+  from_email                      text,
+  reply_to                        text,
+  cc                              text[],
+  bcc                             text[],
+  notify_admin_enquiry            boolean not null default true,
+  notify_admin_payment            boolean not null default true,
+  send_user_copy                  boolean not null default true,
+  institution_annual_amount_paise integer check (institution_annual_amount_paise is null or institution_annual_amount_paise > 0),
+  updated_at                      timestamptz not null default now()
 );
 
 insert into settings (id) values (true) on conflict (id) do nothing;
+
+-- For databases created before the configurable price existed.
+alter table settings add column if not exists institution_annual_amount_paise integer;
+do $$
+begin
+  alter table settings drop constraint if exists settings_institution_annual_amount_paise_check;
+  alter table settings add constraint settings_institution_annual_amount_paise_check
+    check (institution_annual_amount_paise is null or institution_annual_amount_paise > 0);
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- Outbound email, tracked through the Resend webhook.

@@ -13,6 +13,7 @@ import { env } from "./env";
 import { generateOrderRef, hmacHex, safeEqual } from "./crypto";
 import { signJwt } from "./jwt";
 import { getPlan, type PlanId } from "./pricing";
+import { getCurrentAmountPaise } from "./settings";
 
 /**
  * Razorpay's REST base. Overridable so the local Docker stack can substitute a
@@ -65,10 +66,14 @@ export async function createOrReuseOrder(input: CreateOrderInput): Promise<Order
 
   if (existing[0]) return existing[0];
 
+  // The live price, not the pricing.ts constant - picks up whatever is
+  // currently set in /admin/settings, if anything.
+  const amountPaise = await getCurrentAmountPaise(plan.id);
+
   const rows = (await q`
     insert into orders (order_ref, enquiry_id, email, name, phone, organization, plan, amount_paise, currency)
     values (${generateOrderRef()}, ${input.enquiryId}, ${input.email}, ${input.name}, ${input.phone},
-            ${input.organization}, ${plan.id}, ${plan.amountPaise}, ${plan.currency})
+            ${input.organization}, ${plan.id}, ${amountPaise}, ${plan.currency})
     returning *
   `) as Order[];
 
