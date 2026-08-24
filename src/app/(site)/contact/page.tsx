@@ -6,7 +6,7 @@ import MembershipEnquiry from "@/components/MembershipEnquiry";
 import AnimatedHeading from "@/components/motion/AnimatedHeading";
 import Reveal from "@/components/motion/Reveal";
 import { formatInrShort, PLANS } from "@/lib/pricing";
-import { getCurrentAmountPaise } from "@/lib/settings";
+import { getCurrentQuote } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Contact & membership",
@@ -33,7 +33,7 @@ export const revalidate = 60;
  */
 export default async function ContactPage() {
   const plan = PLANS["institution-annual"];
-  const amountPaise = await getCurrentAmountPaise(plan.id);
+  const quote = await getCurrentQuote(plan.id);
 
   return (
     <>
@@ -74,7 +74,11 @@ export default async function ContactPage() {
               <li>
                 <span>
                   <strong>Institutions</strong> - DOS Club membership is{" "}
-                  {formatInrShort(amountPaise)} a year, inclusive of GST, paid online.
+                  {formatInrShort(quote.listedPaise)} a year,{" "}
+                  {quote.priceIncludesGst
+                    ? "inclusive of GST"
+                    : `plus ${Math.round(quote.gstRate * 100)}% GST (${formatInrShort(quote.totalPaise)} in total)`}
+                  , paid online.
                 </span>
               </li>
               <li>
@@ -103,7 +107,7 @@ export default async function ContactPage() {
 
           <div>
             <Reveal>
-              <MembershipEnquiry amountPaise={amountPaise} />
+              <MembershipEnquiry quote={quote} />
             </Reveal>
           </div>
         </div>

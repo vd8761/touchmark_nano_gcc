@@ -204,6 +204,10 @@ create table if not exists settings (
   notify_admin_payment            boolean not null default true,
   send_user_copy                  boolean not null default true,
   institution_annual_amount_paise integer check (institution_annual_amount_paise is null or institution_annual_amount_paise > 0),
+  -- Null = follow the pricing.ts default (exclusive: GST is added on top of
+  -- the configured price at checkout). True = the configured price is the
+  -- GST-inclusive total and the tax is carved out of it.
+  price_includes_gst              boolean,
   updated_at                      timestamptz not null default now()
 );
 
@@ -211,6 +215,9 @@ insert into settings (id) values (true) on conflict (id) do nothing;
 
 -- For databases created before the configurable price existed.
 alter table settings add column if not exists institution_annual_amount_paise integer;
+-- For databases created before the price could be GST-exclusive. Left null,
+-- which means "follow pricing.ts" - see the column comment above.
+alter table settings add column if not exists price_includes_gst boolean;
 do $$
 begin
   alter table settings drop constraint if exists settings_institution_annual_amount_paise_check;

@@ -22,6 +22,8 @@ export default async function AdminSettingsPage() {
       <SettingsForm
         initial={settings}
         defaultInstitutionAnnualAmountPaise={PLANS["institution-annual"].amountPaise}
+        defaultPriceIncludesGst={PLANS["institution-annual"].priceIncludesGst}
+        gstRate={PLANS["institution-annual"].gstRate}
       />
     </>
   );

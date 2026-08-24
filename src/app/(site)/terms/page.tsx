@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { formatInrShort, PLANS } from "@/lib/pricing";
-import { getCurrentAmountPaise } from "@/lib/settings";
+import { getCurrentQuote } from "@/lib/settings";
 import PageOpen from "@/components/PageOpen";
 import Section from "@/components/Section";
 import LegalDoc, { type Clause } from "@/components/LegalDoc";
@@ -24,7 +24,7 @@ export const revalidate = 60;
 const LAST_UPDATED = "19 August 2026";
 
 /** Quoted from the live price, so the legal copy can never drift from checkout. */
-function buildClauses(membershipPrice: string): Clause[] {
+function buildClauses(membershipPrice: string, taxSentence: string): Clause[] {
   return [
   {
     title: "Who these terms are for",
@@ -112,8 +112,7 @@ function buildClauses(membershipPrice: string): Clause[] {
         <ul>
           <li>
             <strong>DOS Club institution membership</strong> is {membershipPrice} for a twelve-month
-            term, inclusive of Goods and Services Tax at the prevailing rate. The tax component is
-            shown separately on your receipt. Company engagements are not sold at a published price;
+            term, {taxSentence} The tax component is shown separately on your receipt. Company engagements are not sold at a published price;
             their fees are set out in the proposal or agreement for that engagement.
           </li>
           <li>
@@ -429,8 +428,13 @@ function buildClauses(membershipPrice: string): Clause[] {
 }
 
 export default async function TermsPage() {
-  const amountPaise = await getCurrentAmountPaise(PLANS["institution-annual"].id);
-  const clauses = buildClauses(formatInrShort(amountPaise));
+  const quote = await getCurrentQuote(PLANS["institution-annual"].id);
+  const clauses = buildClauses(
+    formatInrShort(quote.listedPaise),
+    quote.priceIncludesGst
+      ? "inclusive of Goods and Services Tax at the prevailing rate."
+      : `plus Goods and Services Tax at the prevailing rate - ${formatInrShort(quote.totalPaise)} payable in total at today's rate of ${Math.round(quote.gstRate * 100)}%.`,
+  );
 
   return (
     <>

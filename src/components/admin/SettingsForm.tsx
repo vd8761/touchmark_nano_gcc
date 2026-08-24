@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import type { Settings } from "@/lib/settings";
-import { formatInrShort } from "@/lib/pricing";
+import { formatInrShort, quotePrice } from "@/lib/pricing";
 
 /** `2500000` -> `"25000"`. Rupees, not paise - what the price input shows and submits. */
 function paiseToRupeeString(paise: number | null): string {
@@ -21,13 +21,22 @@ function paiseToRupeeString(paise: number | null): string {
 export default function SettingsForm({
   initial,
   defaultInstitutionAnnualAmountPaise,
+  defaultPriceIncludesGst,
+  gstRate,
 }: {
   initial: Settings;
   /** The pricing.ts constant, for the placeholder shown when there's no override. */
   defaultInstitutionAnnualAmountPaise: number;
+  /** The pricing.ts default for the inclusive/exclusive switch. */
+  defaultPriceIncludesGst: boolean;
+  /** The plan's GST rate, for the live preview under the price field. */
+  gstRate: number;
 }) {
   const [institutionAnnualPriceRupees, setInstitutionAnnualPriceRupees] = useState(
     paiseToRupeeString(initial.institutionAnnualAmountPaise),
+  );
+  const [priceIncludesGst, setPriceIncludesGst] = useState(
+    initial.priceIncludesGst ?? defaultPriceIncludesGst,
   );
   const [adminNotifyEmails, setAdminNotifyEmails] = useState(initial.adminNotifyEmails.join("\n"));
   const [fromName, setFromName] = useState(initial.fromName ?? "");
@@ -64,6 +73,7 @@ export default function SettingsForm({
     try {
       await call("update-settings", {
         institutionAnnualPriceRupees,
+        priceIncludesGst,
         adminNotifyEmails,
         fromName,
         fromEmail,
@@ -96,6 +106,15 @@ export default function SettingsForm({
     }
   };
 
+  // What the current field values would actually charge - the arithmetic is
+  // easy to get backwards in your head, so show it rather than explain it.
+  const previewRupees = Number(institutionAnnualPriceRupees);
+  const previewListedPaise =
+    institutionAnnualPriceRupees && Number.isFinite(previewRupees) && previewRupees > 0
+      ? Math.round(previewRupees * 100)
+      : defaultInstitutionAnnualAmountPaise;
+  const preview = quotePrice(previewListedPaise, gstRate, priceIncludesGst);
+
   return (
     <form onSubmit={onSubmit} className="adm-settings" style={{ maxWidth: 640 }}>
       <Section
@@ -103,7 +122,9 @@ export default function SettingsForm({
         hint={`What a new checkout charges, and what /contact and the terms page quote. Existing orders keep the price they were created with - this only affects orders created after you save. Leave blank for the default, ${formatInrShort(defaultInstitutionAnnualAmountPaise)}.`}
       >
         <div className="field">
-          <label htmlFor="institutionAnnualPriceRupees">Price (INR, incl. GST, per year)</label>
+          <label htmlFor="institutionAnnualPriceRupees">
+            Price (INR, per year, {priceIncludesGst ? "incl. GST" : "before GST"})
+          </label>
           <input
             id="institutionAnnualPriceRupees"
             type="number"
@@ -116,6 +137,29 @@ export default function SettingsForm({
             placeholder={String(defaultInstitutionAnnualAmountPaise / 100)}
           />
         </div>
+
+        <Toggle
+          id="priceIncludesGst"
+          checked={priceIncludesGst}
+          onChange={setPriceIncludesGst}
+          label="Price above already includes GST"
+        />
+        <p className="form-note">
+          {priceIncludesGst ? (
+            <>
+              <strong>Inclusive:</strong> the buyer is charged exactly the price above, and the GST
+              inside it is carved out for the receipt.
+            </>
+          ) : (
+            <>
+              <strong>Exclusive:</strong> {Math.round(gstRate * 100)}% GST is added on top at
+              checkout, and the site quotes the price with a &ldquo;+ GST&rdquo; note.
+            </>
+          )}{" "}
+          Right now: <strong>{formatInrShort(preview.basePaise)}</strong> + GST{" "}
+          <strong>{formatInrShort(preview.gstPaise)}</strong> ={" "}
+          <strong>{formatInrShort(preview.totalPaise)}</strong> charged.
+        </p>
       </Section>
 
       <Section
