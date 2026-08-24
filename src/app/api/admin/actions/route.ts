@@ -143,6 +143,7 @@ async function updateSettingsAction(body: Record<string, unknown>) {
     notifyAdminPayment: body.notifyAdminPayment === true,
     sendUserCopy: body.sendUserCopy === true,
     institutionAnnualAmountPaise,
+    priceIncludesGst: body.priceIncludesGst === true,
   });
 
   return json({ ok: true, settings });

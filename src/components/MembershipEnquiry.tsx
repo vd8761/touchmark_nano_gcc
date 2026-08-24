@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent } from "react";
 import MembershipStatus from "./MembershipStatus";
-import { formatInrShort, PLANS } from "@/lib/pricing";
+import { formatInrShort, gstNote, PLANS, type Quote } from "@/lib/pricing";
 import {
   hasErrors,
   INSTITUTION_RULES,
@@ -34,12 +34,13 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 /**
- * `amountPaise` is passed down from the server (ContactPage) rather than
- * read from the static PLAN constant above - it's admin-configurable from
- * /admin/settings, so a value baked into the client bundle at build time
- * would go stale the moment someone changes it there.
+ * The `quote` is passed down from the server (ContactPage) rather than
+ * derived from the static PLAN constant above - both the price and whether
+ * it includes GST are admin-configurable from /admin/settings, so values
+ * baked into the client bundle at build time would go stale the moment
+ * someone changes them there.
  */
-export default function MembershipEnquiry({ amountPaise }: { amountPaise: number }) {
+export default function MembershipEnquiry({ quote }: { quote: Quote }) {
   const [tab, setTab] = useState<Tab>("institution");
 
   // A layout effect, not a passive one: this runs before the browser paints
@@ -69,7 +70,7 @@ export default function MembershipEnquiry({ amountPaise }: { amountPaise: number
         ))}
       </div>
 
-      {tab === "institution" && <InstitutionForm amountPaise={amountPaise} />}
+      {tab === "institution" && <InstitutionForm quote={quote} />}
       {tab === "organisation" && <OrganisationForm />}
       {tab === "status" && <MembershipStatus />}
     </div>
@@ -86,7 +87,7 @@ function normalizeTab(value: string | undefined): Tab {
 // Institution - the paid path
 // ---------------------------------------------------------------------------
 
-function InstitutionForm({ amountPaise }: { amountPaise: number }) {
+function InstitutionForm({ quote }: { quote: Quote }) {
   const { state, errors, error, submit } = useSubmitter();
   const mountedAt = useRef(Date.now());
 
@@ -116,8 +117,12 @@ function InstitutionForm({ amountPaise }: { amountPaise: number }) {
         <div className="pkg-top">
           <span className="pkg-name">DOS Club - Institution membership</span>
           <span className="pkg-price">
-            {formatInrShort(amountPaise)}
-            <small>incl. GST &middot; 12 months</small>
+            {formatInrShort(quote.listedPaise)}
+            <small>
+              {gstNote(quote.gstRate, quote.priceIncludesGst)}
+              {!quote.priceIncludesGst && ` (${formatInrShort(quote.totalPaise)} total)`}{" "}
+              &middot; 12 months
+            </small>
           </span>
         </div>
         <ul className="pkg-list">

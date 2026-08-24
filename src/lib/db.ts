@@ -150,5 +150,6 @@ export type SettingsRow = {
   notify_admin_payment: boolean;
   send_user_copy: boolean;
   institution_annual_amount_paise: number | null;
+  price_includes_gst: boolean | null;
   updated_at: string;
 };
