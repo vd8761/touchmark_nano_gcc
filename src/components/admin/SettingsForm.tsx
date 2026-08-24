@@ -198,7 +198,7 @@ export default function SettingsForm({
         <div className="field-row">
           <div className="field">
             <label htmlFor="fromName">From name</label>
-            <input id="fromName" value={fromName} onChange={(e) => setFromName(e.target.value)} placeholder="DOS Club" />
+            <input id="fromName" value={fromName} onChange={(e) => setFromName(e.target.value)} placeholder="Nano GCC" />
           </div>
           <div className="field">
             <label htmlFor="fromEmail">From address</label>

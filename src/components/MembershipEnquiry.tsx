@@ -115,7 +115,7 @@ function InstitutionForm({ quote }: { quote: Quote }) {
     <form onSubmit={onSubmit} noValidate>
       <div className="pkg">
         <div className="pkg-top">
-          <span className="pkg-name">DOS Club - Institution membership</span>
+          <span className="pkg-name">Nano GCC Institution membership</span>
           <span className="pkg-price">
             {formatInrShort(quote.listedPaise)}
             <small>

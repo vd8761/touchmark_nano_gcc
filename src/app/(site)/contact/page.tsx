@@ -11,7 +11,7 @@ import { getCurrentQuote } from "@/lib/settings";
 export const metadata: Metadata = {
   title: "Contact & membership",
   description:
-    "Join the DOS Club as an institution, or start a conversation about a company engagement with Touchmark Nano GCC Hub.",
+    "Join as an institution, or start a conversation about a company engagement with Touchmark Nano GCC Hub.",
 };
 
 /**
@@ -45,7 +45,7 @@ export default async function ContactPage() {
             Join, or start a <em>conversation</em>.
           </>
         }
-        lede="Institutions join the DOS Club directly. Companies tell us the capability goal they want to test, and we come back with what's realistic - commercial models and delivery detail are discussed directly rather than published."
+        lede="Institutions join Nano GCC directly. Companies tell us the capability goal they want to test, and we come back with what's realistic - commercial models and delivery detail are discussed directly rather than published."
         note={{
           title: "Two doors, one hub",
           body: "Institutions have a published membership. Company engagements are scoped individually, so those commercials are agreed on a call.",
@@ -73,7 +73,7 @@ export default async function ContactPage() {
             <Reveal as="ol" className="elist" stagger style={{ marginTop: 30 }}>
               <li>
                 <span>
-                  <strong>Institutions</strong> - DOS Club membership is{" "}
+                  <strong>Institutions</strong> - Nano GCC membership is{" "}
                   {formatInrShort(quote.listedPaise)} a year,{" "}
                   {quote.priceIncludesGst
                     ? "inclusive of GST"

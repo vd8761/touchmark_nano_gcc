@@ -111,7 +111,7 @@ function buildClauses(membershipPrice: string, taxSentence: string): Clause[] {
         </p>
         <ul>
           <li>
-            <strong>DOS Club institution membership</strong> is {membershipPrice} for a twelve-month
+            <strong>Nano GCC institution membership</strong> is {membershipPrice} for a twelve-month
             term, {taxSentence} The tax component is shown separately on your receipt. Company engagements are not sold at a published price;
             their fees are set out in the proposal or agreement for that engagement.
           </li>

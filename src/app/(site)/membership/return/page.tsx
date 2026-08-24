@@ -5,7 +5,7 @@ import PaymentReturn from "@/components/PaymentReturn";
 
 export const metadata: Metadata = {
   title: "Payment status",
-  description: "Confirming your DOS Club membership payment.",
+  description: "Confirming your Nano GCC membership payment.",
   // A receipt has no business in search results.
   robots: { index: false, follow: false },
 };
