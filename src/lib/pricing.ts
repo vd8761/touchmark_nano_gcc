@@ -36,13 +36,13 @@ export type Plan = {
 export const PLANS: Record<PlanId, Plan> = {
   "institution-annual": {
     id: "institution-annual",
-    name: "DOS Club - Institution Membership",
+    name: "Nano GCC Institution Membership",
     amountPaise: 25000, // ₹25,000 inclusive of GST
     currency: "INR",
     gstRate: 0.18,
     termMonths: 12,
     includes: [
-      "One year of DOS Club institution membership",
+      "One year of Nano GCC institution membership",
       "Access to the Nano GCC partner network and briefings",
       "Structured industry engagement for your departments",
       "Priority consideration for pilot and prototype programmes",
