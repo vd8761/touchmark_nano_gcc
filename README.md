@@ -209,7 +209,7 @@ changed; `next build` shows the split (`○` static, `ƒ` dynamic).
 
 `/contact` now has three tabs:
 
-- **Institution** — the ₹25,000 (incl. GST) DOS Club package, paid online.
+- **Institution** — the ₹25,000 (+ GST) Nano GCC package, paid online.
 - **Company** — enquiry only, commercials agreed on a call.
 - **Already a member?** — status lookup by email or reference ID.
 

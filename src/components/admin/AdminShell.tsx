@@ -38,7 +38,7 @@ export default function AdminShell({ user, children }: { user: User; children: R
   return (
     <div className="adm">
       <header className="adm-bar">
-        <span className="adm-brand">DOS Club Admin</span>
+        <span className="adm-brand">Nano GCC Admin</span>
 
         <nav>
           {LINKS.map((link) => {

@@ -63,7 +63,7 @@ function layout(opts: { title: string; preheader: string; body: string }): strin
 <tr><td align="center">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border:1px solid ${RULE};border-radius:6px;overflow:hidden;">
     <tr><td style="background:${PANEL};padding:22px 28px;">
-      <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#9FC4D8;">DOS Club</div>
+      <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#9FC4D8;">Nano GCC</div>
       <div style="font-size:17px;font-weight:600;color:#FFFFFF;margin-top:4px;">${escapeHtml(opts.title)}</div>
     </td></tr>
     <tr><td style="padding:28px;">${opts.body}</td></tr>
@@ -273,11 +273,11 @@ export function membershipActivated(input: MembershipEmailInput): Rendered {
   const html = heroLayout({
     eyebrow: "Membership activated",
     title: `Congratulations${firstName ? `, ${escapeHtml(firstName)}` : ""} - you&rsquo;re in.`,
-    preheader: `${institution}'s DOS Club membership is active. Here's what happens next.`,
+    preheader: `${institution}'s Nano GCC membership is active. Here's what happens next.`,
     accent: PROVEN,
     body: `
       ${paragraph(
-        `<strong>${escapeHtml(institution)}</strong>&rsquo;s DOS Club membership is now active. ` +
+        `<strong>${escapeHtml(institution)}</strong>&rsquo;s Nano GCC membership is now active. ` +
           `We&rsquo;re genuinely glad to have you - this is the start of a working relationship, not just a transaction.`,
       )}
 
@@ -304,7 +304,7 @@ export function membershipActivated(input: MembershipEmailInput): Rendered {
   const text = [
     `Congratulations${firstName ? `, ${firstName}` : ""} - you're in.`,
     "",
-    `${institution}'s DOS Club membership is now active. We're genuinely glad to have you - this is the start of a working relationship, not just a transaction.`,
+    `${institution}'s Nano GCC membership is now active. We're genuinely glad to have you - this is the start of a working relationship, not just a transaction.`,
     "",
     "Your membership includes:",
     ...input.plan.includes.map((i) => `  - ${i}`),
@@ -324,7 +324,7 @@ export function membershipActivated(input: MembershipEmailInput): Rendered {
   ].join("\n");
 
   return {
-    subject: `You're in - ${institution}'s DOS Club membership is active`,
+    subject: `You're in - ${institution}'s Nano GCC membership is active`,
     html,
     text,
   };
@@ -414,7 +414,7 @@ export function membershipDetails(input: MembershipEmailInput & { status: string
     "If this wasn't you, no action is needed - these details were only sent to the address already on the membership.",
   ].join("\n");
 
-  return { subject: `Your DOS Club membership details - ${input.memberNo}`, html, text };
+  return { subject: `Your Nano GCC membership details - ${input.memberNo}`, html, text };
 }
 
 // ---------------------------------------------------------------------------
@@ -433,7 +433,7 @@ export function internalNotification(input: {
   });
 
   return {
-    subject: `[DOS Club] ${input.heading}`,
+    subject: `[Nano GCC] ${input.heading}`,
     html,
     text: `${input.heading}\n\n${textRows(input.pairs)}\n\n${input.adminUrl}`,
   };
@@ -486,14 +486,14 @@ export function newMembershipNotification(input: {
   ];
 
   const actions = [
-    { href: `mailto:${input.email}?subject=${encodeURIComponent(`Welcome to DOS Club, ${institution}`)}`, label: `Email ${firstName}`, primary: true },
+    { href: `mailto:${input.email}?subject=${encodeURIComponent(`Welcome to Nano GCC, ${institution}`)}`, label: `Email ${firstName}`, primary: true },
     ...(phoneDigits ? [{ href: `tel:${phoneDigits}`, label: `Call ${firstName}`, primary: false }] : []),
   ];
 
   const html = heroLayout({
     eyebrow: "New membership",
     title: `${escapeHtml(institution)} just joined.`,
-    preheader: `${input.name ?? "Someone"} from ${institution} activated a DOS Club membership - ${formatInr(input.amountPaise)}.`,
+    preheader: `${input.name ?? "Someone"} from ${institution} activated a Nano GCC membership - ${formatInr(input.amountPaise)}.`,
     accent: SEED,
     body: `
       ${paragraph(`A new institution membership just went through. Here&rsquo;s everything you need to reach out.`)}

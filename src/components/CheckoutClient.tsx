@@ -93,7 +93,7 @@ export default function CheckoutClient() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: "DOS Club - Institution Membership",
+        name: "Nano GCC Institution Membership",
         description: "Nano GCC institution membership payment",
         order_id: orderData.orderId,
         prefill: {

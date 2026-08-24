@@ -58,7 +58,7 @@ export default function AdminLogin() {
   return (
     <div className="adm-login">
       <form onSubmit={onSubmit} noValidate>
-        <h1>DOS Club Admin</h1>
+        <h1>Nano GCC Admin</h1>
         <p>Sign in to view enquiries, payments and memberships.</p>
 
         {error && (

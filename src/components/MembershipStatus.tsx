@@ -146,7 +146,7 @@ function Outcome({ result }: { result: Result }) {
       <div className="rc" style={{ marginTop: 30 }}>
         <span className="rc-badge">{membership.status === "active" ? "Active member" : membership.status}</span>
         <h3 className="rc-title">{membership.institution ?? membership.memberNo}</h3>
-        <p className="rc-lede">Your DOS Club membership is on record. Here are the full details.</p>
+        <p className="rc-lede">Your Nano GCC membership is on record. Here are the full details.</p>
 
         <dl className="rc-rows">
           <Row k="Membership number" v={membership.memberNo} mono />

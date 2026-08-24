@@ -206,7 +206,7 @@ export default function PaymentReturn() {
         badge="Payment successful"
         title={
           data?.memberNo
-            ? `Welcome to the DOS Club, ${data.institution ?? "member"}.`
+            ? `Welcome to Nano GCC, ${data.institution ?? "member"}.`
             : "Payment received."
         }
       >
@@ -302,7 +302,7 @@ export default function PaymentReturn() {
         <p className="rc-lede" style={{ marginTop: 20 }}>
           If you&rsquo;d rather check with us, email{" "}
           <a
-            href={`mailto:${COMPANY.email}?subject=${encodeURIComponent(`DOS Club payment ${ref ?? ""}`)}`}
+            href={`mailto:${COMPANY.email}?subject=${encodeURIComponent(`Nano GCC payment ${ref ?? ""}`)}`}
             style={{ borderBottom: "1px solid currentColor" }}
           >
             {COMPANY.email}

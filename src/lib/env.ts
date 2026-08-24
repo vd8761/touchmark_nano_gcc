@@ -36,9 +36,9 @@ export const env = {
   get resendWebhookSecret() {
     return required("RESEND_WEBHOOK_SECRET");
   },
-  /** e.g. `DOS Club <membership@touchmarkdes.com>` - must be a verified domain. */
+  /** e.g. `Nano GCC <membership@touchmarkdes.com>` - must be a verified domain. */
   get resendFrom() {
-    return optional("RESEND_FROM_EMAIL", "DOS Club <onboarding@resend.dev>");
+    return optional("RESEND_FROM_EMAIL", "Nano GCC <onboarding@resend.dev>");
   },
 
   get razorpayKeyId() {
