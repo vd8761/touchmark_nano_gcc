@@ -37,7 +37,7 @@ export const PLANS: Record<PlanId, Plan> = {
   "institution-annual": {
     id: "institution-annual",
     name: "DOS Club - Institution Membership",
-    amountPaise: 25_000_00, // ₹25,000 inclusive of GST
+    amountPaise: 25000, // ₹25,000 inclusive of GST
     currency: "INR",
     gstRate: 0.18,
     termMonths: 12,
