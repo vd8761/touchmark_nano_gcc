@@ -283,7 +283,7 @@ export default function NewCompanyForm({
                 id="targetStartDate" 
                 name="targetStartDate" 
                 selected={targetStartDate} 
-                onChange={(date) => setTargetStartDate(date)} 
+                onChange={(date: Date | null) => setTargetStartDate(date)} 
                 dateFormat="yyyy-MM-dd"
                 placeholderText="yyyy-mm-dd"
                 showMonthDropdown

@@ -170,7 +170,7 @@ export default function NewPartnerForm() {
                 id="dateOfIncorporation" 
                 name="dateOfIncorporation" 
                 selected={dateOfIncorporation} 
-                onChange={(date) => setDateOfIncorporation(date)} 
+                onChange={(date: Date | null) => setDateOfIncorporation(date)} 
                 dateFormat="yyyy-MM-dd"
                 placeholderText="yyyy-mm-dd"
                 maxDate={new Date()}
