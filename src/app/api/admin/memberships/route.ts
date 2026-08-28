@@ -89,7 +89,7 @@ async function createManualMembership(body: Record<string, unknown>) {
   const designation = clean(body.designation as string, LIMITS.name);
   const location = clean(body.location as string, LIMITS.city);
   const country = clean(body.country as string, LIMITS.city);
-  const campusAddress = clean(body.campusAddress as string, LIMITS.address);
+  const campusAddress = clean(body.campusAddress as string, 500);
   const keyTechDepartments = clean(body.keyTechDepartments as string, 200);
   const rdLabs = clean(body.rdLabs as string, 500);
 
