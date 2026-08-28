@@ -4,6 +4,7 @@ import { badRequest, json } from "@/lib/request";
 import { uploadToR2 } from "@/lib/r2";
 import { currentAdmin } from "@/lib/auth";
 import { generateFormattedPdf } from "@/lib/pdfGenerator";
+import { mapDocumentVariables } from "@/lib/documentMapper";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -60,21 +61,8 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
     const doc = docs.length > 0 ? docs[0] : { title: "Legal Agreement", content_html: "<p>No agreement content found.</p>" };
     
     // Replace template variables
-    let html = doc.content_html;
+    let html = mapDocumentVariables(doc.content_html, p);
     const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-    const address = p.contact_details?.location ? `${p.contact_details.location}, ${p.contact_details.country || ''}` : '';
-    const email = p.email || p.contact_details?.email || '';
-
-    html = html.replace(/(\[|\{\{)COMPANY_NAME(\]|\}\})/gi, p.name || '');
-    html = html.replace(/(\[|\{\{)COMPANY NAME(\]|\}\})/gi, p.name || '');
-    html = html.replace(/(\[|\{\{)PARTNER_NAME(\]|\}\})/gi, p.name || '');
-    html = html.replace(/(\[|\{\{)PARTNER NAME(\]|\}\})/gi, p.name || '');
-    html = html.replace(/(\[|\{\{)Ecosystem Partner Name(\]|\}\})/gi, p.name || '');
-    html = html.replace(/(\[|\{\{)DATE(\]|\}\})/gi, date);
-    html = html.replace(/(\[|\{\{)ADDRESS(\]|\}\})/gi, address);
-    html = html.replace(/(\[|\{\{)CONTACT_EMAIL(\]|\}\})/gi, email);
-    html = html.replace(/(\[|\{\{)REPRESENTATIVE NAME(\]|\}\})/gi, p.contact_details?.contactPerson || p.name || '');
-    html = html.replace(/(\[|\{\{)DESIGNATION(\]|\}\})/gi, p.contact_details?.designation || 'Representative');
 
     // 2. Extract Partner Signature from DB
     let partnerMetadata: any = null;

@@ -2,6 +2,7 @@ import React from "react";
 import SignaturePad from "@/components/SignaturePad";
 import { notFound } from "next/navigation";
 import { sql } from "@/lib/db";
+import { mapDocumentVariables } from "@/lib/documentMapper";
 
 export const dynamic = "force-dynamic";
 
@@ -65,20 +66,7 @@ export default async function ESignaturePage(props: { params: Promise<{ id: stri
   };
 
   // 3. Replace variables
-  let html = doc.content_html;
-  const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-  const address = p.contact_details?.location ? `${p.contact_details.location}, ${p.contact_details.country || ''}` : '';
-  const email = p.email || p.contact_details?.email || '';
-
-  html = html.replace(/(\[|\{\{)COMPANY_NAME(\]|\}\})/gi, p.name || '');
-  html = html.replace(/(\[|\{\{)COMPANY NAME(\]|\}\})/gi, p.name || '');
-  html = html.replace(/(\[|\{\{)PARTNER_NAME(\]|\}\})/gi, p.name || '');
-  html = html.replace(/(\[|\{\{)PARTNER NAME(\]|\}\})/gi, p.name || '');
-  html = html.replace(/(\[|\{\{)DATE(\]|\}\})/gi, date);
-  html = html.replace(/(\[|\{\{)ADDRESS(\]|\}\})/gi, address);
-  html = html.replace(/(\[|\{\{)CONTACT_EMAIL(\]|\}\})/gi, email);
-  html = html.replace(/(\[|\{\{)REPRESENTATIVE NAME(\]|\}\})/gi, p.contact_details?.contactPerson || p.name || '');
-  html = html.replace(/(\[|\{\{)DESIGNATION(\]|\}\})/gi, p.contact_details?.designation || 'Representative');
+  let html = mapDocumentVariables(doc.content_html, p);
   
   // Add space before Signature:
   html = html.replace(/Signature:/g, '<br><br><br>Signature:');

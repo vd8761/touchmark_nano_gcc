@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { format } from "date-fns";
+import RenewMembershipWidget from "./RenewMembershipWidget";
 
 export default function CollegeDashboard({ membership, subscriptions = [] }: { membership: any, subscriptions?: any[] }) {
   if (!membership) {
@@ -22,27 +23,61 @@ export default function CollegeDashboard({ membership, subscriptions = [] }: { m
           <h1 className="adm-h1" style={{ margin: 0 }}>{membership.institution}</h1>
           <p className="adm-sub" style={{ margin: 0 }}>Institution Portal (ID: {membership.member_no})</p>
         </div>
-        {canRenew && (
-          <form action="/api/portal/renew" method="POST">
-            <button className="adm-btn" type="submit" style={{ background: "var(--brand)", color: "white" }}>
-              Renew Membership
-            </button>
-          </form>
-        )}
       </div>
 
-      <div className="adm-stats">
-        <div className="adm-stat">
-          <div className="k">Membership Status</div>
-          <div className="v" style={{ color: !isExpired ? "var(--success, #10b981)" : "var(--proven, #dc2626)" }}>
-            {!isExpired ? 'ACTIVE' : 'EXPIRED'}
+      {canRenew && (
+        <RenewMembershipWidget 
+          isExpired={isExpired} 
+          daysRemaining={daysRemaining} 
+          validUntil={validUntil} 
+        />
+      )}
+
+      <div style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", 
+        gap: "24px", 
+        marginBottom: "32px" 
+      }}>
+        <div style={{ 
+          background: "rgba(255, 255, 255, 0.7)", 
+          backdropFilter: "blur(12px)", 
+          border: "1px solid var(--paper-2)", 
+          borderRadius: "12px", 
+          padding: "24px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
+        }}>
+          <div style={{ fontSize: "0.85rem", color: "var(--ink-soft)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>Membership Status</div>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
+            <div style={{ 
+              width: "12px", height: "12px", borderRadius: "50%", 
+              background: !isExpired ? "var(--success)" : "var(--critical)",
+              boxShadow: `0 0 0 4px ${!isExpired ? "rgba(16, 185, 129, 0.2)" : "rgba(220, 38, 38, 0.2)"}`
+            }}></div>
+            <div style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--ink)" }}>
+              {!isExpired ? 'Active' : 'Expired'}
+            </div>
           </div>
-          <div className="m">Valid until: {format(validUntil, 'dd MMM yyyy')}</div>
+          <div style={{ fontSize: "0.95rem", color: "var(--ink-faint)" }}>
+            Valid until <strong style={{ color: "var(--ink)" }}>{format(validUntil, 'dd MMM yyyy')}</strong>
+          </div>
         </div>
-        <div className="adm-stat">
-          <div className="k">Primary Contact</div>
-          <div className="v" style={{ fontSize: "1.1rem" }}>{membership.name}</div>
-          <div className="m">{membership.email}</div>
+
+        <div style={{ 
+          background: "rgba(255, 255, 255, 0.7)", 
+          backdropFilter: "blur(12px)", 
+          border: "1px solid var(--paper-2)", 
+          borderRadius: "12px", 
+          padding: "24px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
+        }}>
+          <div style={{ fontSize: "0.85rem", color: "var(--ink-soft)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>Primary Contact</div>
+          <div style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--ink)", marginBottom: "8px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {membership.name}
+          </div>
+          <div style={{ fontSize: "0.95rem", color: "var(--ink-faint)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {membership.email}
+          </div>
         </div>
       </div>
 

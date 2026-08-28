@@ -280,24 +280,32 @@ export default function NewStudentForm({
           <div className="field-row">
             <div className={`field ${fieldErrors.startDate ? "error" : ""}`}>
               <label htmlFor="startDate">Joined Date / Availability Start <span className="req">*</span></label>
-              <input 
-                type="date" 
+              <DatePicker 
                 id="startDate" 
                 name="startDate" 
                 required 
-                value={startDate ? startDate.toISOString().split('T')[0] : ""}
-                onChange={(e) => setStartDate(e.target.value ? new Date(e.target.value) : null)}
+                selected={startDate}
+                onChange={(date: Date | null) => setStartDate(date)}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="yyyy-mm-dd"
+                showMonthDropdown
+                showYearDropdown
+                dropdownMode="select"
               />
               {fieldErrors.startDate && <span className="field-error-text">{fieldErrors.startDate}</span>}
             </div>
             <div className="adm-field">
               <label htmlFor="completionDate">Expected Completion / End Date</label>
-              <input 
-                type="date" 
+              <DatePicker 
                 id="completionDate" 
                 name="completionDate" 
-                value={completionDate ? completionDate.toISOString().split('T')[0] : ""}
-                onChange={(e) => setCompletionDate(e.target.value ? new Date(e.target.value) : null)}
+                selected={completionDate}
+                onChange={(date: Date | null) => setCompletionDate(date)}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="yyyy-mm-dd"
+                showMonthDropdown
+                showYearDropdown
+                dropdownMode="select"
               />
             </div>
           </div>

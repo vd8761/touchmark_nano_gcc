@@ -280,12 +280,16 @@ export default function NewInstitutionForm() {
 
           <div className="field">
             <label htmlFor="validUntil">Membership Valid Until</label>
-            <input 
-              type="date" 
+            <DatePicker 
               id="validUntil" 
               name="validUntil"
-              value={validUntil ? validUntil.toISOString().split('T')[0] : ""}
-              onChange={(e) => setValidUntil(e.target.value ? new Date(e.target.value) : null)}
+              selected={validUntil}
+              onChange={(date: Date | null) => setValidUntil(date)}
+              dateFormat="yyyy-MM-dd"
+              placeholderText="yyyy-mm-dd"
+              showMonthDropdown
+              showYearDropdown
+              dropdownMode="select"
             />
             <p className="adm-sub" style={{ marginTop: 4 }}>Default is 1 year from today. The institution can renew it later.</p>
           </div>

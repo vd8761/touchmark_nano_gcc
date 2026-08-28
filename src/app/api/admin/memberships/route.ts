@@ -242,7 +242,7 @@ async function createManualMembership(body: Record<string, unknown>) {
           name: name || "Partner",
           email: email,
           tempPassword: tempPassword,
-          loginUrl: `${env.siteUrl}/admin`,
+          loginUrl: `${env.siteUrl}/portal/login`,
         }),
       }).catch(console.error);
     }

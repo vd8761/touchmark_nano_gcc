@@ -10,7 +10,9 @@
 import { sql, type Membership, type Order } from "./db";
 import { env } from "./env";
 import { send, notifyTeam } from "./email";
-import { membershipActivated, membershipDetails, newMembershipNotification } from "./email-templates";
+import { membershipActivated, membershipDetails, newMembershipNotification, welcomeEmail } from "./email-templates";
+import { randomBytes } from "crypto";
+import { hashPassword } from "./crypto";
 import { getPlan, PLANS } from "./pricing";
 import { getSettings } from "./settings";
 
@@ -67,6 +69,32 @@ export async function deliverWelcomeEmail(
       siteUrl: env.siteUrl,
     }),
   });
+
+  // Automatically provision a portal login for the institution if one doesn't exist
+  const existingUsers = await q`select id from admin_users where email = ${membership.email}`;
+  if (existingUsers.length === 0) {
+    const tempPassword = randomBytes(4).toString("hex");
+    const tempPasswordHash = hashPassword(tempPassword);
+    
+    await q`
+      insert into admin_users (email, password_hash, name, role)
+      values (${membership.email}, ${tempPasswordHash}, ${membership.institution}, 'COLLEGE')
+      on conflict (email) do nothing
+    `;
+
+    // Send the welcome credentials
+    await send({
+      to: membership.email,
+      template: "welcome-institution",
+      message: welcomeEmail({
+        roleDisplay: "Academic Partner",
+        name: membership.name || "Partner",
+        email: membership.email,
+        tempPassword: tempPassword,
+        loginUrl: `${env.siteUrl}/portal/login`,
+      }),
+    }).catch(console.error); // Best-effort, don't fail the receipt delivery
+  }
 
   if (!result.ok) {
     // Release the claim so this is retried rather than silently lost.
