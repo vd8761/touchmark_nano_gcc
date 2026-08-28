@@ -15,6 +15,7 @@ export default function AdminLogin() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,7 +46,7 @@ export default function AdminLogin() {
       // `next` came from the middleware redirect. Only ever an in-app path -
       // reject anything else so this cannot become an open redirect.
       const next = new URLSearchParams(window.location.search).get("next");
-      const target = next && /^\/admin(\/|$)/.test(next) ? next : "/admin/";
+      const target = next && /^\/admin(\/|$)/.test(next) ? next : "/admin";
 
       router.replace(target);
       router.refresh();
@@ -70,18 +71,41 @@ export default function AdminLogin() {
         <div className="form-grid">
           <div className="field">
             <label htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" autoComplete="username" required />
+            <input id="email" name="email" type="email" autoComplete="username" placeholder="name@company.com" required />
           </div>
 
           <div className="field">
             <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-            />
+            <div style={{ position: "relative" }}>
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                placeholder="Enter your password"
+                required
+                style={{ paddingRight: "50px" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "0.85rem",
+                  color: "var(--ink-soft)",
+                  padding: "4px",
+                }}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </div>
         </div>
 

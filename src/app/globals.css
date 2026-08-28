@@ -511,6 +511,7 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
   background: var(--paper-2); border: 1px solid var(--rule); min-width: 190px;
   display: grid; gap: 6px; opacity: 0; visibility: hidden; transform: translateY(-4px);
   transition: opacity 0.25s var(--ease), transform 0.25s var(--ease), visibility 0.25s;
+  z-index: 10; color: var(--ink);
 }
 .has-sub:hover .sub, .has-sub:focus-within .sub { opacity: 1; visibility: visible; transform: none; }
 .sub a { opacity: 0.85; }
@@ -738,15 +739,17 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
 
 /* ---------- forms: fields must look like fields ---------- */
 
-.form-grid { display: grid; gap: 14px; }
-.field { display: block; }
+.form-grid { display: grid; gap: 20px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 620px) { .field-row { grid-template-columns: 1fr; } }
+.field { display: block; margin: 0; }
 .field label {
   display: block; font-family: var(--mono); font-weight: 700; font-size: 0.62rem;
   letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px;
 }
 .field input, .field select, .field textarea {
   width: 100%; font: inherit; font-size: 1rem; color: var(--ink);
-  background: var(--paper-3);
+  background: var(--paper-2);
   border: 1px solid var(--rule-strong);
   border-radius: 4px;
   padding: 14px 16px;
@@ -755,11 +758,23 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
 .field input::placeholder, .field textarea::placeholder { color: var(--ink-faint); }
 .field input:hover, .field select:hover, .field textarea:hover { border-color: var(--ink-faint); }
 .field input:focus, .field select:focus, .field textarea:focus {
-  outline: none; border-color: var(--seed); background: var(--paper-2);
+  outline: none; border-color: var(--seed); background: var(--paper);
   box-shadow: 0 0 0 3px rgba(15, 94, 134, 0.16);
+}
+.field.error input, .field.error select, .field.error textarea {
+  border-color: var(--proven);
+}
+.field-error-text {
+  color: var(--proven);
+  font-size: 0.75rem;
+  margin-top: 6px;
+  display: block;
 }
 .field:focus-within label { color: var(--seed); }
 .field textarea { min-height: 120px; resize: vertical; }
+
+.react-datepicker-wrapper { width: 100%; }
+
 .field select {
   appearance: none;
   background-image: linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%),
@@ -873,7 +888,7 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
   background: var(--panel); padding: 14px clamp(18px, 3vw, 34px);
 }
 .adm-brand { font-family: var(--mono); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: #FFFFFF; margin-right: 12px; }
-.adm-bar nav { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.adm-bar nav { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
 .adm-bar nav a {
   font-family: var(--mono); font-weight: 600; font-size: 0.64rem; letter-spacing: 0.12em;
   text-transform: uppercase; color: rgba(255, 255, 255, 0.68); padding: 4px 0;
@@ -881,6 +896,33 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
 }
 .adm-bar nav a:hover { color: #FFFFFF; }
 .adm-bar nav a.on { color: #FFFFFF; border-bottom-color: #54B9F2; }
+
+/* Admin Nav Dropdowns */
+.adm-dropdown { position: relative; display: flex; align-items: center; }
+.adm-dropdown-btn {
+  font-family: var(--mono); font-weight: 600; font-size: 0.64rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(255, 255, 255, 0.68); padding: 4px 0;
+  border: none; background: transparent; cursor: pointer; border-bottom: 1px solid transparent;
+  margin: 0; line-height: inherit; display: inline-block;
+}
+.adm-dropdown-btn:focus { outline: none; }
+.adm-dropdown-btn:hover { color: #FFFFFF; }
+.adm-dropdown-btn.on { color: #FFFFFF; border-bottom-color: #54B9F2; }
+.adm-dropdown-content {
+  display: none; position: absolute; top: calc(100% + 4px); left: 0; min-width: 180px;
+  background: var(--paper); border: 1px solid var(--rule); box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 100; padding: 8px 0; border-radius: 4px;
+}
+.adm-dropdown-content::before {
+  content: ""; position: absolute; top: -5px; left: 0; right: 0; height: 5px;
+}
+.adm-dropdown:hover .adm-dropdown-content { display: block; }
+.adm-bar nav .adm-dropdown-content a {
+  display: block; padding: 8px 16px; color: var(--ink-2) !important;
+  border-bottom: none !important; font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.12em;
+}
+.adm-bar nav .adm-dropdown-content a:hover { background: var(--paper-3); color: var(--ink) !important; }
+.adm-bar nav .adm-dropdown-content a.on { background: var(--paper-3); font-weight: 700; color: var(--seed) !important; }
 .adm-who { margin-left: auto; display: flex; align-items: center; gap: 14px; font-size: 0.78rem; color: rgba(255, 255, 255, 0.68); }
 .adm-who button {
   font-family: var(--mono); font-weight: 700; font-size: 0.6rem; letter-spacing: 0.12em;
@@ -889,7 +931,7 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
 }
 .adm-who button:hover { border-color: #54B9F2; color: #54B9F2; }
 
-.adm-main { padding: clamp(24px, 4vw, 44px) clamp(18px, 3vw, 34px); }
+.adm-main { padding: 12px clamp(18px, 3vw, 34px); }
 .adm-h1 { font-family: var(--display); font-weight: 600; font-size: clamp(1.4rem, 3vw, 2rem); color: var(--ink); margin: 0 0 6px; }
 .adm-sub { font-size: 0.92rem; color: var(--ink-soft); margin: 0 0 28px; }
 
@@ -914,7 +956,7 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
 .adm-table tr:last-child td { border-bottom: 0; }
 .adm-table tr:hover td { background: var(--paper-2); }
 .adm-table td.mono { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.02em; white-space: nowrap; }
-.adm-table td.wrap { min-width: 240px; }
+.adm-table td.wrap { min-width: 140px; max-width: 300px; white-space: normal; word-break: break-word; }
 
 .pill {
   display: inline-block; font-family: var(--mono); font-weight: 700; font-size: 0.56rem;
@@ -940,6 +982,15 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
 .adm-btn:disabled { opacity: 0.5; cursor: default; }
 
 .adm-empty { padding: 44px 20px; text-align: center; color: var(--ink-faint); font-size: 0.92rem; }
+
+.adm-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: clamp(24px, 4vw, 36px);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(13, 54, 79, 0.04);
+}
+.adm-form { max-width: 100%; }
 
 .adm-login { min-height: 100vh; display: grid; place-items: center; background: var(--panel); padding: 24px; }
 .adm-login form { width: 100%; max-width: 380px; background: var(--paper); border: 1px solid var(--rule); padding: clamp(26px, 4vw, 38px); }
@@ -1153,3 +1204,65 @@ a.entry:hover .go { opacity: 1; transform: none; color: var(--seed); }
   text-transform: inherit; color: var(--ink-faint);
 }
 .foot-legal a:hover { color: var(--proven); }
+
+/* ---------- Form Mandatory Asterisk ---------- */
+.field label:has(+ input:required)::after,
+.field label:has(+ select:required)::after,
+.field label:has(+ textarea:required)::after,
+.field label:has(+ .react-datepicker-wrapper input:required)::after {
+  content: " *";
+  color: #d93025;
+}
+
+/* Checkbox specific mandatory styling */
+.field label:has(input[type="checkbox"]:required)::after {
+  content: " *";
+  color: #d93025;
+}
+
+/* ---------- React Datepicker Theme Overrides ---------- */
+.react-datepicker-wrapper, .react-datepicker__input-container {
+  display: block;
+  width: 100%;
+}
+.react-datepicker {
+  font-family: var(--sans) !important;
+  border: 1px solid var(--rule) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(13, 54, 79, 0.1) !important;
+}
+.react-datepicker__header {
+  background-color: var(--paper-2) !important;
+  border-bottom: 1px solid var(--rule) !important;
+  border-top-left-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+}
+.react-datepicker__current-month, .react-datepicker-time__header, .react-datepicker-year-header {
+  color: var(--ink) !important;
+}
+.react-datepicker__day-name, .react-datepicker__day, .react-datepicker__time-name {
+  color: var(--ink-2) !important;
+}
+.react-datepicker__day:hover, .react-datepicker__month-text:hover, .react-datepicker__quarter-text:hover, .react-datepicker__year-text:hover {
+  background-color: var(--paper-3) !important;
+}
+.react-datepicker__day--selected, .react-datepicker__day--in-selecting-range, .react-datepicker__day--in-range, .react-datepicker__month-text--selected, .react-datepicker__quarter-text--selected, .react-datepicker__year-text--selected {
+  background-color: var(--seed) !important;
+  color: var(--on-accent) !important;
+}
+.react-datepicker__day--keyboard-selected, .react-datepicker__month-text--keyboard-selected, .react-datepicker__quarter-text--keyboard-selected, .react-datepicker__year-text--keyboard-selected {
+  background-color: var(--seed) !important;
+  color: var(--on-accent) !important;
+}
+
+/* ---------- React Select Fixes ---------- */
+.react-select__input-container, .react-select__input {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.react-select__input:focus-visible,
+.react-select__input-container:focus-visible,
+.react-select__control:focus-visible,
+.react-select__value-container:focus-visible {
+  outline: none !important;
+}

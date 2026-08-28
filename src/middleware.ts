@@ -45,25 +45,37 @@ async function hasValidSignature(signed: string, secret: string): Promise<boolea
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // The login page and its POST handler have to stay reachable.
-  if (pathname.startsWith("/admin/login")) return NextResponse.next();
+  // The login pages and their POST handlers have to stay reachable.
+  if (pathname.startsWith("/admin/login") || pathname.startsWith("/portal/login")) return NextResponse.next();
 
   const secret = process.env.SESSION_SECRET;
   const cookie = req.cookies.get(SESSION_COOKIE)?.value;
 
-  if (secret && cookie && (await hasValidSignature(cookie, secret))) {
-    return NextResponse.next();
+  console.log("Middleware check:", { hasSecret: !!secret, hasCookie: !!cookie });
+
+  if (secret && cookie) {
+    const valid = await hasValidSignature(cookie, secret);
+    console.log("Middleware valid:", valid);
+    if (valid) {
+      return NextResponse.next();
+    }
   }
 
   const login = req.nextUrl.clone();
-  login.pathname = "/admin/login/";
+  
+  // Decide which login page to send them to based on where they were going
+  const isPortal = pathname.startsWith("/portal");
+  login.pathname = isPortal ? "/portal/login/" : "/admin/login/";
   login.search = "";
-  // Bring the admin back to where they were headed after signing in.
-  if (pathname !== "/admin" && pathname !== "/admin/") login.searchParams.set("next", pathname);
+  
+  // Bring the user back to where they were headed after signing in.
+  if (pathname !== "/admin" && pathname !== "/admin/" && pathname !== "/portal" && pathname !== "/portal/") {
+    login.searchParams.set("next", pathname);
+  }
 
   return NextResponse.redirect(login);
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/portal/:path*"],
 };

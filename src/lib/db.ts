@@ -9,28 +9,24 @@
 import { neon, neonConfig } from "@neondatabase/serverless";
 import { env } from "./env";
 
+// Fix for Next.js fetch cache and connection pooling issues
+neonConfig.fetchConnectionCache = true;
+
 type Sql = ReturnType<typeof neon>;
 
 let client: Sql | null = null;
 
-/**
- * Local development against Postgres in Docker.
- *
- * The Neon driver speaks SQL over *HTTP*, not the Postgres wire protocol, so it
- * cannot talk to a plain `postgres:16` container. `NEON_HTTP_PROXY` points it at
- * a proxy that terminates that HTTP protocol and forwards to real Postgres —
- * see docker-compose.yml. Unset in production, where it talks to Neon directly.
- */
-if (process.env.NEON_HTTP_PROXY) {
-  neonConfig.fetchEndpoint = process.env.NEON_HTTP_PROXY;
-  neonConfig.useSecureWebSocket = false;
-  neonConfig.poolQueryViaFetch = true;
+// (Removed proxy override to ensure direct connection to Neon Cloud)
+
+export interface TypedSql {
+  (strings: TemplateStringsArray, ...values: any[]): Promise<any[]>;
+  (query: string, params?: any[]): Promise<any[]>;
 }
 
 /** Lazily constructed so importing this module never requires DATABASE_URL. */
-export function sql(): Sql {
+export function sql(): TypedSql {
   if (!client) client = neon(env.databaseUrl);
-  return client;
+  return client as unknown as TypedSql;
 }
 
 // ---------------------------------------------------------------------------
@@ -104,14 +100,81 @@ export type Membership = {
   updated_at: string;
 };
 
+export type MembershipSubscription = {
+  id: string;
+  membership_id: string;
+  order_id: string | null;
+  valid_from: string;
+  valid_until: string;
+  created_at: string;
+};
+
+export type Role = "ADMIN" | "COMPANY" | "ECOSYSTEM_PARTNER" | "COLLEGE";
+
 export type AdminUser = {
   id: string;
   email: string;
   password_hash: string;
   name: string | null;
+  role: Role;
   is_active: boolean;
   created_at: string;
   last_login_at: string | null;
+};
+
+export type EcosystemPartner = {
+  id: string;
+  user_id: string;
+  name: string;
+  contact_details: any;
+  nda_status: "PENDING_NDA" | "NDA_SIGNED" | "ACTIVE";
+  commission_type: "FIXED" | "PERCENTAGE";
+  commission_value: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Company = {
+  id: string;
+  user_id: string;
+  ecosystem_partner_id: string | null;
+  name: string;
+  contact_details: any;
+  nda_status: "PENDING_NDA" | "NDA_SIGNED" | "ACTIVE";
+  commission_type: "FIXED" | "PERCENTAGE";
+  commission_value: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type College = {
+  id: string;
+  user_id: string;
+  name: string;
+  membership_plan: string;
+  validity_start: string | null;
+  validity_end: string | null;
+  status: "ACTIVE" | "EXPIRED";
+  created_at: string;
+  updated_at: string;
+};
+
+export type Student = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  college_id: string | null;
+  company_id: string | null;
+  category: "INTERNSHIP" | "OFFER";
+  duration: string | null;
+  stipend: number | null;
+  lpa: number | null;
+  start_date: string | null;
+  status: string;
+  feedback: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 export type EmailStatus =

@@ -53,7 +53,7 @@ create table if not exists orders (
   phone               text,
   organization        text,
   plan                text not null default 'institution-annual',
-  amount_paise        integer not null check (amount_paise > 0),
+  amount_paise        integer not null check (amount_paise >= 0),
   currency            text not null default 'INR',
   status              text not null default 'created'
                       check (status in ('created', 'pending', 'paid', 'failed', 'abandoned')),
@@ -70,7 +70,6 @@ create table if not exists orders (
   bank_reference      text,
   failure_reason      text,
   paid_at             timestamptz,
-  -- Set when the order is superseded by a retry, so the old ref stops polling.
   retried_by          uuid references orders (id) on delete set null,
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
@@ -85,6 +84,18 @@ create index if not exists orders_email_idx   on orders (lower(email));
 create index if not exists orders_status_idx  on orders (status, created_at desc);
 create index if not exists orders_rzp_ord_idx on orders (razorpay_order_id);
 create index if not exists orders_created_idx on orders (created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- Legal Documents: Stores MoUs and Agreements as editable HTML.
+-- ---------------------------------------------------------------------------
+create table if not exists legal_documents (
+  id            uuid primary key default gen_random_uuid(),
+  document_key  text not null unique,
+  title         text not null,
+  content_html  text not null,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
 
 -- ---------------------------------------------------------------------------
 -- Memberships: created only against a confirmed payment.
@@ -104,9 +115,23 @@ create table if not exists memberships (
   activated_at            timestamptz not null default now(),
   valid_until             timestamptz,
   welcome_email_sent_at   timestamptz,
+  profile_data            jsonb,
   created_at              timestamptz not null default now(),
   updated_at              timestamptz not null default now()
 );
+
+create index if not exists memberships_valid_until_idx on memberships (valid_until);
+
+create table if not exists membership_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  membership_id uuid not null references memberships(id) on delete cascade,
+  order_id uuid references orders(id) on delete set null,
+  valid_from timestamp with time zone not null,
+  valid_until timestamp with time zone not null,
+  created_at timestamp with time zone not null default now()
+);
+
+create index if not exists membership_subscriptions_membership_id_idx on membership_subscriptions (membership_id);
 
 create index if not exists memberships_email_idx on memberships (lower(email));
 create index if not exists memberships_no_idx    on memberships (member_no);
@@ -260,6 +285,96 @@ do $$
 declare t text;
 begin
   foreach t in array array['enquiries', 'orders', 'memberships', 'settings'] loop
+    execute format('drop trigger if exists %I_touch on %I', t, t);
+    execute format(
+      'create trigger %I_touch before update on %I
+         for each row execute function touch_updated_at()', t, t);
+  end loop;
+end $$;
+
+-- ---------------------------------------------------------------------------
+-- Nano GCC Portal Schema Extensions
+-- ---------------------------------------------------------------------------
+
+-- 1. Modify admin_users to act as universal users table for the portal.
+alter table admin_users add column if not exists role text not null default 'ADMIN' 
+  check (role in ('ADMIN', 'COMPANY', 'ECOSYSTEM_PARTNER', 'COLLEGE'));
+
+-- 2. Ecosystem Partners
+create table if not exists ecosystem_partners (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null unique references admin_users (id) on delete cascade,
+  name text not null,
+  contact_details jsonb not null default '{}',
+  nda_status text not null default 'PENDING_NDA' 
+    check (nda_status in ('PENDING_NDA', 'NDA_SIGNED', 'ACTIVE')),
+  commission_type text not null default 'PERCENTAGE'
+    check (commission_type in ('FIXED', 'PERCENTAGE')),
+  commission_value numeric(10, 2) not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- 3. Companies
+create table if not exists companies (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null unique references admin_users (id) on delete cascade,
+  ecosystem_partner_id uuid references ecosystem_partners (id) on delete set null,
+  name text not null,
+  contact_details jsonb not null default '{}',
+  nda_status text not null default 'PENDING_NDA'
+    check (nda_status in ('PENDING_NDA', 'NDA_SIGNED', 'ACTIVE')),
+  commission_type text not null default 'PERCENTAGE'
+    check (commission_type in ('FIXED', 'PERCENTAGE')),
+  commission_value numeric(10, 2) not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists companies_eco_idx on companies (ecosystem_partner_id);
+
+-- 4. Colleges
+create table if not exists colleges (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null unique references admin_users (id) on delete cascade,
+  name text not null,
+  membership_plan text not null,
+  validity_start timestamptz,
+  validity_end timestamptz,
+  status text not null default 'ACTIVE'
+    check (status in ('ACTIVE', 'EXPIRED')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- 5. Students (No login, managed by Admin/Company)
+create table if not exists students (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null,
+  phone text,
+  college_id uuid references colleges (id) on delete set null,
+  company_id uuid references companies (id) on delete set null,
+  category text not null check (category in ('INTERNSHIP', 'OFFER')),
+  duration text,
+  stipend numeric(10, 2),
+  lpa numeric(10, 2),
+  start_date date,
+  completion_date date,
+  status text not null default 'ACTIVE',
+  feedback text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists students_company_idx on students (company_id);
+create index if not exists students_college_idx on students (college_id);
+
+-- Add touch_updated_at triggers for new tables
+do $$
+declare t text;
+begin
+  foreach t in array array['ecosystem_partners', 'companies', 'colleges', 'students'] loop
     execute format('drop trigger if exists %I_touch on %I', t, t);
     execute format(
       'create trigger %I_touch before update on %I

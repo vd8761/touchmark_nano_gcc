@@ -537,3 +537,49 @@ export function newMembershipNotification(input: {
     text,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Welcome email with credentials
+// ---------------------------------------------------------------------------
+
+export function welcomeEmail(input: {
+  roleDisplay: string;
+  name: string;
+  email: string;
+  tempPassword: string;
+  loginUrl: string;
+}): Rendered {
+  const html = layout({
+    title: `Welcome to Nano GCC`,
+    preheader: `Your ${input.roleDisplay} account has been created.`,
+    body: `
+      ${paragraph(`Hello ${escapeHtml(input.name)},`)}
+      ${paragraph(`Your <strong>${escapeHtml(input.roleDisplay)}</strong> account for Nano GCC has been created.`)}
+      ${paragraph(`You can log in to your portal using the credentials below:`)}
+      ${rows([
+        ["Login URL", input.loginUrl],
+        ["Email", input.email],
+        ["Temporary Password", input.tempPassword],
+      ])}
+      ${paragraph(`Please log in and change your password immediately.`)}
+      ${button(input.loginUrl, "Log in to Portal")}
+    `,
+  });
+
+  const text = [
+    `Hello ${input.name},`,
+    "",
+    `Your ${input.roleDisplay} account for Nano GCC has been created.`,
+    "",
+    "You can log in to your portal using the credentials below:",
+    `  Login URL: ${input.loginUrl}`,
+    `  Email: ${input.email}`,
+    `  Temporary Password: ${input.tempPassword}`,
+    "",
+    "Please log in and change your password immediately.",
+    "",
+    `${COMPANY.legalName} - ${COMPANY.email}`,
+  ].join("\n");
+
+  return { subject: `Welcome to Nano GCC - Your Account Details`, html, text };
+}

@@ -10,22 +10,42 @@ import { usePathname, useRouter } from "next/navigation";
  * with the full bar everywhere else.
  */
 
-const LINKS = [
-  { href: "/admin/", label: "Dashboard", exact: true },
-  { href: "/admin/enquiries/", label: "Enquiries" },
-  { href: "/admin/payments/", label: "Payments" },
-  { href: "/admin/memberships/", label: "Memberships" },
-  { href: "/admin/emails/", label: "Emails" },
-  { href: "/admin/settings/", label: "Settings" },
+const NAV_ITEMS = [
+  { href: "/admin/dashboard/", label: "Dashboard", exact: true },
+  { 
+    label: "Network", 
+    subItems: [
+      { href: "/admin/memberships/", label: "Institutions" },
+      { href: "/admin/partners/", label: "Ecosystem Partners" },
+      { href: "/admin/companies/", label: "Corporates" },
+      { href: "/admin/students/", label: "Students" },
+    ]
+  },
+  { 
+    label: "Operations", 
+    subItems: [
+      { href: "/admin/payment-activity/", label: "Payment Activity" },
+      { href: "/admin/enquiries/", label: "Enquiries" },
+      { href: "/admin/payments/", label: "Payments" },
+      { href: "/admin/emails/", label: "Emails" },
+    ]
+  },
+  { 
+    label: "Settings", 
+    subItems: [
+      { href: "/admin/settings/agreements/", label: "Legal Agreements & MoUs" },
+      { href: "/admin/settings/pricing/", label: "Institution Pricing" },
+    ]
+  },
 ];
 
-type User = { id: string; email: string; name: string | null } | null;
+type User = { id: string; email: string; name: string | null; role?: string } | null;
 
 export default function AdminShell({ user, children }: { user: User; children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  if (pathname?.startsWith("/admin/login") || !user) {
+  if (pathname?.startsWith("/admin/login") || pathname?.startsWith("/portal/login") || !user) {
     return <>{children}</>;
   }
 
@@ -38,17 +58,48 @@ export default function AdminShell({ user, children }: { user: User; children: R
   return (
     <div className="adm">
       <header className="adm-bar">
-        <span className="adm-brand">Nano GCC Admin</span>
+        <span className="adm-brand">
+          {user.role === 'ADMIN' ? 'Nano GCC Admin' : 'Touchmark NANO GCC'}
+        </span>
 
         <nav>
-          {LINKS.map((link) => {
-            const current = link.exact
-              ? pathname === link.href || pathname === "/admin"
-              : pathname?.startsWith(link.href.replace(/\/$/, ""));
+          {user.role === 'ADMIN' && NAV_ITEMS.map((item) => {
+            if (item.subItems) {
+              const isActive = item.subItems.some(sub => pathname?.startsWith(sub.href.replace(/\/$/, "")));
+              return (
+                <div key={item.label} className="adm-dropdown">
+                  <button className={`adm-dropdown-btn ${isActive ? 'on' : ''}`}>
+                    {item.label} ▾
+                  </button>
+                  <div className="adm-dropdown-content">
+                    {item.subItems.map(sub => {
+                      const isSubActive = pathname?.startsWith(sub.href.replace(/\/$/, ""));
+                      return (
+                        <Link 
+                          key={sub.href} 
+                          href={sub.href} 
+                          className={isSubActive ? 'on' : undefined}
+                        >
+                          {sub.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+
+            const current = item.exact
+              ? pathname === item.href || pathname === "/admin"
+              : pathname?.startsWith(item.href.replace(/\/$/, ""));
 
             return (
-              <Link key={link.href} href={link.href} className={current ? "on" : undefined}>
-                {link.label}
+              <Link 
+                key={item.href} 
+                href={item.href} 
+                className={current ? "on" : undefined}
+              >
+                {item.label}
               </Link>
             );
           })}

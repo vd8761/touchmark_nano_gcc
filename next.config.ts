@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
   // Docker stack; it would have been invisible until the first live payment.
   skipTrailingSlashRedirect: true,
   images: { unoptimized: true },
+  serverExternalPackages: ["pdfkit", "ckeditor5", "@ckeditor/ckeditor5-react"],
 };
 
 export default nextConfig;

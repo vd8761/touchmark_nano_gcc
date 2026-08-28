@@ -24,7 +24,7 @@ const SESSION_HOURS = 8;
 const MAX_ATTEMPTS = 5;
 const ATTEMPT_WINDOW_MINUTES = 15;
 
-export type AdminSessionUser = Pick<AdminUser, "id" | "email" | "name">;
+export type AdminSessionUser = Pick<AdminUser, "id" | "email" | "name" | "role">;
 
 // ---------------------------------------------------------------------------
 // Login
@@ -92,7 +92,7 @@ export async function login(
 
   return {
     ok: true,
-    user: { id: user.id, email: user.email, name: user.name },
+    user: { id: user.id, email: user.email, name: user.name, role: user.role },
     sessionId: sessions[0]!.id,
   };
 }
@@ -135,13 +135,14 @@ export async function currentAdmin(): Promise<AdminSessionUser | null> {
   if (!sessionId) return null;
 
   const rows = (await sql()`
-    select u.id, u.email, u.name
+    select u.id, u.email, u.name, u.role
       from admin_sessions s
       join admin_users u on u.id = s.admin_user_id
      where s.id = ${sessionId}
        and s.revoked_at is null
        and s.expires_at > now()
        and u.is_active = true
+       /* HMR Cache Buster */
   `) as AdminSessionUser[];
 
   return rows[0] ?? null;
@@ -157,6 +158,11 @@ export async function currentAdmin(): Promise<AdminSessionUser | null> {
 export async function requireAdmin(): Promise<AdminSessionUser> {
   const admin = await currentAdmin();
   if (!admin) redirect("/admin/login/");
+  
+  if (admin.role !== "ADMIN") {
+    redirect("/portal");
+  }
+
   return admin;
 }
 

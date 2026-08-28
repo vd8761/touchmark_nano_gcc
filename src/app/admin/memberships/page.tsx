@@ -43,11 +43,20 @@ export default async function AdminMembershipsPage({
 
   return (
     <>
-      <h1 className="adm-h1">Memberships</h1>
-      <p className="adm-sub">
-        Active and past Nano GCC memberships. Every row here corresponds to a payment Razorpay
-        confirmed - there is no other way one is created.
-      </p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "28px" }}>
+        <div>
+          <h1 className="adm-h1">Institutions</h1>
+          <p className="adm-sub" style={{ margin: 0 }}>
+            Active and past Nano GCC memberships. Every row here corresponds to a payment Razorpay
+            confirmed or a manually created institution.
+          </p>
+        </div>
+        <div className="acts">
+          <a href="/admin/memberships/new" className="act primary">
+            + Add Institution
+          </a>
+        </div>
+      </div>
 
       <form className="adm-tools" method="get">
         <div className="field" style={{ flex: 1, minWidth: 240 }}>
