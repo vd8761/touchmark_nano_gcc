@@ -58,7 +58,7 @@ export default async function AdminStudentsPage() {
                   <td className="wrap">
                     {s.company_name || <span style={{ color: "var(--ink-faint)", fontStyle: "italic" }}>Unassigned</span>}
                   </td>
-                  <td className="mono">{s.category?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown'}</td>
+                  <td className="mono">{s.category?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Unknown'}</td>
                   <td className="mono">
                     {s.category === 'INTERNSHIP' 
                       ? (s.stipend ? `₹${s.stipend}/mo` : 'Unpaid') 
