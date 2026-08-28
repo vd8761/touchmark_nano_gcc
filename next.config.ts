@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
   skipTrailingSlashRedirect: true,
   images: { unoptimized: true },
   serverExternalPackages: ["pdfkit", "ckeditor5", "@ckeditor/ckeditor5-react"],
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/**/*': ['./node_modules/pdfkit/js/standard-fonts/**/*'],
+    }
+  },
 };
 
 export default nextConfig;
