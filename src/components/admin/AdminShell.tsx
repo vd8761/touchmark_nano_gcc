@@ -34,7 +34,7 @@ const NAV_ITEMS = [
     label: "Settings", 
     subItems: [
       { href: "/admin/settings/agreements/", label: "Legal Agreements & MoUs" },
-      { href: "/admin/settings/pricing/", label: "Institution Pricing" },
+      { href: "/admin/settings/", label: "General & Pricing Settings", exact: true },
     ]
   },
 ];
@@ -73,7 +73,9 @@ export default function AdminShell({ user, children }: { user: User; children: R
                   </button>
                   <div className="adm-dropdown-content">
                     {item.subItems.map(sub => {
-                      const isSubActive = pathname?.startsWith(sub.href.replace(/\/$/, ""));
+                      const isSubActive = sub.exact
+                        ? pathname === sub.href || pathname === sub.href.replace(/\/$/, "")
+                        : pathname?.startsWith(sub.href.replace(/\/$/, ""));
                       return (
                         <Link 
                           key={sub.href} 

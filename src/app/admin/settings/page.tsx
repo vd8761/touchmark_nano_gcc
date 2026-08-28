@@ -20,16 +20,6 @@ export default async function AdminSettingsPage() {
         (no redeploy needed either way).
       </p>
 
-      <div style={{ margin: "24px 0", padding: "16px", background: "var(--card-bg, #fff)", border: "1px solid var(--rule)", borderRadius: "8px" }}>
-        <h2 style={{ fontSize: "1.1rem", marginBottom: "8px" }}>Legal Agreements & MoUs</h2>
-        <p style={{ color: "var(--ink-soft)", marginBottom: "16px", fontSize: "0.95rem" }}>
-          Configure the templates used for Ecosystem Partner, Corporate, and Institution Agreements.
-        </p>
-        <Link href="/admin/settings/agreements" className="adm-btn ghost" style={{ textDecoration: "none" }}>
-          Open Agreements Editor &rarr;
-        </Link>
-      </div>
-
       <SettingsForm
         initial={settings}
         defaultInstitutionAnnualAmountPaise={PLANS["institution-annual"].amountPaise}
