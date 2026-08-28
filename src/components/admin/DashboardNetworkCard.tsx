@@ -5,7 +5,7 @@ import React from "react";
 
 interface DashboardNetworkCardProps {
   title: string;
-  icon: React.ReactNode;
+  icon: string;
   mainCount: number;
   mainLabel: string;
   subCount1: number;
