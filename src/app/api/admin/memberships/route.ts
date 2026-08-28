@@ -220,7 +220,7 @@ async function createManualMembership(body: Record<string, unknown>) {
     }).catch(console.error);
 
     await send({
-      to: env.adminEmail,
+      to: env.adminNotifyEmail,
       template: "new-membership-notification",
       message: newMembershipNotification({
         ...emailData,

@@ -210,7 +210,7 @@ async function createEcosystemPartner(body: Record<string, unknown>) {
           template: "welcome-company",
           message: welcomeEmail({
             roleDisplay: "Company",
-            name: cContactName,
+            name: cContactName || "Company",
             email: cEmail,
             tempPassword: cTempPassword,
             loginUrl
@@ -225,7 +225,7 @@ async function createEcosystemPartner(body: Record<string, unknown>) {
       template: "welcome-partner",
       message: welcomeEmail({
         roleDisplay: "Ecosystem Partner",
-        name: contactPerson,
+        name: contactPerson || "Partner",
         email,
         tempPassword,
         loginUrl
@@ -332,7 +332,7 @@ async function createCompany(body: Record<string, unknown>) {
       template: "welcome-company",
       message: welcomeEmail({
         roleDisplay: "Company",
-        name: contactPerson,
+        name: contactPerson || "Company",
         email,
         tempPassword,
         loginUrl
