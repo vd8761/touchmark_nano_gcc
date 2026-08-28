@@ -296,7 +296,7 @@ export function membershipActivated(input: MembershipEmailInput): Rendered {
           institution,
         )} builds with it.`,
       )}
-      ${button(`${input.siteUrl}/contact/?tab=status&ref=${encodeURIComponent(input.orderRef)}`, "View membership status")}
+      ${button(`${input.siteUrl}/portal/login`, "Log in to your portal")}
       ${recordBox(pairs)}
     `,
   });

@@ -238,8 +238,8 @@ async function createManualMembership(body: Record<string, unknown>) {
         to: email,
         template: "welcome-institution",
         message: welcomeEmail({
-          roleDisplay: "Academic Partner",
-          name: name || "Partner",
+          roleDisplay: "Institution",
+          name: name || "Institution",
           email: email,
           tempPassword: tempPassword,
           loginUrl: `${env.siteUrl}/portal/login`,
