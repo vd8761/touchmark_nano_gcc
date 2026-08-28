@@ -69,7 +69,7 @@ export default async function AdminStudentsPage() {
                       padding: "4px 8px", borderRadius: "4px", fontSize: "0.75rem", fontWeight: "bold",
                       background: "var(--paper-3)", color: "var(--ink)"
                     }}>
-                      {s.status?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown'}
+                      {s.status?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Unknown'}
                     </span>
                   </td>
                 </tr>
