@@ -175,7 +175,13 @@ export default function NewCompanyForm({
           <div className="field-row">
             <div className="field">
               <label htmlFor="country">Country of Incorporation</label>
-              <input id="country" name="country" type="text" placeholder="e.g. India" required defaultValue="India" />
+              <select id="country" name="country" required defaultValue="IN">
+                <option value="IN">India</option>
+                <option value="LK">Sri Lanka</option>
+                <option value="AE">UAE</option>
+                <option value="SG">Singapore</option>
+                <option value="US">USA</option>
+              </select>
             </div>
             <div className="field">
               <label htmlFor="location">City / State</label>

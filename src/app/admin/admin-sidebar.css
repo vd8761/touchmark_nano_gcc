@@ -1,0 +1,579 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+@import 'react-datepicker/dist/react-datepicker.css';
+
+/* ---------- React Datepicker Fixes ---------- */
+.react-datepicker__day--keyboard-selected, .react-datepicker__month-text--keyboard-selected, .react-datepicker__quarter-text--keyboard-selected, .react-datepicker__year-text--keyboard-selected {
+  background-color: var(--seed) !important;
+  color: var(--on-accent) !important;
+}
+
+/* ---------- React Select Fixes ---------- */
+.react-select__input-container, .react-select__input {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.react-select__input:focus-visible,
+.react-select__input-container:focus-visible,
+.react-select__control:focus-visible,
+.react-select__value-container:focus-visible {
+  outline: none !important;
+}
+
+/* ============================================================
+   Premium DatePicker ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Dashboard Global Filters
+   ============================================================ */
+
+/* Make wrapper divs transparent to flex layout */
+.react-datepicker-wrapper {
+  display: block !important;
+  width: 100% !important;
+  line-height: 0 !important;
+}
+
+.react-datepicker__input-container {
+  display: block !important;
+  width: 100% !important;
+}
+
+.react-datepicker {
+  font-family: var(--sans) !important;
+  border: 1px solid var(--rule) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 40px -8px rgba(15, 23, 42, 0.12) !important;
+  display: flex !important;
+  flex-direction: row !important;
+  width: max-content !important;
+}
+
+.react-datepicker__month-container {
+  float: none !important;
+}
+
+/* ---- Header ---- */
+.react-datepicker__header {
+  background-color: var(--paper) !important;
+  border-bottom: 1px solid var(--paper-3) !important;
+  padding: 16px 0 8px !important;
+  border-radius: 0 !important;
+}
+
+.react-datepicker__current-month {
+  font-family: var(--sans) !important;
+  color: var(--ink) !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 10px !important;
+}
+
+/* ---- Day names row ---- */
+.react-datepicker__day-names {
+  margin: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.react-datepicker__day-name {
+  color: var(--ink-faint) !important;
+  font-weight: 600 !important;
+  font-size: 0.65rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  width: 2.25rem !important;
+  line-height: 2rem !important;
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+/* ---- Week rows ---- */
+.react-datepicker__week {
+  display: flex !important;
+}
+
+.react-datepicker__month {
+  margin: 6px 8px 10px !important;
+}
+
+/* ---- Day cells ---- */
+.react-datepicker__day {
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  line-height: 2.25rem !important;
+  margin: 1px 0 !important;
+  font-family: var(--sans) !important;
+  font-size: 0.78rem !important;
+  font-weight: 400 !important;
+  color: var(--ink-2) !important;
+  border-radius: 50% !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s, color 0.15s !important;
+  outline: none !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: var(--paper-3) !important;
+  border-radius: 50% !important;
+  color: var(--ink) !important;
+}
+
+/* Outside month days ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â invisible */
+.react-datepicker__day--outside-month,
+.react-datepicker__day--outside-month.react-datepicker__day--in-range,
+.react-datepicker__day--outside-month.react-datepicker__day--range-start,
+.react-datepicker__day--outside-month.react-datepicker__day--range-end,
+.react-datepicker__day--outside-month.react-datepicker__day--today,
+.react-datepicker__day--outside-month.react-datepicker__day--in-selecting-range {
+  color: transparent !important;
+  pointer-events: none !important;
+  background-color: transparent !important;
+  background: none !important;
+  border: none !important;
+}
+
+/* Today ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â light grey circle */
+.react-datepicker__day--today:not(.react-datepicker__day--selected):not(.react-datepicker__day--in-range):not(.react-datepicker__day--range-start):not(.react-datepicker__day--range-end) {
+  background-color: var(--paper-3) !important;
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+  border-radius: 50% !important;
+  border: none !important;
+}
+
+/* ---- Range Selection ---- */
+
+/* Strictly selected day (standalone) */
+.react-datepicker__day.react-datepicker__day--selected {
+  background-color: var(--seed) !important;
+  color: var(--paper) !important;
+  border-radius: 50% !important;
+  font-weight: 700 !important;
+}
+
+/* Days strictly inside the range */
+.react-datepicker__day.react-datepicker__day--in-range {
+  background-color: #F0F9FF !important;
+  color: var(--seed) !important;
+  border-radius: 0 !important;
+  font-weight: 500 !important;
+}
+
+/* Start of range ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â LEFT side rounded, RIGHT side flat */
+.react-datepicker__day.react-datepicker__day--range-start,
+.react-datepicker-popper .react-datepicker__day--range-start,
+.react-datepicker__day.react-datepicker__day--selecting-range-start {
+  background-color: var(--seed) !important;
+  color: var(--paper) !important;
+  font-weight: 700 !important;
+  border-radius: 50% 0 0 50% !important;
+}
+
+/* End of range ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â LEFT side flat, RIGHT side rounded */
+.react-datepicker__day.react-datepicker__day--range-end {
+  background-color: var(--seed) !important;
+  color: var(--paper) !important;
+  font-weight: 700 !important;
+  border-radius: 0 50% 50% 0 !important;
+}
+
+/* Same day = both start and end */
+.react-datepicker__day.react-datepicker__day--range-start.react-datepicker__day--range-end {
+  border-radius: 50% !important;
+}
+
+/* Live hover preview while selecting second date */
+.react-datepicker__day.react-datepicker__day--in-selecting-range:not(.react-datepicker__day--range-start):not(.react-datepicker__day--range-end):not(.react-datepicker__day--selecting-range-start) {
+  background-color: rgba(15, 94, 134, 0.1) !important;
+  color: var(--seed) !important;
+  border-radius: 0 !important;
+}
+
+/* Kill keyboard ghost highlight ONLY on unselected dates */
+.react-datepicker__day.react-datepicker__day--keyboard-selected:not(.react-datepicker__day--in-range):not(.react-datepicker__day--range-start):not(.react-datepicker__day--range-end):not(.react-datepicker__day--selected):not(.react-datepicker__day--selecting-range-start) {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+/* ---- Navigation arrows ---- */
+.react-datepicker__navigation {
+  top: 14px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: var(--ink-soft) !important;
+  border-width: 2px 2px 0 0 !important;
+  width: 7px !important;
+  height: 7px !important;
+}
+
+/* ---- Separator between two months ---- */
+.react-datepicker__month-container + .react-datepicker__month-container {
+  border-left: 1px solid var(--paper-3) !important;
+}
+
+/* ---- Popper triangle ---- */
+.react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle {
+  fill: var(--paper) !important;
+  color: var(--paper) !important;
+  stroke: var(--rule) !important;
+}
+/* ---------- Admin Layout ---------- */
+.adm {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--paper-2);
+  font-family: var(--sans);
+  
+  /* Ocean Cyan (Brand Match) Theme (Backend Only) */
+  --paper: #FFFFFF;
+  --paper-2: #F8FAFC; /* Slate 50 */
+  --paper-3: #F0F9FF; /* Sky 50 */
+  --panel: #0F172A;   /* Slate 900 */
+  
+  --ink: #0F172A;       /* Slate 900 */
+  --ink-2: #334155;     /* Slate 700 */
+  --ink-soft: #64748B;  /* Slate 500 */
+  --ink-faint: #94A3B8; /* Slate 400 */
+
+  --seed: #0284C7;      /* Vibrant Cyan / Sky 600 (Matches Touchmark Logo) */
+  --proven: #0EA5E9;    /* Sky 500 */
+  --on-accent: #FFFFFF;
+  --rule: #E2E8F0;      /* Slate 200 */
+  --rule-strong: #CBD5E1; /* Slate 300 */
+}
+
+.adm-sidebar-container {
+  flex-shrink: 0;
+  width: 250px;
+  background-color: var(--paper);
+  border-right: 1px solid var(--rule);
+  transition: width 0.3s ease;
+  position: relative;
+  z-index: 40;
+}
+
+.adm-sidebar-container.collapsed {
+  width: 80px;
+}
+
+.adm-sidebar {
+  width: inherit;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--paper);
+  border-right: 1px solid var(--rule);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.3s ease;
+}
+
+.adm-sidebar::-webkit-scrollbar {
+  display: none;
+}
+.adm-sidebar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.adm-sidebar-header {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  min-height: 72px;
+}
+
+.adm-nav-dropdown {
+  margin: 0 12px 8px;
+}
+
+.adm-nav-dropdown-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.adm-nav-dropdown-btn:hover {
+  background-color: var(--paper-3);
+  color: var(--ink);
+}
+
+.adm-nav-dropdown-btn.on {
+  background-color: rgba(15, 94, 134, 0.1);
+  color: var(--seed);
+  font-weight: 600;
+}
+
+.adm-nav-dropdown-content {
+  margin-left: 36px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.adm-nav-dropdown-content a {
+  text-decoration: none;
+  color: var(--ink-soft);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  display: block;
+}
+
+.adm-nav-dropdown-content a:hover {
+  color: var(--ink);
+  background-color: var(--paper-3);
+}
+
+.adm-nav-dropdown-content a.on {
+  color: var(--seed);
+  font-weight: 500;
+  background-color: transparent;
+}
+
+.adm-nav-link {
+  display: block;
+  margin: 0 12px 8px;
+  padding: 12px 16px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.adm-nav-link:hover {
+  color: var(--ink);
+  background-color: var(--paper-3);
+}
+
+.adm-nav-link.on {
+  color: var(--seed);
+  font-weight: 600;
+  background-color: transparent;
+}
+
+.adm-nav-link span, .adm-nav-dropdown-btn span {
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.adm-mobile-header {
+  display: none;
+}
+
+.adm-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.adm-main-header {
+  height: 72px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  justify-content: space-between;
+}
+
+.adm-main-content {
+  padding: 32px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.adm-who {
+  margin-top: auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.adm-collapse-toggle {
+  position: absolute;
+  top: 32px;
+  right: -12px;
+  width: 24px;
+  height: 24px;
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink-soft);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  z-index: 50;
+}
+
+.adm-collapse-toggle:hover {
+  background-color: var(--paper-3);
+  color: var(--ink);
+}
+
+.adm-signout-btn {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: all 0.2s ease;
+  width: 100%;
+  padding: 12px 16px;
+}
+
+.adm-signout-btn:hover {
+  background-color: var(--paper-3);
+  color: var(--ink);
+}
+
+.adm-avatar-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.adm-avatar-circle {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  background-color: var(--paper-3);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+}
+
+/* Collapsed state rules */
+.adm-sidebar.collapsed {
+  width: 80px;
+  align-items: center;
+  overflow: visible;
+}
+
+.adm-sidebar.collapsed .adm-sidebar-header {
+  padding: 24px 0;
+  width: 100%;
+  justify-content: center;
+}
+
+.adm-sidebar.collapsed .adm-nav-dropdown,
+.adm-sidebar.collapsed .adm-nav-link {
+  margin: 0 0 8px 0;
+  width: 56px;
+  display: flex;
+  justify-content: center;
+}
+
+.adm-sidebar.collapsed .adm-nav-dropdown-btn {
+  padding: 12px 0;
+  justify-content: center;
+  width: 100%;
+}
+
+.adm-sidebar.collapsed .adm-nav-dropdown-content {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  margin-left: 12px;
+  margin-top: 0;
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  min-width: 200px;
+  padding: 8px;
+  z-index: 100;
+  overflow: visible;
+}
+
+.adm-sidebar.collapsed .adm-nav-dropdown {
+  position: relative;
+}
+
+/* Invisible hover bridge so mouse doesn't fall through the gap */
+.adm-sidebar.collapsed .adm-nav-dropdown-content::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  left: -16px;
+  width: 16px;
+  background: transparent;
+  display: block;
+}
+
+.adm-sidebar.collapsed .adm-who {
+  padding: 24px 0;
+  width: 100%;
+  align-items: center;
+}
+
+.adm-sidebar.collapsed .adm-signout-btn {
+  padding: 12px 0;
+  justify-content: center;
+}
+
+.adm-sidebar.collapsed nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .adm {
+    flex-direction: column;
+  }
+  .adm-sidebar-container {
+    display: none;
+  }
+  .adm-mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: var(--ink);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .adm-sidebar.open {
+    display: flex;
+    z-index: 100;
+  }
+}
+
+

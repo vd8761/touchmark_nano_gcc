@@ -1,0 +1,386 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+@import 'react-datepicker/dist/react-datepicker.css';
+
+/* ---------- React Datepicker Fixes ---------- */
+.react-datepicker__day--keyboard-selected, .react-datepicker__month-text--keyboard-selected, .react-datepicker__quarter-text--keyboard-selected, .react-datepicker__year-text--keyboard-selected {
+  background-color: var(--seed) !important;
+  color: var(--on-accent) !important;
+}
+
+/* ---------- React Select Fixes ---------- */
+.react-select__input-container, .react-select__input {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.react-select__input:focus-visible,
+.react-select__input-container:focus-visible,
+.react-select__control:focus-visible,
+.react-select__value-container:focus-visible {
+  outline: none !important;
+}
+
+/* ============================================================
+   Premium DatePicker Ã¢â‚¬â€ Dashboard Global Filters
+   ============================================================ */
+
+/* Make wrapper divs transparent to flex layout */
+.react-datepicker-wrapper {
+  display: block !important;
+  width: 100% !important;
+  line-height: 0 !important;
+}
+
+.react-datepicker__input-container {
+  display: block !important;
+  width: 100% !important;
+}
+
+.react-datepicker {
+  font-family: 'Inter', sans-serif !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 20px 40px -8px rgba(15, 23, 42, 0.12) !important;
+  display: flex !important;
+  flex-direction: row !important;
+  width: max-content !important;
+}
+
+.react-datepicker__month-container {
+  float: none !important;
+}
+
+/* ---- Header ---- */
+.react-datepicker__header {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #F1F5F9 !important;
+  padding: 16px 0 8px !important;
+  border-radius: 0 !important;
+}
+
+.react-datepicker__current-month {
+  font-family: 'Inter', sans-serif !important;
+  color: #0F172A !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 10px !important;
+}
+
+/* ---- Day names row ---- */
+.react-datepicker__day-names {
+  margin: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.react-datepicker__day-name {
+  color: #94A3B8 !important;
+  font-weight: 600 !important;
+  font-size: 0.65rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  width: 2.25rem !important;
+  line-height: 2rem !important;
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+/* ---- Week rows ---- */
+.react-datepicker__week {
+  display: flex !important;
+}
+
+.react-datepicker__month {
+  margin: 6px 8px 10px !important;
+}
+
+/* ---- Day cells ---- */
+.react-datepicker__day {
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  line-height: 2.25rem !important;
+  margin: 1px 0 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.78rem !important;
+  font-weight: 400 !important;
+  color: #334155 !important;
+  border-radius: 50% !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s, color 0.15s !important;
+  outline: none !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: #F1F5F9 !important;
+  border-radius: 50% !important;
+  color: #0F172A !important;
+}
+
+/* Outside month days Ã¢â‚¬â€ invisible */
+.react-datepicker__day--outside-month,
+.react-datepicker__day--outside-month.react-datepicker__day--in-range,
+.react-datepicker__day--outside-month.react-datepicker__day--range-start,
+.react-datepicker__day--outside-month.react-datepicker__day--range-end,
+.react-datepicker__day--outside-month.react-datepicker__day--today,
+.react-datepicker__day--outside-month.react-datepicker__day--in-selecting-range {
+  color: transparent !important;
+  pointer-events: none !important;
+  background-color: transparent !important;
+  background: none !important;
+  border: none !important;
+}
+
+/* Today Ã¢â‚¬â€ light grey circle */
+.react-datepicker__day--today:not(.react-datepicker__day--selected):not(.react-datepicker__day--in-range):not(.react-datepicker__day--range-start):not(.react-datepicker__day--range-end) {
+  background-color: #F1F5F9 !important;
+  color: #0F172A !important;
+  font-weight: 600 !important;
+  border-radius: 50% !important;
+  border: none !important;
+}
+
+/* ---- Range Selection ---- */
+
+/* Strictly selected day (standalone) */
+.react-datepicker__day.react-datepicker__day--selected {
+  background-color: var(--seed) !important;
+  color: #ffffff !important;
+  border-radius: 50% !important;
+  font-weight: 700 !important;
+}
+
+/* Days strictly inside the range */
+.react-datepicker__day.react-datepicker__day--in-range {
+  background-color: #F0F9FF !important;
+  color: var(--seed) !important;
+  border-radius: 0 !important;
+  font-weight: 500 !important;
+}
+
+/* Start of range Ã¢â‚¬â€ LEFT side rounded, RIGHT side flat */
+.react-datepicker__day.react-datepicker__day--range-start,
+.react-datepicker-popper .react-datepicker__day--range-start,
+.react-datepicker__day.react-datepicker__day--selecting-range-start {
+  background-color: var(--seed) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border-radius: 50% 0 0 50% !important;
+}
+
+/* End of range Ã¢â‚¬â€ LEFT side flat, RIGHT side rounded */
+.react-datepicker__day.react-datepicker__day--range-end {
+  background-color: var(--seed) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border-radius: 0 50% 50% 0 !important;
+}
+
+/* Same day = both start and end */
+.react-datepicker__day.react-datepicker__day--range-start.react-datepicker__day--range-end {
+  border-radius: 50% !important;
+}
+
+/* Live hover preview while selecting second date */
+.react-datepicker__day.react-datepicker__day--in-selecting-range:not(.react-datepicker__day--range-start):not(.react-datepicker__day--range-end):not(.react-datepicker__day--selecting-range-start) {
+  background-color: #E0F2FE !important;
+  color: var(--seed) !important;
+  border-radius: 0 !important;
+}
+
+/* Kill keyboard ghost highlight ONLY on unselected dates */
+.react-datepicker__day.react-datepicker__day--keyboard-selected:not(.react-datepicker__day--in-range):not(.react-datepicker__day--range-start):not(.react-datepicker__day--range-end):not(.react-datepicker__day--selected):not(.react-datepicker__day--selecting-range-start) {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+/* ---- Navigation arrows ---- */
+.react-datepicker__navigation {
+  top: 14px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #64748B !important;
+  border-width: 2px 2px 0 0 !important;
+  width: 7px !important;
+  height: 7px !important;
+}
+
+/* ---- Separator between two months ---- */
+.react-datepicker__month-container + .react-datepicker__month-container {
+  border-left: 1px solid #F1F5F9 !important;
+}
+
+/* ---- Popper triangle ---- */
+.react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+  stroke: #E2E8F0 !important;
+}
+/* ---------- Admin Layout ---------- */
+.adm {
+  display: flex;
+  min-height: 100vh;
+  background-color: #F8FAFC;
+  font-family: 'Inter', sans-serif;
+}
+
+.adm-sidebar-container {
+  flex-shrink: 0;
+  width: 250px;
+  background-color: #ffffff;
+  border-right: 1px solid #E2E8F0;
+  transition: width 0.3s ease;
+  position: relative;
+  z-index: 40;
+}
+
+.adm-sidebar-container.collapsed {
+  width: 80px;
+}
+
+.adm-sidebar {
+  width: inherit;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-right: 1px solid #E2E8F0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.3s ease;
+}
+
+.adm-sidebar-header {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #F1F5F9;
+  min-height: 72px;
+}
+
+.adm-sidebar-container.collapsed .adm-sidebar-header {
+  padding: 24px 12px;
+  justify-content: center;
+}
+
+.adm-dropdown {
+  margin: 0 12px 8px;
+}
+
+.adm-dropdown-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #64748B;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.adm-dropdown-btn:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+}
+
+.adm-dropdown-btn.on {
+  background-color: #E0F2FE;
+  color: #0284C7;
+  font-weight: 600;
+}
+
+.adm-sidebar-container.collapsed .adm-dropdown-btn {
+  justify-content: center;
+  padding: 12px;
+}
+
+.adm-dropdown-content {
+  margin-left: 36px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.adm-nav-link {
+  display: block;
+  padding: 8px 12px;
+  color: #64748B;
+  text-decoration: none;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.adm-nav-link:hover {
+  color: #0F172A;
+  background-color: #F1F5F9;
+}
+
+.adm-nav-link.on {
+  color: #0284C7;
+  font-weight: 600;
+  background-color: transparent;
+}
+
+.adm-mobile-header {
+  display: none;
+}
+
+.adm-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.adm-main-header {
+  height: 72px;
+  background: #ffffff;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  justify-content: space-between;
+}
+
+.adm-main-content {
+  padding: 32px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .adm {
+    flex-direction: column;
+  }
+  .adm-sidebar-container {
+    display: none;
+  }
+  .adm-mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: #0F172A;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .adm-sidebar.open {
+    display: flex;
+    z-index: 100;
+  }
+}

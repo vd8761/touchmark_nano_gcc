@@ -8,18 +8,11 @@ export default async function AdminAgreementsPage() {
   await requireAdmin();
 
   return (
-    <div className="panel">
-      <div className="adm-header">
+    <div className="adm-main">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <div>
-          <div className="crumbs">
-            <Link href="/admin">Admin</Link>
-            <span className="sep">/</span>
-            <Link href="/admin/settings">Settings</Link>
-            <span className="sep">/</span>
-            <span className="current">Legal Agreements</span>
-          </div>
-          <h1>Legal Agreements & MoUs</h1>
-          <p className="measure" style={{ marginTop: 8, color: "var(--ink-soft)" }}>
+          <h1 className="adm-h1" style={{ marginTop: 8 }}>Legal Agreements & MoUs</h1>
+          <p className="adm-sub">
             Edit the content of agreements presented to Ecosystem Partners, Companies, and Institutions for e-signature.
           </p>
         </div>

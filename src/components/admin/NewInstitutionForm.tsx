@@ -117,7 +117,13 @@ export default function NewInstitutionForm() {
           <div className="field-row">
             <div className="field">
               <label htmlFor="country">Country</label>
-              <input id="country" name="country" type="text" placeholder="e.g. India" required defaultValue="India" />
+              <select id="country" name="country" required defaultValue="IN">
+                <option value="IN">India</option>
+                <option value="LK">Sri Lanka</option>
+                <option value="AE">UAE</option>
+                <option value="SG">Singapore</option>
+                <option value="US">USA</option>
+              </select>
             </div>
             <div className="field">
               <label htmlFor="state">State / Province</label>

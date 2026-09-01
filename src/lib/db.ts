@@ -16,7 +16,12 @@ type Sql = ReturnType<typeof neon>;
 
 let client: Sql | null = null;
 
-// (Removed proxy override to ensure direct connection to Neon Cloud)
+// If a local proxy is specified (e.g. for docker compose), use it.
+if (process.env.NEON_HTTP_PROXY) {
+  neonConfig.fetchEndpoint = process.env.NEON_HTTP_PROXY;
+  neonConfig.useSecureWebSocket = false;
+  neonConfig.poolQueryViaFetch = true;
+}
 
 export interface TypedSql {
   (strings: TemplateStringsArray, ...values: any[]): Promise<any[]>;

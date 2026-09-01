@@ -60,7 +60,7 @@ export default async function AdminPaymentsPage({
   const visible = rows.slice(0, PAGE_SIZE);
 
   return (
-    <>
+    <div className="adm-main">
       <h1 className="adm-h1">Payments</h1>
       <p className="adm-sub">
         Every payment attempt, settled or not. <strong>Re-check</strong> asks Razorpay what actually
@@ -177,7 +177,7 @@ export default async function AdminPaymentsPage({
           )}
         </div>
       )}
-    </>
+    </div>
   );
 }
 

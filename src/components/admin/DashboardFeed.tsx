@@ -1,24 +1,25 @@
 import React from "react";
 import Link from "next/link";
 import { formatDate, StatusPill } from "@/components/admin/ui";
+import { Share2, Landmark, Building2, Globe } from "lucide-react";
 
 export function DashboardPanel({ title, children }: { title: string, children: React.ReactNode }) {
   return (
     <div style={{
-      background: "var(--paper)",
-      border: "1px solid var(--paper-3)",
-      borderRadius: "12px",
+      background: "#FFFFFF",
+      borderRadius: "20px",
+      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.03)",
       overflow: "hidden",
       display: "flex",
       flexDirection: "column",
-      height: "100%"
+      height: "100%",
+      padding: "24px"
     }}>
       <div style={{
-        padding: "16px 20px",
-        borderBottom: "1px solid var(--paper-3)",
-        background: "var(--paper-1)",
-        fontWeight: 600,
-        fontSize: "1.05rem"
+        fontWeight: 700,
+        fontSize: "1.05rem",
+        color: "#1E293B",
+        marginBottom: "16px"
       }}>
         {title}
       </div>
@@ -30,60 +31,75 @@ export function DashboardPanel({ title, children }: { title: string, children: R
 }
 
 export function NetworkMemberFeed({ items }: { items: any[] }) {
-  if (!items || items.length === 0) {
-    return <div style={{ padding: "24px", textAlign: "center", color: "var(--ink-soft)" }}>No recent members found.</div>;
-  }
+  if (!items || items.length === 0) return <div style={{ color: "#94A3B8" }}>No recent members.</div>;
 
   return (
     <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-      {items.map((item, i) => (
-        <li key={i} style={{ 
-          padding: "16px 20px", 
-          borderBottom: i < items.length - 1 ? "1px solid var(--paper-2)" : "none",
-          display: "flex",
-          gap: "12px",
-          alignItems: "flex-start"
-        }}>
-          <div style={{ fontSize: "1.2rem", marginTop: "2px" }}>
-            {item.type === 'College' ? '🏫' : item.type === 'Corporate' ? '🏢' : '🤝'}
-          </div>
-          <div>
-            <div style={{ fontWeight: 500 }}>{item.name}</div>
-            <div style={{ fontSize: "0.85rem", color: "var(--ink-soft)", marginTop: "4px" }}>
-              Joined {formatDate(item.created_at)} • {item.type}
+      {items.slice(0, 5).map((item, i) => {
+        let iconTheme = { color: '#8B5CF6', bg: '#F5F3FF', icon: <Share2 size={16} strokeWidth={2.5} /> }; // Partner
+        if (item.type === 'College') iconTheme = { color: '#3B82F6', bg: '#EFF6FF', icon: <Landmark size={16} strokeWidth={2.5} /> };
+        if (item.type === 'Corporate') iconTheme = { color: '#F59E0B', bg: '#FFFBEB', icon: <Building2 size={16} strokeWidth={2.5} /> };
+
+        return (
+          <li key={i} style={{ 
+            padding: "16px 0", 
+            borderBottom: i < Math.min(items.length, 5) - 1 ? "1px solid #F1F5F9" : "none",
+            display: "flex",
+            gap: "14px",
+            alignItems: "center"
+          }}>
+            <div style={{ 
+              width: "36px", height: "36px", borderRadius: "10px", flexShrink: 0,
+              background: iconTheme.bg, color: iconTheme.color,
+              display: "flex", alignItems: "center", justifyContent: "center"
+            }}>
+              {iconTheme.icon}
             </div>
-          </div>
-        </li>
-      ))}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 600, color: "#1E293B", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.name}</div>
+              <div style={{ fontSize: "0.8rem", color: "#64748B", marginTop: "2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {item.type} • {formatDate(item.created_at)}
+              </div>
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 }
 
-export function CountryDistributionList({ items }: { items: { country: string, count: number }[] }) {
-  if (!items || items.length === 0) {
-    return <div style={{ padding: "24px", textAlign: "center", color: "var(--ink-soft)" }}>No geographic data available.</div>;
-  }
+export function CountryDistributionList({ items }: { items: any[] }) {
+  if (!items || items.length === 0) return <div style={{ color: "#94A3B8" }}>No data available.</div>;
 
   return (
     <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-      {items.map((item, i) => (
+      {items.slice(0, 5).map((item, i) => (
         <li key={i} style={{ 
-          padding: "16px 20px", 
-          borderBottom: i < items.length - 1 ? "1px solid var(--paper-2)" : "none",
+          padding: "12px 16px", 
+          marginBottom: "8px",
+          background: "#F8FAFC",
+          borderRadius: "12px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center"
         }}>
-          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            <span style={{ fontSize: "1.2rem" }}>🌍</span>
-            <span style={{ fontWeight: 500 }}>{item.country || "Unknown"}</span>
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <div style={{ 
+              width: "32px", height: "32px", borderRadius: "8px", 
+              background: "#F0F9FF", color: "#0284C7", flexShrink: 0,
+              display: "flex", alignItems: "center", justifyContent: "center"
+            }}>
+              <Globe size={16} strokeWidth={2.5} />
+            </div>
+            <span style={{ fontWeight: 600, color: "#334155" }}>{item.country || "Unknown"}</span>
           </div>
           <div style={{ 
-            background: "var(--paper-2)", 
-            padding: "4px 12px", 
-            borderRadius: "999px",
+            background: "#F1F5F9", 
+            color: "#475569",
+            fontWeight: 700, 
             fontSize: "0.85rem",
-            fontWeight: 600
+            padding: "4px 10px", 
+            borderRadius: "99px" 
           }}>
             {item.count}
           </div>
@@ -94,36 +110,37 @@ export function CountryDistributionList({ items }: { items: { country: string, c
 }
 
 export function StudentPlacementFeed({ students }: { students: any[] }) {
-  if (!students || students.length === 0) {
-    return <div style={{ padding: "24px", textAlign: "center", color: "var(--ink-soft)" }}>No recent placements.</div>;
-  }
+  if (!students || students.length === 0) return <div style={{ color: "#94A3B8" }}>No placement data.</div>;
 
   return (
     <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-      {students.map((item, i) => (
+      {students.slice(0, 5).map((item, i) => (
         <li key={i} style={{ 
-          padding: "16px 20px", 
-          borderBottom: i < students.length - 1 ? "1px solid var(--paper-2)" : "none"
+          padding: "16px 0", 
+          borderBottom: i < Math.min(students.length, 5) - 1 ? "1px solid #F1F5F9" : "none"
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-            <strong style={{ fontSize: "0.95rem" }}>{item.name}</strong>
-            <StatusPill status={item.status} />
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", alignItems: "center" }}>
+            <strong style={{ fontSize: "0.95rem", color: "#1E293B", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.name}</strong>
+            <div style={{ flexShrink: 0, marginLeft: "8px" }}><StatusPill status={item.status} /></div>
           </div>
-          <div style={{ fontSize: "0.85rem", color: "var(--ink-soft)", display: "flex", flexDirection: "column", gap: "4px" }}>
-            <span>🏢 {item.company_name || 'Unassigned'}</span>
-            <span>🏫 {item.college_name || 'Unassigned'}</span>
-            <span style={{ 
-              display: "inline-block", 
-              background: "var(--paper-2)", 
-              padding: "2px 8px", 
-              borderRadius: "4px",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              width: "fit-content",
-              marginTop: "4px"
-            }}>
-              {item.category === 'INTERNSHIP' ? 'Internship' : 'Offer'}
-            </span>
+          <div style={{ fontSize: "0.8rem", color: "#64748B", display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Building2 size={14} color="#F59E0B" strokeWidth={2.5} style={{ flexShrink: 0 }} />
+              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.company_name || 'Unassigned'}</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", overflow: "hidden" }}>
+                <Landmark size={14} color="#3B82F6" strokeWidth={2.5} style={{ flexShrink: 0 }} />
+                <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.college_name || 'Unassigned'}</span>
+              </div>
+              <span style={{ 
+                background: "#F8FAFC", color: "#475569", 
+                padding: "2px 8px", borderRadius: "4px", 
+                fontSize: "0.75rem", fontWeight: 600, flexShrink: 0
+              }}>
+                {item.category === 'INTERNSHIP' ? 'Internship' : 'Offer'}
+              </span>
+            </div>
           </div>
         </li>
       ))}
@@ -141,73 +158,70 @@ export function CorporateProfileFeed({ companies }: { companies: any[] }) {
       <style>{`
         .corp-card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 12px 24px rgba(0,0,0,0.06) !important;
+          box-shadow: 0 12px 30px rgba(0,0,0,0.06) !important;
         }
       `}</style>
       <div style={{
         display: "grid",
       gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-      gap: "20px",
-      padding: "20px 0"
+      gap: "24px"
     }}>
       {companies.map((item, i) => {
         const details = item.contact_details || {};
         return (
-          <div key={i} className="corp-card" style={{ 
-            background: "var(--paper)",
-            borderRadius: "16px",
+          <Link href={`/admin/companies/${item.id}`} key={i} className="corp-card" style={{ 
+            background: "#FFFFFF",
+            borderRadius: "20px",
             padding: "24px",
-            border: "1px solid var(--paper-2)",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+            border: "1px solid #F1F5F9",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.02)",
             display: "flex",
             flexDirection: "column",
-            gap: "16px",
-            transition: "transform 0.2s ease, box-shadow 0.2s ease",
-            cursor: "default"
+            transition: "transform 0.3s ease, box-shadow 0.3s ease",
+            color: "inherit",
+            textDecoration: "none"
           }}>
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div style={{ 
-                  width: "48px", height: "48px", 
-                  borderRadius: "12px", 
-                  background: "linear-gradient(135deg, var(--paper-2) 0%, var(--paper-1) 100%)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: "1.5rem",
-                  border: "1px solid var(--paper-3)"
-                }}>🏢</div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600, color: "var(--ink)" }}>{item.name}</h3>
-                  <span style={{ fontSize: "0.85rem", color: "var(--ink-soft)" }}>{details.country || "Unknown Location"}</span>
-                </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "20px" }}>
+              <div style={{ 
+                width: "44px", height: "44px", 
+                borderRadius: "12px", 
+                background: "#FFFBEB",
+                color: "#F59E0B",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <Building2 size={22} strokeWidth={2.5} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "#1E293B" }}>{item.name}</h3>
+                <span style={{ fontSize: "0.85rem", color: "#94A3B8" }}>{details.country || "Unknown Location"}</span>
               </div>
             </div>
 
-            <div style={{ background: "var(--paper-1)", borderRadius: "10px", padding: "16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-              <div>
-                <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.5px", color: "var(--ink-faint)", marginBottom: "4px" }}>Sector</div>
-                <div style={{ fontWeight: 500, fontSize: "0.95rem" }}>{details.industrySector || 'N/A'}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "auto" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontSize: "0.8rem", color: "#64748B" }}>Sector</div>
+                <div style={{ fontWeight: 600, fontSize: "0.85rem", color: "#334155" }}>{details.industrySector || 'N/A'}</div>
               </div>
-              <div>
-                <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.5px", color: "var(--ink-faint)", marginBottom: "4px" }}>Company Size</div>
-                <div style={{ fontWeight: 500, fontSize: "0.95rem" }}>{details.companySize || 'N/A'}</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontSize: "0.8rem", color: "#64748B" }}>Size</div>
+                <div style={{ fontWeight: 600, fontSize: "0.85rem", color: "#334155" }}>{details.companySize || 'N/A'}</div>
               </div>
-              <div style={{ gridColumn: "1 / -1", marginTop: "4px" }}>
-                <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.5px", color: "var(--ink-faint)", marginBottom: "8px" }}>Est. Turnover</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "16px", borderTop: "1px solid #F1F5F9" }}>
+                <div style={{ fontSize: "0.8rem", color: "#64748B" }}>Est. Turnover</div>
                 <div style={{ 
-                  display: "inline-block",
-                  background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", 
-                  color: "white",
-                  padding: "6px 14px",
-                  borderRadius: "8px",
+                  background: "#F0FDF4", 
+                  color: "#059669",
+                  border: "1px solid #A7F3D0",
+                  padding: "4px 10px",
+                  borderRadius: "99px",
                   fontWeight: 700, 
-                  fontSize: "1.1rem",
-                  boxShadow: "0 4px 12px rgba(16, 185, 129, 0.2)"
+                  fontSize: "0.8rem",
                 }}>
                   {details.companyTurnover || 'Undisclosed'}
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         );
       })}
     </div>

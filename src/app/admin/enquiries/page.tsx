@@ -39,7 +39,7 @@ export default async function AdminEnquiriesPage({
   const visible = rows.slice(0, PAGE_SIZE);
 
   return (
-    <>
+    <div className="adm-main">
       <h1 className="adm-h1">Enquiries</h1>
       <p className="adm-sub">
         Every submission from the contact form, both audiences. Status and notes are for your team
@@ -75,7 +75,7 @@ export default async function AdminEnquiriesPage({
       )}
 
       <Pager page={page} hasMore={hasMore} params={params} />
-    </>
+    </div>
   );
 }
 

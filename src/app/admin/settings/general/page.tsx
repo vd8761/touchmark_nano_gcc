@@ -11,7 +11,7 @@ export default async function AdminSettingsPage() {
   const settings = await getSettings();
 
   return (
-    <>
+    <div className="adm-main">
       <h1 className="adm-h1">Settings</h1>
       <p className="adm-sub">
         Mail routing and the membership price. Every field here overrides an environment variable
@@ -26,6 +26,6 @@ export default async function AdminSettingsPage() {
         defaultPriceIncludesGst={PLANS["institution-annual"].priceIncludesGst}
         gstRate={PLANS["institution-annual"].gstRate}
       />
-    </>
+    </div>
   );
 }

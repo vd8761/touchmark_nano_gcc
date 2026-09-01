@@ -65,6 +65,8 @@ export async function POST(req: NextRequest) {
       return createEcosystemPartner(body);
     case "create-company":
       return createCompany(body);
+    case "create-batch":
+      return createBatch(body);
     case "assign-student":
       return assignStudent(body);
     default:
@@ -345,6 +347,30 @@ async function createCompany(body: Record<string, unknown>) {
     if (err.message && err.message.includes("unique constraint")) {
       return json({ ok: false, error: "An account with this email already exists." }, 400);
     }
+    return json({ ok: false, error: "Database error: " + err.message }, 500);
+  }
+}
+
+async function createBatch(body: Record<string, unknown>) {
+  const batchName = clean(body.batchName as string, 200);
+  const companyId = clean(body.companyId as string, 50);
+  const collegeId = typeof body.collegeId === "string" && body.collegeId.length > 0 ? body.collegeId : null;
+  const status = clean(body.status as string, 50) || "UPCOMING";
+  const startDate = typeof body.startDate === "string" && body.startDate.length > 0 ? body.startDate : null;
+  const endDate = typeof body.endDate === "string" && body.endDate.length > 0 ? body.endDate : null;
+
+  if (!batchName || !companyId) {
+    return badRequest("Batch name and company are required.");
+  }
+
+  try {
+    await sql()`
+      insert into batches (name, company_id, college_id, status, start_date, end_date)
+      values (${batchName}, ${companyId}, ${collegeId}, ${status}, ${startDate}, ${endDate})
+    `;
+    return json({ ok: true });
+  } catch (err: any) {
+    console.error("Error creating batch:", err);
     return json({ ok: false, error: "Database error: " + err.message }, 500);
   }
 }
