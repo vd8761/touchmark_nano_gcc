@@ -7,9 +7,11 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function NewStudentForm({ 
-  companies 
+  companies,
+  batches,
 }: { 
-  companies: { id: string; name: string }[] 
+  companies: { id: string; name: string }[];
+  batches: { id: string; batch_name: string; company_name: string }[];
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -158,11 +160,11 @@ export default function NewStudentForm({
                 <option value="Prefer not to say">Prefer not to say</option>
               </select>
             </div>
-            <div className="adm-field">
+            <div className="field">
               <label htmlFor="emergencyContactName">Emergency Contact Name <span className="req">*</span></label>
               <input id="emergencyContactName" name="emergencyContactName" type="text" placeholder="e.g. John Doe" required />
             </div>
-            <div className="adm-field">
+            <div className="field">
               <label htmlFor="emergencyContactPhone">Emergency Contact Phone <span className="req">*</span></label>
               <input id="emergencyContactPhone" name="emergencyContactPhone" type="text" placeholder="e.g. +91 9876543210" required />
             </div>
@@ -262,6 +264,16 @@ export default function NewStudentForm({
             </select>
           </div>
 
+          <div className="field">
+            <label htmlFor="batchId">Assign to Batch (Optional)</label>
+            <select id="batchId" name="batchId">
+              <option value="">-- No batch assignment --</option>
+              {batches.map(b => (
+                <option key={b.id} value={b.id}>{b.batch_name} — {b.company_name}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="field-row">
             <div className="field">
               <label htmlFor="preferredEngagement">Preferred Engagement Type</label>
@@ -294,7 +306,7 @@ export default function NewStudentForm({
               />
               {fieldErrors.startDate && <span className="field-error-text">{fieldErrors.startDate}</span>}
             </div>
-            <div className="adm-field">
+            <div className="field">
               <label htmlFor="completionDate">Expected Completion / End Date</label>
               <DatePicker 
                 id="completionDate" 

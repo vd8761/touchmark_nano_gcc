@@ -380,6 +380,7 @@ async function assignStudent(body: Record<string, unknown>) {
   const email = clean(body.email, LIMITS.email);
   const category = body.category === "INTERNSHIP" ? "INTERNSHIP" : "OFFER";
   const companyId = typeof body.companyId === "string" && body.companyId.length > 0 ? body.companyId : null;
+  const batchId = typeof body.batchId === "string" && body.batchId.length > 0 ? body.batchId : null;
   const startDate = typeof body.startDate === "string" && body.startDate.length > 0 ? body.startDate : null;
   const completionDate = typeof body.completionDate === "string" && body.completionDate.length > 0 ? body.completionDate : null;
   
@@ -439,11 +440,12 @@ async function assignStudent(body: Record<string, unknown>) {
   });
 
   await sql()`
-    insert into students (name, email, company_id, category, duration, stipend, lpa, start_date, completion_date, profile_data)
+    insert into students (name, email, company_id, batch_id, category, duration, stipend, lpa, start_date, completion_date, profile_data)
     values (
       ${name}, 
       ${email}, 
-      ${companyId}, 
+      ${companyId},
+      ${batchId},
       ${category},
       ${typeof body.duration === "string" ? body.duration : null},
       ${Number(body.stipend) || null},

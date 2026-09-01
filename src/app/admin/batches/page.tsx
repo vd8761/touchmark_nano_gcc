@@ -45,6 +45,7 @@ export default async function AdminBatchesPage() {
               <th>STUDENTS</th>
               <th style={{ width: "1%", whiteSpace: "nowrap" }}>STATUS</th>
               <th style={{ width: "1%", whiteSpace: "nowrap" }}>Created</th>
+              <th style={{ width: "1%", whiteSpace: "nowrap" }}>DETAILS</th>
             </tr>
           </thead>
           <tbody>
@@ -97,6 +98,23 @@ export default async function AdminBatchesPage() {
                   </td>
                   <td className="mono" style={{ whiteSpace: "nowrap" }}>
                     {new Date(b.created_at).toLocaleDateString("en-US", { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </td>
+                  <td style={{ whiteSpace: "nowrap" }}>
+                    <Link
+                      href={`/admin/batches/${b.id}`}
+                      style={{
+                        display: "inline-block",
+                        padding: "4px 12px",
+                        borderRadius: 6,
+                        background: "#EFF6FF",
+                        color: "#1D4ED8",
+                        fontWeight: 600,
+                        fontSize: "0.8rem",
+                        textDecoration: "none",
+                      }}
+                    >
+                      View / Assign
+                    </Link>
                   </td>
                 </tr>
               ))

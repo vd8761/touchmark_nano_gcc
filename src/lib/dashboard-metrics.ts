@@ -7,10 +7,10 @@ export interface GlobalMetrics {
 }
 
 export async function getGlobalMetrics(filters?: any): Promise<GlobalMetrics> {
-  // Wait a little to show loading state (for demonstration)
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
   const cFilter = filters?.country && filters.country !== "All Countries" ? filters.country : null;
+  const compFilter = filters?.company && filters.company !== "All Companies" ? filters.company : null;
+  const partFilter = filters?.ecosystemPartner && filters.ecosystemPartner !== "All Partners" ? filters.ecosystemPartner : null;
+
   let currencyFilter = 'USD';
   if (cFilter === 'India') currencyFilter = 'INR';
   else if (cFilter === 'Sri Lanka') currencyFilter = 'LKR';
@@ -24,6 +24,8 @@ export async function getGlobalMetrics(filters?: any): Promise<GlobalMetrics> {
         SUM(turnover_projected) as projected_turnover
       FROM companies
       WHERE (${cFilter}::text IS NULL OR country = ${cFilter})
+        AND (${compFilter}::text IS NULL OR name = ${compFilter})
+        AND (${partFilter}::text IS NULL OR ecosystem_partner_id IN (SELECT id FROM ecosystem_partners WHERE name = ${partFilter}))
         AND currency = ${currencyFilter}
     `.catch(() => null);
 
@@ -64,20 +66,33 @@ export interface KpiMetrics {
 }
 
 export async function getKpiMetrics(filters?: any): Promise<KpiMetrics> {
-  // Wait a little to show loading state (for demonstration)
-  await new Promise((resolve) => setTimeout(resolve, 600));
-
   const cFilter = filters?.country && filters.country !== "All Countries" ? filters.country : null;
-  // TODO: Add other filters (company, partner) in WHERE clauses similarly if needed
+  const compFilter = filters?.company && filters.company !== "All Companies" ? filters.company : null;
+  const partFilter = filters?.ecosystemPartner && filters.ecosystemPartner !== "All Partners" ? filters.ecosystemPartner : null;
 
   try {
     const results = await Promise.all([
-      sql()`SELECT COUNT(*) as count FROM companies WHERE (${cFilter}::text IS NULL OR country = ${cFilter})`.catch((e) => { throw e; }),
-      sql()`SELECT COUNT(*) as count FROM ecosystem_partners WHERE (${cFilter}::text IS NULL OR country = ${cFilter})`.catch((e) => { throw e; }),
-      sql()`SELECT COUNT(*) as count FROM students WHERE (${cFilter}::text IS NULL OR country = ${cFilter})`.catch((e) => { throw e; }),
-      sql()`SELECT COUNT(*) as count FROM jobs j JOIN companies c ON j.company_id = c.id WHERE j.status = 'OPEN' AND (${cFilter}::text IS NULL OR c.country = ${cFilter})`.catch((e) => { throw e; }),
-      sql()`SELECT COUNT(*) as count FROM colleges WHERE (${cFilter}::text IS NULL OR country = ${cFilter})`.catch((e) => { throw e; }),
-      sql()`SELECT COUNT(*) as count FROM internship_batches ib JOIN companies c ON ib.company_id = c.id WHERE ib.status = 'ACTIVE' AND (${cFilter}::text IS NULL OR c.country = ${cFilter})`.catch((e) => { throw e; })
+      sql()`SELECT COUNT(*) as count FROM companies 
+            WHERE (${cFilter}::text IS NULL OR country = ${cFilter})
+              AND (${compFilter}::text IS NULL OR name = ${compFilter})
+              AND (${partFilter}::text IS NULL OR ecosystem_partner_id IN (SELECT id FROM ecosystem_partners WHERE name = ${partFilter}))`.catch((e) => { throw e; }),
+      sql()`SELECT COUNT(*) as count FROM ecosystem_partners 
+            WHERE (${cFilter}::text IS NULL OR country = ${cFilter})
+              AND (${partFilter}::text IS NULL OR name = ${partFilter})`.catch((e) => { throw e; }),
+      sql()`SELECT COUNT(*) as count FROM students 
+            WHERE (${cFilter}::text IS NULL OR country = ${cFilter})`.catch((e) => { throw e; }),
+      sql()`SELECT COUNT(*) as count FROM jobs j JOIN companies c ON j.company_id = c.id 
+            WHERE j.status = 'OPEN' 
+              AND (${cFilter}::text IS NULL OR c.country = ${cFilter})
+              AND (${compFilter}::text IS NULL OR c.name = ${compFilter})
+              AND (${partFilter}::text IS NULL OR c.ecosystem_partner_id IN (SELECT id FROM ecosystem_partners WHERE name = ${partFilter}))`.catch((e) => { throw e; }),
+      sql()`SELECT COUNT(*) as count FROM colleges 
+            WHERE (${cFilter}::text IS NULL OR country = ${cFilter})`.catch((e) => { throw e; }),
+      sql()`SELECT COUNT(*) as count FROM internship_batches ib JOIN companies c ON ib.company_id = c.id 
+            WHERE ib.status = 'ACTIVE' 
+              AND (${cFilter}::text IS NULL OR c.country = ${cFilter})
+              AND (${compFilter}::text IS NULL OR c.name = ${compFilter})
+              AND (${partFilter}::text IS NULL OR c.ecosystem_partner_id IN (SELECT id FROM ecosystem_partners WHERE name = ${partFilter}))`.catch((e) => { throw e; })
     ]).catch((e) => null);
 
     if (!results) {
@@ -151,9 +166,9 @@ export interface CountryMetrics {
 }
 
 export async function getCountryMetrics(filters?: any): Promise<CountryMetrics[]> {
-  await new Promise((resolve) => setTimeout(resolve, 600));
-
   const cFilter = filters?.country && filters.country !== "All Countries" ? filters.country : null;
+  const compFilter = filters?.company && filters.company !== "All Companies" ? filters.company : null;
+  const partFilter = filters?.ecosystemPartner && filters.ecosystemPartner !== "All Partners" ? filters.ecosystemPartner : null;
 
   try {
     const rows = await sql()`
@@ -161,6 +176,8 @@ export async function getCountryMetrics(filters?: any): Promise<CountryMetrics[]
       FROM companies 
       WHERE country IS NOT NULL 
         AND (${cFilter}::text IS NULL OR country = ${cFilter})
+        AND (${compFilter}::text IS NULL OR name = ${compFilter})
+        AND (${partFilter}::text IS NULL OR ecosystem_partner_id IN (SELECT id FROM ecosystem_partners WHERE name = ${partFilter}))
       GROUP BY country
     `.catch(() => null);
 
@@ -225,14 +242,21 @@ export interface ChartMetrics {
 }
 
 export async function getChartMetrics(filters?: any): Promise<ChartMetrics> {
-  await new Promise((resolve) => setTimeout(resolve, 600));
-
   const cFilter = filters?.country && filters.country !== "All Countries" ? filters.country : null;
+  const compFilter = filters?.company && filters.company !== "All Companies" ? filters.company : null;
+  const partFilter = filters?.ecosystemPartner && filters.ecosystemPartner !== "All Partners" ? filters.ecosystemPartner : null;
 
   try {
     const results = await Promise.all([
-      sql()`SELECT SUM(j.openings) as opps FROM jobs j JOIN companies c ON j.company_id = c.id WHERE (${cFilter}::text IS NULL OR c.country = ${cFilter})`.catch(() => null),
-      sql()`SELECT ja.status, COUNT(*) as count FROM job_applications ja JOIN jobs j ON ja.job_id = j.id JOIN companies c ON j.company_id = c.id WHERE (${cFilter}::text IS NULL OR c.country = ${cFilter}) GROUP BY ja.status`.catch(() => null),
+      sql()`SELECT SUM(j.openings) as opps FROM jobs j JOIN companies c ON j.company_id = c.id 
+            WHERE (${cFilter}::text IS NULL OR c.country = ${cFilter})
+              AND (${compFilter}::text IS NULL OR c.name = ${compFilter})
+              AND (${partFilter}::text IS NULL OR c.ecosystem_partner_id IN (SELECT id FROM ecosystem_partners WHERE name = ${partFilter}))`.catch(() => null),
+      sql()`SELECT ja.status, COUNT(*) as count FROM job_applications ja JOIN jobs j ON ja.job_id = j.id JOIN companies c ON j.company_id = c.id 
+            WHERE (${cFilter}::text IS NULL OR c.country = ${cFilter})
+              AND (${compFilter}::text IS NULL OR c.name = ${compFilter})
+              AND (${partFilter}::text IS NULL OR c.ecosystem_partner_id IN (SELECT id FROM ecosystem_partners WHERE name = ${partFilter}))
+            GROUP BY ja.status`.catch(() => null),
       sql()`SELECT s.talent_type, COUNT(*) as count FROM students s JOIN colleges col ON s.college_id = col.id WHERE (${cFilter}::text IS NULL OR col.country = ${cFilter}) GROUP BY s.talent_type`.catch(() => null),
       sql()`
         WITH months AS (
@@ -242,10 +266,18 @@ export async function getChartMetrics(filters?: any): Promise<ChartMetrics> {
         SELECT 
           to_char(m.month, 'Mon') as label,
           COALESCE(SUM(j.openings), 0) as jobs,
-          COALESCE((SELECT COUNT(*) FROM internship_batches ib JOIN companies c2 ON ib.company_id = c2.id WHERE date_trunc('month', ib.created_at) = m.month AND (${cFilter}::text IS NULL OR c2.country = ${cFilter})), 0) as internships
+          COALESCE((SELECT COUNT(*) FROM internship_batches ib JOIN companies c2 ON ib.company_id = c2.id 
+                    WHERE date_trunc('month', ib.created_at) = m.month 
+                      AND (${cFilter}::text IS NULL OR c2.country = ${cFilter})
+                      AND (${compFilter}::text IS NULL OR c2.name = ${compFilter})
+                      AND (${partFilter}::text IS NULL OR c2.ecosystem_partner_id IN (SELECT id FROM ecosystem_partners WHERE name = ${partFilter}))
+                   ), 0) as internships
         FROM months m
         LEFT JOIN jobs j ON date_trunc('month', j.created_at) = m.month
-        LEFT JOIN companies c ON j.company_id = c.id AND (${cFilter}::text IS NULL OR c.country = ${cFilter})
+        LEFT JOIN companies c ON j.company_id = c.id 
+             AND (${cFilter}::text IS NULL OR c.country = ${cFilter})
+             AND (${compFilter}::text IS NULL OR c.name = ${compFilter})
+             AND (${partFilter}::text IS NULL OR c.ecosystem_partner_id IN (SELECT id FROM ecosystem_partners WHERE name = ${partFilter}))
         GROUP BY m.month
         ORDER BY m.month
       `.catch(() => null)
@@ -324,19 +356,20 @@ export interface TableMetrics {
 }
 
 export async function getTableMetrics(filters?: any): Promise<TableMetrics> {
-  await new Promise((resolve) => setTimeout(resolve, 600));
-
   const cFilter = filters?.country && filters.country !== "All Countries" ? filters.country : null;
+  const compFilter = filters?.company && filters.company !== "All Companies" ? filters.company : null;
+  const partFilter = filters?.ecosystemPartner && filters.ecosystemPartner !== "All Partners" ? filters.ecosystemPartner : null;
 
   try {
     const results = await Promise.all([
       sql()`
         SELECT p.name, 
-               (SELECT COUNT(*) FROM companies WHERE country = p.country AND (${cFilter}::text IS NULL OR country = ${cFilter})) as active_companies,
+               (SELECT COUNT(*) FROM companies WHERE country = p.country AND (${cFilter}::text IS NULL OR country = ${cFilter}) AND (${compFilter}::text IS NULL OR name = ${compFilter})) as active_companies,
                (SELECT COUNT(*) FROM colleges WHERE country = p.country AND (${cFilter}::text IS NULL OR country = ${cFilter})) as institutions,
                (SELECT COUNT(*) FROM students WHERE country = p.country AND (${cFilter}::text IS NULL OR country = ${cFilter})) as talent
         FROM ecosystem_partners p
         WHERE (${cFilter}::text IS NULL OR p.country = ${cFilter})
+          AND (${partFilter}::text IS NULL OR p.name = ${partFilter})
         LIMIT 6
       `.catch(() => null),
       sql()`
@@ -345,6 +378,8 @@ export async function getTableMetrics(filters?: any): Promise<TableMetrics> {
         FROM internship_batches b
         JOIN companies c ON b.company_id = c.id
         WHERE (${cFilter}::text IS NULL OR c.country = ${cFilter})
+          AND (${compFilter}::text IS NULL OR c.name = ${compFilter})
+          AND (${partFilter}::text IS NULL OR c.ecosystem_partner_id IN (SELECT id FROM ecosystem_partners WHERE name = ${partFilter}))
         ORDER BY b.created_at DESC
         LIMIT 5
       `.catch(() => null),

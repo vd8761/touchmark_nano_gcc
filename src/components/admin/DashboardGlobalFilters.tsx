@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 import Select from "react-select";
@@ -102,26 +102,43 @@ export function DashboardGlobalFilters({
 }: DashboardGlobalFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
   
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
   const [startDate, endDate] = dateRange;
 
-  const currentCountry = searchParams.get("country") || "All Countries";
-  const currentPartner = searchParams.get("ecosystemPartner") || "All Partners";
-  const currentCompany = searchParams.get("company") || "All Companies";
+  const [localCountry, setLocalCountry] = useState(searchParams.get("country") || "All Countries");
+  const [localPartner, setLocalPartner] = useState(searchParams.get("ecosystemPartner") || "All Partners");
+  const [localCompany, setLocalCompany] = useState(searchParams.get("company") || "All Companies");
+
+  // Keep local state in sync with URL searchParams
+  useEffect(() => {
+    setLocalCountry(searchParams.get("country") || "All Countries");
+    setLocalPartner(searchParams.get("ecosystemPartner") || "All Partners");
+    setLocalCompany(searchParams.get("company") || "All Companies");
+  }, [searchParams]);
 
   const setFilterUrl = (key: string, value: string) => {
+    // Optimistic UI update
+    if (key === 'country') setLocalCountry(value);
+    if (key === 'ecosystemPartner') setLocalPartner(value);
+    if (key === 'company') setLocalCompany(value);
+
     const params = new URLSearchParams(searchParams.toString());
     if (value === "All Countries" || value === "All Partners" || value === "All Companies") {
       params.delete(key);
     } else {
       params.set(key, value);
     }
-    router.push(`?${params.toString()}`, { scroll: false });
+    startTransition(() => {
+      router.push(`?${params.toString()}`, { scroll: false });
+    });
   };
 
   const resetFilters = () => {
-    router.push(`?`, { scroll: false });
+    startTransition(() => {
+      router.push(`?`, { scroll: false });
+    });
     setDateRange([null, null]);
   };
 
@@ -145,7 +162,7 @@ export function DashboardGlobalFilters({
         <Select 
           instanceId="country-select"
           options={countryOptions}
-          value={countryOptions.find(o => o.value === currentCountry) || countryOptions[0]}
+          value={countryOptions.find(o => o.value === localCountry) || countryOptions[0]}
           onChange={(opt) => setFilterUrl("country", opt?.value || "All Countries")}
           styles={selectStyles}
           isSearchable={true}
@@ -160,7 +177,7 @@ export function DashboardGlobalFilters({
         <Select 
           instanceId="partner-select"
           options={partnerOptions}
-          value={partnerOptions.find(o => o.value === currentPartner) || partnerOptions[0]}
+          value={partnerOptions.find(o => o.value === localPartner) || partnerOptions[0]}
           onChange={(opt) => setFilterUrl("ecosystemPartner", opt?.value || "All Partners")}
           styles={selectStyles}
           isSearchable={true}
@@ -175,7 +192,7 @@ export function DashboardGlobalFilters({
         <Select 
           instanceId="company-select"
           options={companyOptions}
-          value={companyOptions.find(o => o.value === currentCompany) || companyOptions[0]}
+          value={companyOptions.find(o => o.value === localCompany) || companyOptions[0]}
           onChange={(opt) => setFilterUrl("company", opt?.value || "All Companies")}
           styles={selectStyles}
           isSearchable={true}
@@ -200,10 +217,29 @@ export function DashboardGlobalFilters({
       </div>
 
       <div className={styles.filterActions}>
-        <button onClick={resetFilters} className={styles.refreshBtn} title="Refresh Data">
-          <RefreshCw size={18} color="#ffffff" strokeWidth={2.5} />
+        <button 
+          onClick={resetFilters} 
+          className={styles.refreshBtn} 
+          title="Refresh Data"
+          disabled={isPending}
+          style={{ opacity: isPending ? 0.7 : 1, cursor: isPending ? 'wait' : 'pointer' }}
+        >
+          <RefreshCw 
+            size={18} 
+            color="#ffffff" 
+            strokeWidth={2.5} 
+            className={isPending ? "animate-spin" : ""} 
+            style={isPending ? { animation: "spin 1s linear infinite" } : {}}
+          />
         </button>
       </div>
+
+      {isPending && (
+        <div className={styles.pageLoaderOverlay}>
+          <div className={styles.pageLoaderSpinner}></div>
+          <div className={styles.pageLoaderText}>Applying Filters...</div>
+        </div>
+      )}
     </div>
   );
 }

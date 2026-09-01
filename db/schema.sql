@@ -355,6 +355,7 @@ create table if not exists students (
   phone text,
   college_id uuid references colleges (id) on delete set null,
   company_id uuid references companies (id) on delete set null,
+  batch_id uuid references internship_batches (id) on delete set null,
   category text not null check (category in ('INTERNSHIP', 'OFFER')),
   duration text,
   stipend numeric(10, 2),
@@ -369,6 +370,10 @@ create table if not exists students (
 
 create index if not exists students_company_idx on students (company_id);
 create index if not exists students_college_idx on students (college_id);
+create index if not exists students_batch_idx on students (batch_id);
+
+-- Run this migration if students table already exists:
+-- ALTER TABLE students ADD COLUMN IF NOT EXISTS batch_id uuid REFERENCES internship_batches(id) ON DELETE SET NULL;
 
 -- Add touch_updated_at triggers for new tables
 do $$
