@@ -21,7 +21,7 @@ export function DashboardCountryOverview({ countries: initialCountries }: Dashbo
       id: "in", name: "India", code: "IN", 
       companies: "0", companiesActive: "0", partners: "0", partnersActive: "0",
       institutions: "0", institutionsActive: "0", talent: "0", internships: "0", internshipsAvail: "0",
-      placements: "0", turnoverCurrent: "₹ 0M", turnoverProjected: "₹ 0M", mapSrc: "/india-map.jpg", topHubs: []
+      placements: "0", turnoverCurrent: "₹ 0M", turnoverProjected: "₹ 0M", mapSrc: "/assets/india_map.jpg", topHubs: []
     },
     { 
       id: "lk", name: "Sri Lanka", code: "LK", 

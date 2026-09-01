@@ -197,7 +197,7 @@ export async function getCountryMetrics(filters?: any): Promise<CountryMetrics[]
         placements: '0',
         turnoverCurrent: `${currency} ${(parseFloat(r.current_turnover) || 0).toFixed(1)}M`,
         turnoverProjected: `${currency} ${(parseFloat(r.projected_turnover) || 0).toFixed(1)}M`,
-        mapSrc: code === 'in' ? '/india-map.jpg' : `https://raw.githubusercontent.com/djaiss/mapsicon/master/all/${code}/vector.svg`,
+        mapSrc: code === 'in' ? '/assets/india_map.jpg' : `https://raw.githubusercontent.com/djaiss/mapsicon/master/all/${code}/vector.svg`,
         topHubs: [{name: "Top Hub", val: r.company_count}]
       };
     });
