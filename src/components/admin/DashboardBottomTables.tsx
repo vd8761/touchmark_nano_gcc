@@ -36,6 +36,9 @@ export default function DashboardBottomTables({ metrics }: DashboardBottomTables
   const [activeBatchTab, setActiveBatchTab] = useState('All Batches');
   const [activeEnquiryTab, setActiveEnquiryTab] = useState('Institution Enquiries');
 
+  const filteredEnquiries = ENQUIRY_DATA.filter(row => activeEnquiryTab.startsWith(row.type));
+
+
   const getStatusStyle = (status: string) => {
     switch(status) {
       case 'Active': return { bg: '#DCFCE7', color: '#16A34A' };
@@ -152,13 +155,13 @@ export default function DashboardBottomTables({ metrics }: DashboardBottomTables
 
         <div className={styles.pipelineFunnel}>
           {[
-            { label: 'New', count: 0 },
-            { label: 'Contacted', count: 0 },
-            { label: 'Discussion', count: 0 },
-            { label: 'Proposal', count: 0 },
-            { label: 'Negotiation', count: 0 },
-            { label: 'Won', count: 0 },
-            { label: 'Lost', count: 0 },
+            { label: 'New', count: filteredEnquiries.filter(e => e.status.toLowerCase() === 'new').length },
+            { label: 'Contacted', count: filteredEnquiries.filter(e => e.status.toLowerCase() === 'contacted').length },
+            { label: 'Discussion', count: filteredEnquiries.filter(e => e.status.toLowerCase() === 'discussion').length },
+            { label: 'Proposal', count: filteredEnquiries.filter(e => e.status.toLowerCase() === 'proposal').length },
+            { label: 'Negotiation', count: filteredEnquiries.filter(e => e.status.toLowerCase() === 'negotiation').length },
+            { label: 'Won', count: filteredEnquiries.filter(e => e.status.toLowerCase() === 'won').length },
+            { label: 'Lost', count: filteredEnquiries.filter(e => e.status.toLowerCase() === 'lost').length },
           ].map((step, index) => (
             <div key={index} className={styles.pipelineStep}>
               <span className={styles.stepLabel}>{step.label}</span>
@@ -182,14 +185,14 @@ export default function DashboardBottomTables({ metrics }: DashboardBottomTables
               </tr>
             </thead>
             <tbody>
-              {ENQUIRY_DATA.length === 0 ? (
+              {filteredEnquiries.length === 0 ? (
                 <tr>
                   <td colSpan={8} style={{ textAlign: 'center', padding: '3rem', color: '#64748B' }}>
                     No enquiry records found
                   </td>
                 </tr>
               ) : (
-                ENQUIRY_DATA.map((row, i) => (
+                filteredEnquiries.map((row, i) => (
                   <tr key={i}>
                     <td className={styles.fw500}>{row.id}</td>
                     <td>{row.type}</td>

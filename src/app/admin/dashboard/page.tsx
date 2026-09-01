@@ -44,7 +44,7 @@ export default async function MasterDashboard({ searchParams }: Props) {
         {/* Left Column (60%) */}
         <div className={styles.leftColumn}>
             <Suspense fallback={<GlobalFiltersSkeleton />}>
-              <GlobalFiltersServer />
+              <GlobalFiltersServer filters={filters} />
             </Suspense>
             
             <Suspense fallback={<KpiGridSkeleton />}>

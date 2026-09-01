@@ -77,7 +77,8 @@ export async function getKpiMetrics(filters?: any): Promise<KpiMetrics> {
               AND (${compFilter}::text IS NULL OR name = ${compFilter})
               AND (${partFilter}::text IS NULL OR ecosystem_partner_id IN (SELECT id FROM ecosystem_partners WHERE name = ${partFilter}))`.catch((e) => { throw e; }),
       sql()`SELECT COUNT(*) as count FROM ecosystem_partners 
-            WHERE (${cFilter}::text IS NULL OR country = ${cFilter})
+            WHERE nda_status = 'ACTIVE'
+              AND (${cFilter}::text IS NULL OR contact_details->>'country' = ${cFilter})
               AND (${partFilter}::text IS NULL OR name = ${partFilter})`.catch((e) => { throw e; }),
       sql()`SELECT COUNT(*) as count FROM students 
             WHERE (${cFilter}::text IS NULL OR country = ${cFilter})`.catch((e) => { throw e; }),
@@ -364,11 +365,12 @@ export async function getTableMetrics(filters?: any): Promise<TableMetrics> {
     const results = await Promise.all([
       sql()`
         SELECT p.name, 
-               (SELECT COUNT(*) FROM companies WHERE country = p.country AND (${cFilter}::text IS NULL OR country = ${cFilter}) AND (${compFilter}::text IS NULL OR name = ${compFilter})) as active_companies,
-               (SELECT COUNT(*) FROM colleges WHERE country = p.country AND (${cFilter}::text IS NULL OR country = ${cFilter})) as institutions,
-               (SELECT COUNT(*) FROM students WHERE country = p.country AND (${cFilter}::text IS NULL OR country = ${cFilter})) as talent
+               (SELECT COUNT(*) FROM companies WHERE country = p.contact_details->>'country' AND (${cFilter}::text IS NULL OR country = ${cFilter}) AND (${compFilter}::text IS NULL OR name = ${compFilter})) as active_companies,
+               (SELECT COUNT(*) FROM colleges WHERE country = p.contact_details->>'country' AND (${cFilter}::text IS NULL OR country = ${cFilter})) as institutions,
+               (SELECT COUNT(*) FROM students WHERE country = p.contact_details->>'country' AND (${cFilter}::text IS NULL OR country = ${cFilter})) as talent
         FROM ecosystem_partners p
-        WHERE (${cFilter}::text IS NULL OR p.country = ${cFilter})
+        WHERE p.nda_status = 'ACTIVE'
+          AND (${cFilter}::text IS NULL OR p.contact_details->>'country' = ${cFilter})
           AND (${partFilter}::text IS NULL OR p.name = ${partFilter})
         LIMIT 6
       `.catch(() => null),
