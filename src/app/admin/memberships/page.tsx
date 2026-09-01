@@ -60,15 +60,15 @@ export default async function AdminMembershipsPage({
       </div>
 
       <div className={styles.bottomCard} style={{ padding: '24px', marginBottom: '8px' }}>
-        <form className="adm-tools" method="get" style={{ margin: 0, padding: 0, border: 'none', background: 'transparent' }}>
-          <div className="field" style={{ flex: 1, minWidth: 240, margin: 0 }}>
+        <form className="adm-tools" method="get" style={{ margin: 0, padding: 0, border: 'none', background: 'transparent', display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <div className="field" style={{ flex: 1, minWidth: '240px', margin: 0 }}>
             <label htmlFor="q" style={{ fontWeight: 600, color: '#64748B', fontSize: '0.8rem', marginBottom: '8px', display: 'block' }}>Search</label>
             <input id="q" name="q" defaultValue={search} placeholder="Member number, institution or email" style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }} />
           </div>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-            <button className={styles.primaryActionBtn} type="submit" style={{ margin: 0, height: '42px', padding: '0 24px' }}>Apply</button>
-            <a href="/admin/memberships/" className={styles.refreshBtn} style={{ height: '42px', display: 'flex', alignItems: 'center', padding: '0 20px', borderRadius: '8px', border: '1px solid #E2E8F0', color: '#64748B', textDecoration: 'none' }}>Clear</a>
-            <a href="/api/admin/export?type=memberships" className={styles.refreshBtn} style={{ height: '42px', display: 'flex', alignItems: 'center', padding: '0 20px', borderRadius: '8px', border: '1px solid #E2E8F0', color: '#64748B', textDecoration: 'none' }}>Export CSV</a>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'nowrap' }}>
+            <button className={styles.primaryActionBtn} type="submit" style={{ margin: 0, height: '42px', padding: '0 24px', whiteSpace: 'nowrap' }}>Apply</button>
+            <a href="/admin/memberships/" className={styles.refreshBtn} style={{ height: '42px', display: 'flex', alignItems: 'center', padding: '0 20px', borderRadius: '8px', border: '1px solid #E2E8F0', color: '#64748B', textDecoration: 'none', whiteSpace: 'nowrap', backgroundColor: '#fff' }}>Clear</a>
+            <a href="/api/admin/export?type=memberships" className={styles.refreshBtn} style={{ height: '42px', display: 'flex', alignItems: 'center', padding: '0 20px', borderRadius: '8px', border: '1px solid #E2E8F0', color: '#64748B', textDecoration: 'none', whiteSpace: 'nowrap', backgroundColor: '#fff' }}>Export CSV</a>
           </div>
         </form>
       </div>
@@ -97,7 +97,15 @@ export default async function AdminMembershipsPage({
                 {rows.map((row) => (
                   <tr key={row.member_no}>
                     <td className="mono" style={{ padding: '16px', borderBottom: '1px solid #F1F5F9' }}>{row.member_no}</td>
-                    <td className="wrap" style={{ padding: '16px', borderBottom: '1px solid #F1F5F9' }}>{row.institution ?? "-"}</td>
+                    <td className="wrap" style={{ padding: '16px', borderBottom: '1px solid #F1F5F9' }}>
+                      {row.institution ? (
+                        <Link href={`/admin/memberships/${row.member_no}`} style={{ color: 'var(--seed)', fontWeight: 500, textDecoration: 'none' }}>
+                          {row.institution}
+                        </Link>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
                     <td className="wrap" style={{ padding: '16px', borderBottom: '1px solid #F1F5F9' }}>{row.name ?? "-"}</td>
                     <td className="wrap" style={{ padding: '16px', borderBottom: '1px solid #F1F5F9' }}>{row.email}</td>
                     <td style={{ padding: '16px', borderBottom: '1px solid #F1F5F9' }}><StatusPill status={row.status} /></td>

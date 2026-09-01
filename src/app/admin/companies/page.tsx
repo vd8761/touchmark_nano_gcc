@@ -55,7 +55,9 @@ export default async function AdminCompaniesPage() {
               companies.map((c) => (
                 <tr key={c.id}>
                   <td className="wrap">
-                    <strong>{c.name}</strong>
+                    <Link href={`/admin/companies/${c.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                      <strong style={{ color: "var(--brand-primary)" }}>{c.name}</strong>
+                    </Link>
                     <div style={{ fontSize: "0.85em", color: "var(--ink-soft)" }}>{c.email}</div>
                   </td>
                   <td className="wrap">

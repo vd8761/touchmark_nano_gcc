@@ -50,7 +50,9 @@ export default async function AdminInstitutionsPage() {
               institutions.map((inst: any) => (
                 <tr key={inst.id}>
                   <td className="wrap">
-                    <strong>{inst.name}</strong>
+                    <Link href={`/admin/institutions/${inst.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                      <strong style={{ color: "var(--brand-primary)" }}>{inst.name}</strong>
+                    </Link>
                     <div style={{ fontSize: "0.85em", color: "var(--ink-soft)" }}>{inst.email}</div>
                   </td>
                   <td className="wrap">

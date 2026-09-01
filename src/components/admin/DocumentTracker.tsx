@@ -58,7 +58,7 @@ export default function DocumentTracker({ partnerId, ndaStatus, documentUrl, mou
             </button>
           )}
           {isNdaPartnerSigned && (
-            <a href={`/admin/sign/${partnerId}?type=nda`} className="adm-btn primary" style={{ fontSize: "0.75rem", padding: "6px 10px", whiteSpace: "nowrap", flexShrink: 0, textDecoration: "none" }}>
+            <a href={`/admin/sign/${partnerId}?type=nda`} target="_blank" rel="noopener noreferrer" className="adm-btn primary" style={{ fontSize: "0.75rem", padding: "6px 10px", whiteSpace: "nowrap", flexShrink: 0, textDecoration: "none" }}>
               Admin Sign
             </a>
           )}
@@ -86,7 +86,7 @@ export default function DocumentTracker({ partnerId, ndaStatus, documentUrl, mou
             </button>
           )}
           {isMouPartnerSigned && (
-            <a href={`/admin/sign/${partnerId}?type=mou`} className="adm-btn primary" style={{ fontSize: "0.75rem", padding: "6px 10px", whiteSpace: "nowrap", flexShrink: 0, textDecoration: "none" }}>
+            <a href={`/admin/sign/${partnerId}?type=mou`} target="_blank" rel="noopener noreferrer" className="adm-btn primary" style={{ fontSize: "0.75rem", padding: "6px 10px", whiteSpace: "nowrap", flexShrink: 0, textDecoration: "none" }}>
               Admin Sign
             </a>
           )}
@@ -114,7 +114,7 @@ export default function DocumentTracker({ partnerId, ndaStatus, documentUrl, mou
             </button>
           )}
           {isCommissionPartnerSigned && (
-            <a href={`/admin/sign/${partnerId}?type=commission`} className="adm-btn primary" style={{ fontSize: "0.75rem", padding: "6px 10px", whiteSpace: "nowrap", flexShrink: 0, textDecoration: "none" }}>
+            <a href={`/admin/sign/${partnerId}?type=commission`} target="_blank" rel="noopener noreferrer" className="adm-btn primary" style={{ fontSize: "0.75rem", padding: "6px 10px", whiteSpace: "nowrap", flexShrink: 0, textDecoration: "none" }}>
               Admin Sign
             </a>
           )}

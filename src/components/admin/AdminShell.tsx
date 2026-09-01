@@ -27,7 +27,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: <Users size={20} />,
     subItems: [
       { href: "/admin/partners/", label: "Ecosystem Partners" },
-      { href: "/admin/companies/", label: "Companies" },
+      { href: "/admin/companies/", label: "Corporates" },
       { href: "/admin/institutions/", label: "Institutions" },
     ]
   },

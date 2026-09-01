@@ -66,7 +66,7 @@ function layout(opts: { title: string; preheader: string; body: string }): strin
     <tr><td style="background:${PANEL};padding:22px 28px;">
       <table role="presentation" cellpadding="0" cellspacing="0"><tr>
         <td style="vertical-align:middle;padding-right:12px;">
-          <img src="${env.siteUrl}/brand/touchmark-logo.png" alt="Nano GCC" width="36" height="36" style="display:block;width:36px;height:36px;border-radius:8px;background:#FFFFFF;padding:4px;" />
+          <img src="${env.siteUrl}/brand/touchmark-logo.png" alt="Nano GCC" width="auto" height="36" style="display:block;height:36px;border-radius:8px;background:#FFFFFF;padding:4px;" />
         </td>
         <td style="vertical-align:middle;">
           <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#9FC4D8;">Nano GCC</div>
@@ -153,7 +153,7 @@ function heroLayout(opts: {
     >
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:20px;"><tr>
         <td style="vertical-align:middle;padding-right:14px;">
-          <img src="${env.siteUrl}/brand/touchmark-logo.png" alt="Nano GCC" width="44" height="44" style="display:block;width:44px;height:44px;border-radius:10px;background:#FFFFFF;padding:5px;" />
+          <img src="${env.siteUrl}/brand/touchmark-logo.png" alt="Nano GCC" width="auto" height="44" style="display:block;height:44px;border-radius:10px;background:#FFFFFF;padding:5px;" />
         </td>
         <td style="vertical-align:middle;">
           <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.7);font-weight:600;">Nano GCC</div>
@@ -261,6 +261,7 @@ export type MembershipEmailInput = {
   validUntil: string | null;
   plan: Plan;
   siteUrl: string;
+  tempPassword?: string;
 };
 
 /**
@@ -312,6 +313,13 @@ export function membershipActivated(input: MembershipEmailInput): Rendered {
           institution,
         )} builds with it.`,
       )}
+      ${input.tempPassword ? `
+        <div style="font-family:${MONO_FONT};font-weight:700;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:${INK_FAINT};margin:26px 0 4px;">Portal Access</div>
+        ${rows([
+          ["Login Email", input.email],
+          ["Temporary Password", input.tempPassword],
+        ])}
+      ` : ""}
       ${button(`${input.siteUrl}/portal/login`, "Log in to your portal")}
       ${recordBox(pairs)}
     `,

@@ -13,6 +13,8 @@ export const metadata: Metadata = {
 // be cached or prerendered.
 export const dynamic = "force-dynamic";
 
+import { Toaster } from "react-hot-toast";
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   // Null on the login page, which shares this layout. The shell renders the
   // chrome only when there is somebody to render it for.
@@ -22,5 +24,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const cookieStore = await cookies();
   const defaultCollapsed = cookieStore.get("sidebar_collapsed")?.value === "true";
 
-  return <AdminShell user={admin} defaultCollapsed={defaultCollapsed}>{children}</AdminShell>;
+  return (
+    <>
+      <Toaster position="top-center" />
+      <AdminShell user={admin} defaultCollapsed={defaultCollapsed}>{children}</AdminShell>
+    </>
+  );
 }

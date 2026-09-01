@@ -7,16 +7,13 @@ import DatePicker from "react-datepicker";
 import toast from "react-hot-toast";
 import "react-datepicker/dist/react-datepicker.css";
 
-export default function NewInstitutionForm() {
+export default function EditMembershipForm({ membership }: { membership: any }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
-  
-  
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  
-  const defaultDate = new Date();
-  defaultDate.setFullYear(defaultDate.getFullYear() + 1);
-  const [validUntil, setValidUntil] = useState<Date | null>(defaultDate);
+  const p = membership?.profile_data || {};
+  const initDate = membership?.valid_until ? new Date(membership.valid_until) : null;
+  const [validUntil, setValidUntil] = useState<Date | null>(initDate);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,31 +34,29 @@ export default function NewInstitutionForm() {
     }
 
     setBusy(true);
-    
-    
     setFieldErrors({});
 
     try {
-      form.append("action", "create-manual-membership");
+      form.append("action", "edit-manual-membership");
 
-      const res = await fetch("/api/admin/memberships", {
-        method: "POST",
+      const res = await fetch(`/api/admin/memberships/${membership.member_no}`, {
+        method: "PUT",
         body: form,
       });
 
       const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
 
       if (!res.ok || data.ok !== true) {
-        toast.error(data.error ?? "Failed to create institution.");
+        toast.error(data.error ?? "Failed to update institution.");
         setBusy(false);
         return;
       }
 
-      toast.success("Institution successfully created!");
+      toast.success("Institution updated successfully!");
       setTimeout(() => {
         router.push("/admin/memberships");
         router.refresh();
-      }, 2000);
+      }, 1000);
     } catch {
       toast.error("Network error. Please try again.");
       setBusy(false);
@@ -72,8 +67,8 @@ export default function NewInstitutionForm() {
     <div className="adm-form">
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 16 }}>
         <div>
-          <h1 className="adm-h1">Add Institution (Manual)</h1>
-          <p className="adm-sub" style={{ marginBottom: 0 }}>Register a new academic partner and track their programs.</p>
+          <h1 className="adm-h1">Edit Institution</h1>
+          <p className="adm-sub" style={{ marginBottom: 0 }}>Update the details for this institution.</p>
         </div>
         <Link href="/admin/memberships" className="adm-btn ghost" style={{ textDecoration: "none", marginTop: "8px" }}>
           &larr; Back to Institutions
@@ -90,12 +85,12 @@ export default function NewInstitutionForm() {
           <div className="field-row">
             <div className={`field ${fieldErrors.institution ? "error" : ""}`}>
               <label htmlFor="institution">Institution Name</label>
-              <input id="institution" name="institution" type="text" placeholder="e.g. University of Example" required />
+              <input id="institution" name="institution" defaultValue={membership.institution || ""}  type="text" placeholder="e.g. University of Example" required />
               {fieldErrors.institution && <span className="field-error-text">{fieldErrors.institution}</span>}
             </div>
             <div className="field">
               <label htmlFor="institutionType">Institution Type</label>
-              <select id="institutionType" name="institutionType" required>
+              <select id="institutionType" name="institutionType" defaultValue={p.institutionType || ""}  required>
                 <option value="University">University</option>
                 <option value="College">College</option>
                 <option value="Autonomous Institute">Autonomous Institute</option>
@@ -107,18 +102,18 @@ export default function NewInstitutionForm() {
           <div className="field-row">
             <div className="field">
               <label htmlFor="affiliatingUniversity">Affiliating University (if applicable)</label>
-              <input id="affiliatingUniversity" name="affiliatingUniversity" type="text" placeholder="e.g. State Tech University" />
+              <input id="affiliatingUniversity" name="affiliatingUniversity" defaultValue={p.affiliatingUniversity || ""}  type="text" placeholder="e.g. State Tech University" />
             </div>
             <div className="field">
               <label htmlFor="accreditation">Accreditation / Recognition</label>
-              <input id="accreditation" name="accreditation" type="text" placeholder="e.g. NAAC, NBA, UGC" />
+              <input id="accreditation" name="accreditation" defaultValue={p.accreditation || ""}  type="text" placeholder="e.g. NAAC, NBA, UGC" />
             </div>
           </div>
 
           <div className="field-row">
             <div className="field">
               <label htmlFor="country">Country</label>
-              <select id="country" name="country" required defaultValue="IN">
+              <select id="country" name="country" defaultValue={p.country || ""}  required >
                 <option value="IN">India</option>
                 <option value="LK">Sri Lanka</option>
                 <option value="AE">UAE</option>
@@ -128,29 +123,29 @@ export default function NewInstitutionForm() {
             </div>
             <div className="field">
               <label htmlFor="state">State / Province</label>
-              <input id="state" name="state" type="text" placeholder="e.g. Tamil Nadu" required />
+              <input id="state" name="state" defaultValue={p.state || ""}  type="text" placeholder="e.g. Tamil Nadu" required />
             </div>
           </div>
 
           <div className="field">
             <label htmlFor="campusAddress">Campus Address</label>
-            <textarea id="campusAddress" name="campusAddress" placeholder="Full address" required rows={2} />
+            <textarea id="campusAddress" name="campusAddress" defaultValue={p.campusAddress || ""}  placeholder="Full address" required rows={2} />
           </div>
 
           <div className="field-row">
             <div className="field">
               <label htmlFor="website">Institution Website</label>
-              <input id="website" name="website" type="url" placeholder="https://..." required />
+              <input id="website" name="website" defaultValue={p.website || ""}  type="url" placeholder="https://..." required />
             </div>
             <div className="field">
               <label htmlFor="yearEstablished">Year Established</label>
-              <input id="yearEstablished" name="yearEstablished" type="number" min="1800" max="2100" placeholder="e.g. 1995" />
+              <input id="yearEstablished" name="yearEstablished" defaultValue={p.yearEstablished || ""}  type="number" min="1800" max="2100" placeholder="e.g. 1995" />
             </div>
           </div>
 
           <div className="field">
             <label htmlFor="studentStrength">Total Student Strength</label>
-            <input id="studentStrength" name="studentStrength" type="number" placeholder="e.g. 5000" />
+            <input id="studentStrength" name="studentStrength" defaultValue={p.studentStrength || ""}  type="number" placeholder="e.g. 5000" />
           </div>
 
           {/* Contact Details */}
@@ -159,45 +154,45 @@ export default function NewInstitutionForm() {
           <div className="field-row">
             <div className="field">
               <label htmlFor="name">Primary Coordinator Name</label>
-              <input id="name" name="name" type="text" placeholder="e.g. Dr. John Smith" required />
+              <input id="name" name="name" defaultValue={membership.name || ""}  type="text" placeholder="e.g. Dr. John Smith" required />
             </div>
             <div className="field">
               <label htmlFor="designation">Designation / Title</label>
-              <input id="designation" name="designation" type="text" placeholder="e.g. Placement Officer" required />
+              <input id="designation" name="designation" defaultValue={p.designation || ""}  type="text" placeholder="e.g. Placement Officer" required />
             </div>
           </div>
 
           <div className="field-row">
             <div className="field">
               <label htmlFor="department">Department</label>
-              <input id="department" name="department" type="text" placeholder="e.g. Computer Science" />
+              <input id="department" name="department" defaultValue={p.department || ""}  type="text" placeholder="e.g. Computer Science" />
             </div>
             <div className="field">
               <label htmlFor="phone">Phone Number (with country code)</label>
-              <input id="phone" name="phone" type="tel" placeholder="e.g. +91 98765 43210" required />
+              <input id="phone" name="phone" defaultValue={p.phone || ""}  type="tel" placeholder="e.g. +91 98765 43210" required />
             </div>
           </div>
 
           <div className={`field ${fieldErrors.email ? "error" : ""}`}>
             <label htmlFor="email">Business Email Address</label>
-            <input id="email" name="email" type="email" placeholder="e.g. placement@university.edu" required />
+            <input id="email" name="email" defaultValue={membership.email || ""}  type="email" placeholder="e.g. placement@university.edu" required />
             {fieldErrors.email && <span className="field-error-text">{fieldErrors.email}</span>}
           </div>
 
           <div className="field-row">
             <div className="field">
               <label htmlFor="facultyCoordinatorName">Faculty Coordinator Name (R&D Liaison)</label>
-              <input id="facultyCoordinatorName" name="facultyCoordinatorName" type="text" placeholder="e.g. Prof. Jane Doe" />
+              <input id="facultyCoordinatorName" name="facultyCoordinatorName" defaultValue={p.facultyCoordinatorName || ""}  type="text" placeholder="e.g. Prof. Jane Doe" />
             </div>
             <div className="field">
               <label htmlFor="facultyCoordinatorEmail">Faculty Email</label>
-              <input id="facultyCoordinatorEmail" name="facultyCoordinatorEmail" type="email" placeholder="jane@..." />
+              <input id="facultyCoordinatorEmail" name="facultyCoordinatorEmail" defaultValue={p.facultyCoordinatorEmail || ""}  type="email" placeholder="jane@..." />
             </div>
           </div>
           <div className="field-row">
             <div className="field">
               <label htmlFor="facultyCoordinatorPhone">Faculty Phone</label>
-              <input id="facultyCoordinatorPhone" name="facultyCoordinatorPhone" type="tel" placeholder="+91..." />
+              <input id="facultyCoordinatorPhone" name="facultyCoordinatorPhone" defaultValue={p.facultyCoordinatorPhone || ""}  type="tel" placeholder="+91..." />
             </div>
           </div>
 
@@ -206,44 +201,44 @@ export default function NewInstitutionForm() {
           
           <div className="field">
             <label htmlFor="programsOffered">Departments / Programs Offered</label>
-            <textarea id="programsOffered" name="programsOffered" placeholder="e.g. B.Tech CS, M.Tech Data Science..." required rows={2} />
+            <textarea id="programsOffered" name="programsOffered" defaultValue={p.programsOffered || ""}  placeholder="e.g. B.Tech CS, M.Tech Data Science..." required rows={2} />
           </div>
 
           <div className="field-row">
             <div className="field">
               <label htmlFor="keyTechDepartments">Relevant Technology Programs</label>
-              <input id="keyTechDepartments" name="keyTechDepartments" type="text" placeholder="e.g. AI/ML, Data Science, Electronics" required />
+              <input id="keyTechDepartments" name="keyTechDepartments" defaultValue={p.keyTechDepartments || ""}  type="text" placeholder="e.g. AI/ML, Data Science, Electronics" required />
             </div>
             <div className="field">
               <label htmlFor="eligibleStudents">Number of Eligible Students per Batch</label>
-              <input id="eligibleStudents" name="eligibleStudents" type="number" placeholder="For internships/placements" />
+              <input id="eligibleStudents" name="eligibleStudents" defaultValue={p.eligibleStudents || ""}  type="number" placeholder="For internships/placements" />
             </div>
           </div>
           
           <div className="field-row">
             <div className="field">
               <label htmlFor="academicCalendar">Academic Calendar</label>
-              <input id="academicCalendar" name="academicCalendar" type="text" placeholder="e.g. Aug-Dec, Jan-May" />
+              <input id="academicCalendar" name="academicCalendar" defaultValue={p.academicCalendar || ""}  type="text" placeholder="e.g. Aug-Dec, Jan-May" />
             </div>
             <div className="field">
               <label htmlFor="facultyStrength">Faculty Strength in Relevant Depts</label>
-              <input id="facultyStrength" name="facultyStrength" type="number" placeholder="e.g. 150" />
+              <input id="facultyStrength" name="facultyStrength" defaultValue={p.facultyStrength || ""}  type="number" placeholder="e.g. 150" />
             </div>
           </div>
 
           <div className="field">
             <label htmlFor="rdLabs">Research Labs / Infrastructure Available</label>
-            <textarea id="rdLabs" name="rdLabs" rows={2} placeholder="Describe existing labs or facilities..."></textarea>
+            <textarea id="rdLabs" name="rdLabs" defaultValue={p.rdLabs || ""}  rows={2} placeholder="Describe existing labs or facilities..."></textarea>
           </div>
 
           <div className="field">
             <label htmlFor="researchStrengths">Areas of Research Strength / Interest</label>
-            <textarea id="researchStrengths" name="researchStrengths" rows={2} placeholder="e.g. Robotics, NLP, Renewable Energy"></textarea>
+            <textarea id="researchStrengths" name="researchStrengths" defaultValue={p.researchStrengths || ""}  rows={2} placeholder="e.g. Robotics, NLP, Renewable Energy"></textarea>
           </div>
 
           <div className="field">
             <label htmlFor="industryPartnerships">Existing Industry Partnerships</label>
-            <textarea id="industryPartnerships" name="industryPartnerships" rows={2} placeholder="Names of companies or nature of tie-ups"></textarea>
+            <textarea id="industryPartnerships" name="industryPartnerships" defaultValue={p.industryPartnerships || ""}  rows={2} placeholder="Names of companies or nature of tie-ups"></textarea>
           </div>
 
           {/* Supporting Documents */}
@@ -285,34 +280,46 @@ export default function NewInstitutionForm() {
           {/* Membership Terms */}
           <h2 className="adm-h1" style={{ fontSize: "1.1rem", margin: "24px 0 16px", gridColumn: "1 / -1" }}>Membership Terms</h2>
 
-          <div className="field">
-            <label htmlFor="validUntil">Membership Valid Until</label>
-            <DatePicker 
-              id="validUntil" 
-              name="validUntil"
-              selected={validUntil}
-              onChange={(date: Date | null) => setValidUntil(date)}
-              dateFormat="yyyy-MM-dd"
-              placeholderText="yyyy-mm-dd"
-              showMonthDropdown
-              showYearDropdown
-              dropdownMode="select"
-            />
-            <p className="adm-sub" style={{ marginTop: 4 }}>Default is 1 year from today. The institution can renew it later.</p>
-          </div>
-          <div className="field">
-            <label htmlFor="membershipFee">Membership Fee (INR)</label>
-            <input id="membershipFee" name="membershipFee" type="number" min="0" placeholder="e.g. 10000" defaultValue="0" required />
+          <div className="field-row">
+            <div className="field">
+              <label htmlFor="validUntil">Membership Valid Until</label>
+              <DatePicker 
+                id="validUntil" 
+                name="validUntil"
+                selected={validUntil}
+                onChange={(date: Date | null) => setValidUntil(date)}
+                dateFormat="yyyy-MM-dd"
+                placeholderText="yyyy-mm-dd"
+                showMonthDropdown
+                showYearDropdown
+                dropdownMode="select"
+              />
+              <p className="adm-sub" style={{ marginTop: 4 }}>Default is 1 year from today. The institution can renew it later.</p>
+            </div>
+            <div className="field">
+              <label htmlFor="membershipFee">Membership Fee (INR)</label>
+              <input id="membershipFee" name="membershipFee" defaultValue={membership.amount_paise ? membership.amount_paise / 100 : "0"}  type="number" min="0" placeholder="e.g. 10000"  required />
+            </div>
           </div>
         </div>
 
-        
+        {error && (
+          <div className="error-banner" style={{ marginTop: "24px", color: "var(--critical)", background: "var(--critical-bg)", padding: "16px", borderRadius: "8px", border: "1px solid var(--critical-border)" }}>
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="success-banner" style={{ marginTop: "24px", color: "var(--success)", background: "var(--success-bg)", padding: "16px", borderRadius: "8px", border: "1px solid var(--success-border)" }}>
+            {success}
+          </div>
+        )}
 
         <div className="acts" style={{ marginTop: "32px", borderTop: "1px solid var(--rule)", paddingTop: "24px" }}>
           <button className="act primary" type="submit" disabled={busy}>
             {busy ? (
               <>
-                <span className="spin" aria-hidden="true" /> Saving...
+                <svg className="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+                Saving...
               </>
             ) : (
               "Save Institution"

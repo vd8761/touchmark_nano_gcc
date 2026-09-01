@@ -147,11 +147,15 @@ async function createManualMembership(body: Record<string, unknown>) {
       return badRequest("An institution with this email already exists.");
     }
 
-    // 1. Create a dummy order for ₹0
+    const feeStr = formData?.get("membershipFee") as string;
+    const membershipFee = feeStr ? parseInt(feeStr, 10) : 0;
+    const amountPaise = isNaN(membershipFee) ? 0 : membershipFee * 100;
+
+    // 1. Create a dummy order for the fee
     const orderRef = generateOrderRef();
     const insertedOrder = await q`
       insert into orders (order_ref, email, name, phone, organization, plan, amount_paise, currency, status, bank_reference, paid_at)
-      values (${orderRef}, ${email}, ${name}, ${phone}, ${institution}, 'institution-annual', 0, 'INR', 'paid', 'MANUAL', now())
+      values (${orderRef}, ${email}, ${name}, ${phone}, ${institution}, 'institution-annual', ${amountPaise}, 'INR', 'paid', 'MANUAL', now())
       returning id
     `;
     const orderId = insertedOrder[0]?.id;
@@ -206,11 +210,12 @@ async function createManualMembership(body: Record<string, unknown>) {
       orderRef,
       transactionId: null,
       bankReference: 'MANUAL',
-      amountPaise: 0,
+      amountPaise: amountPaise,
       paidAt: new Date().toISOString(),
       validUntil: validUntil.toISOString(),
       plan: PLANS["institution-annual"],
       siteUrl: env.siteUrl,
+      tempPassword: userCreated ? tempPassword : undefined,
     };
 
     await send({
