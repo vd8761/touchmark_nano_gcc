@@ -11,6 +11,7 @@
  */
 
 import { COMPANY } from "./company";
+import { env } from "./env";
 import { formatInr, gstBreakdown, type Plan } from "./pricing";
 
 export type Rendered = { subject: string; html: string; text: string };
@@ -63,8 +64,15 @@ function layout(opts: { title: string; preheader: string; body: string }): strin
 <tr><td align="center">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border:1px solid ${RULE};border-radius:6px;overflow:hidden;">
     <tr><td style="background:${PANEL};padding:22px 28px;">
-      <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#9FC4D8;">Nano GCC</div>
-      <div style="font-size:17px;font-weight:600;color:#FFFFFF;margin-top:4px;">${escapeHtml(opts.title)}</div>
+      <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+        <td style="vertical-align:middle;padding-right:12px;">
+          <img src="${env.siteUrl}/brand/touchmark-logo.png" alt="Nano GCC" width="36" height="36" style="display:block;width:36px;height:36px;border-radius:8px;background:#FFFFFF;padding:4px;" />
+        </td>
+        <td style="vertical-align:middle;">
+          <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#9FC4D8;">Nano GCC</div>
+          <div style="font-size:17px;font-weight:600;color:#FFFFFF;margin-top:2px;">${escapeHtml(opts.title)}</div>
+        </td>
+      </tr></table>
     </td></tr>
     <tr><td style="padding:28px;">${opts.body}</td></tr>
     <tr><td style="border-top:1px solid ${RULE};padding:20px 28px;font-size:12px;line-height:1.6;color:${INK_SOFT};">
@@ -143,6 +151,14 @@ function heroLayout(opts: {
     <tr><td
       style="background-color:${PANEL};background-image:linear-gradient(135deg, ${PANEL} 0%, ${opts.accent} 160%);padding:42px 40px 34px;"
     >
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:20px;"><tr>
+        <td style="vertical-align:middle;padding-right:14px;">
+          <img src="${env.siteUrl}/brand/touchmark-logo.png" alt="Nano GCC" width="44" height="44" style="display:block;width:44px;height:44px;border-radius:10px;background:#FFFFFF;padding:5px;" />
+        </td>
+        <td style="vertical-align:middle;">
+          <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.7);font-weight:600;">Nano GCC</div>
+        </td>
+      </tr></table>
       <table role="presentation" cellpadding="0" cellspacing="0"><tr><td
         style="background:rgba(255,255,255,0.14);border-radius:20px;padding:5px 14px;font-family:${MONO_FONT};font-weight:700;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:#FFFFFF;"
       >${escapeHtml(opts.eyebrow)}</td></tr></table>
